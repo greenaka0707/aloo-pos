@@ -1,13 +1,14 @@
 .bottom-nav {
   position: fixed;
 
-  left: 0;
-  right: 0;
-  bottom: 0;
+  /* REVISI: Beri jarak sedikit dari kiri, kanan, dan bawah agar melayang dan radiusnya kelihatan */
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
 
-  height: 74px;
+  height: 68px; /* Sedikit dikompakkin agar skalanya lebih ideal */
 
-  background: rgba(255,255,255,0.95);
+  background: rgba(255, 255, 255, 0.95);
 
   backdrop-filter: blur(16px);
 
@@ -15,10 +16,19 @@
   align-items: center;
   justify-content: space-around;
 
-  border-top:
-    1px solid var(--border);
+  /* REVISI: Tambahkan border-radius tumpul di semua sudut */
+  border-radius: 20px;
 
-  padding-bottom: 8px;
+  /* REVISI: Ganti border-top dengan border tipis keliling atau shadow agar lengkungan rapi */
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+
+  /* REVISI: Sesuaikan padding karena tingginya sudah dikompakkin */
+  padding-bottom: 0;
+  
+  /* Supaya blur efeknya aman di dalam radius */
+  overflow: hidden; 
+  z-index: 999;
 }
 
 .nav-item {
@@ -31,7 +41,7 @@
   align-items: center;
   justify-content: center;
 
-  gap: 6px;
+  gap: 4px; /* Diperkecil dari 6px agar lebih proporsional */
 
   color: #9CA3AF;
 
