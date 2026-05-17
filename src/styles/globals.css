@@ -1,6 +1,8 @@
 @import "./variables.css";
 @import "./layout.css";
 @import "./bottom-nav.css";
+@import "./dashboard.css";
+
 
 * {
   margin: 0;
