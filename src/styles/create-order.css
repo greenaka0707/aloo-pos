@@ -169,15 +169,7 @@
   margin-bottom: 16px;
 }
 
-.product-info {
-  flex: 1;
-
-  min-width: 0;
-}
-
 .product-name {
-  display: block;
-
   font-size: 18px;
 
   font-weight: 700;
@@ -212,10 +204,10 @@
 }
 
 /* =========================
-   PRODUCT ROW
+   PRODUCT FORM
 ========================= */
 
-.product-row {
+.product-fields {
   display: grid;
 
   grid-template-columns: 1fr 1fr;
