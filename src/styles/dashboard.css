@@ -2,7 +2,9 @@
   display: flex;
   flex-direction: column;
 
-  gap: 28px;
+  gap: var(--space-xl);
+
+  padding-bottom: 120px;
 }
 
 /* =========================
@@ -16,58 +18,16 @@
   justify-content: space-between;
 }
 
-.dashboard-top h2 {
-  font-size: 24px;
-  font-weight: 700;
-
-  color: var(--text);
-}
-
 .dashboard-subtitle {
-  margin-top: 4px;
-
-  font-size: 14px;
-
-  color: var(--text-light);
-}
-
-.top-icon {
-  width: 44px;
-  height: 44px;
-
-  border: none;
-
-  border-radius: 14px;
-
-  background: rgba(255,255,255,0.85);
-
-  backdrop-filter: blur(12px);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  color: var(--orange);
-
-  box-shadow: var(--shadow);
-
-  border: 1px solid #F3F4F6;
+  margin-top: var(--space-xs);
 }
 
 /* =========================
-   BALANCE CARD
+   BALANCE
 ========================= */
 
 .balance-card {
-  background: white;
-
-  border-radius: 32px;
-
   padding: 24px;
-
-  box-shadow: var(--shadow);
-
-  border: 1px solid #F1F5F9;
 }
 
 .balance-head {
@@ -77,40 +37,21 @@
   justify-content: space-between;
 }
 
-.balance-label {
-  color: var(--text-light);
-
-  font-size: 15px;
-}
-
 .balance-value {
-  margin-top: 10px;
+  margin-top: 12px;
 
   font-size: 64px;
-  font-weight: 700;
+  font-weight: var(--font-bold);
 
-  line-height: 1;
+  line-height: var(--line-tight);
+
+  color: var(--text);
 }
 
 .balance-sub {
-  margin-top: 12px;
+  margin-top: 10px;
 
-  color: var(--text-light);
-
-  font-size: 15px;
-}
-
-.balance-badge {
-  background: var(--orange-soft);
-
-  color: var(--orange);
-
-  padding: 8px 12px;
-
-  border-radius: 999px;
-
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--text-md);
 }
 
 .balance-stats {
@@ -118,28 +59,30 @@
 
   padding-top: 20px;
 
-  border-top: 1px solid #F3F4F6;
+  border-top: 1px solid var(--border);
 
   display: grid;
 
   grid-template-columns:
     repeat(3, 1fr);
 
-  gap: 16px;
+  gap: var(--space-md);
 }
 
 .mini-stat strong {
   display: block;
 
-  font-size: 22px;
+  font-size: var(--text-2xl);
+
+  font-weight: var(--font-bold);
 }
 
 .mini-stat span {
-  margin-top: 4px;
-
   display: block;
 
-  font-size: 13px;
+  margin-top: 6px;
+
+  font-size: var(--text-sm);
 
   color: var(--text-light);
 }
@@ -149,15 +92,7 @@
 ========================= */
 
 .quick-actions {
-  background: white;
-
-  border-radius: 28px;
-
   padding: 20px;
-
-  box-shadow: var(--shadow);
-
-  border: 1px solid #F1F5F9;
 
   display: flex;
   justify-content: space-between;
@@ -176,26 +111,11 @@
 }
 
 .action-item span {
-  font-size: 14px;
+  font-size: var(--text-sm);
+
+  font-weight: var(--font-medium);
 
   color: var(--text);
-}
-
-.action-icon {
-  width: 56px;
-  height: 56px;
-
-  border-radius: 18px;
-
-  background: #FAFAFA;
-
-  border: 1px solid #F3F4F6;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  color: var(--orange);
 }
 
 /* =========================
@@ -209,17 +129,12 @@
   justify-content: space-between;
 }
 
-.section-title h3 {
-  font-size: 24px;
-}
-
 .see-all-btn {
-  border: none;
-  background: none;
+  height: 38px;
 
-  color: var(--text-light);
+  padding: 0 16px;
 
-  font-size: 15px;
+  border-radius: var(--radius-md);
 }
 
 /* =========================
@@ -230,21 +145,14 @@
   display: flex;
   flex-direction: column;
 
-  gap: 16px;
+  gap: 18px;
 }
 
 .activity-card {
-  background: white;
-
-  border-radius: 28px;
-
   padding: 20px;
 
-  box-shadow: var(--shadow);
-
-  border: 1px solid #F1F5F9;
-
   display: flex;
+
   align-items: center;
   justify-content: space-between;
 }
@@ -256,32 +164,10 @@
   gap: 16px;
 }
 
-.activity-icon {
-  width: 52px;
-  height: 52px;
-
-  border-radius: 18px;
-
-  background: var(--orange-soft);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  color: var(--orange);
-}
-
-.activity-left h4 {
-  font-size: 18px;
-  font-weight: 700;
-}
-
 .activity-left p {
   margin-top: 6px;
 
-  font-size: 14px;
-
-  color: var(--text-light);
+  font-size: var(--text-sm);
 }
 
 .activity-right {
@@ -291,43 +177,9 @@
 .activity-right strong {
   display: block;
 
-  font-size: 18px;
-}
+  margin-bottom: 10px;
 
-.status {
-  margin-top: 8px;
+  font-size: var(--text-lg);
 
-  display: inline-flex;
-
-  padding: 6px 10px;
-
-  border-radius: 999px;
-
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.status.processing {
-  background: #FEF3C7;
-
-  color: #D97706;
-}
-
-.status.ready {
-  background: #DCFCE7;
-
-  color: #16A34A;
-}
-
-/* =========================
-   ICON
-========================= */
-
-.top-icon svg,
-.action-icon svg,
-.activity-icon svg {
-  width: 22px;
-  height: 22px;
-
-  stroke-width: 2.2;
+  font-weight: var(--font-bold);
 }
