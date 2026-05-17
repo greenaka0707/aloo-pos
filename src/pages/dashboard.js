@@ -6,9 +6,15 @@ export function DashboardPage() {
 
       <div class="dashboard-top">
 
-        <h2>
-          Welcome Back
-        </h2>
+        <div>
+          <h2>
+            Welcome Back
+          </h2>
+
+          <p class="dashboard-subtitle">
+            aloo pos
+          </p>
+        </div>
 
         <button class="top-icon">
           <i data-lucide="bell"></i>
@@ -20,17 +26,46 @@ export function DashboardPage() {
 
       <div class="balance-card">
 
-        <p class="balance-label">
-          Pending Order
-        </p>
+        <div class="balance-head">
 
-        <div class="balance-value">
-          12
+          <div>
+            <p class="balance-label">
+              Pending Order
+            </p>
+
+            <div class="balance-value">
+              12
+            </div>
+
+            <p class="balance-sub">
+              Order menunggu produksi
+            </p>
+          </div>
+
+          <div class="balance-badge">
+            +3
+          </div>
+
         </div>
 
-        <p class="balance-sub">
-          Order menunggu produksi
-        </p>
+        <div class="balance-stats">
+
+          <div class="mini-stat">
+            <strong>5</strong>
+            <span>Diproses</span>
+          </div>
+
+          <div class="mini-stat">
+            <strong>3</strong>
+            <span>Ready</span>
+          </div>
+
+          <div class="mini-stat">
+            <strong>2</strong>
+            <span>Kirim</span>
+          </div>
+
+        </div>
 
       </div>
 
@@ -38,7 +73,7 @@ export function DashboardPage() {
 
       <div class="quick-actions">
 
-        <div class="action-item">
+        <button class="action-item">
 
           <div class="action-icon">
             <i data-lucide="plus"></i>
@@ -48,9 +83,9 @@ export function DashboardPage() {
             Order
           </span>
 
-        </div>
+        </button>
 
-        <div class="action-item">
+        <button class="action-item">
 
           <div class="action-icon">
             <i data-lucide="factory"></i>
@@ -60,9 +95,9 @@ export function DashboardPage() {
             Produksi
           </span>
 
-        </div>
+        </button>
 
-        <div class="action-item">
+        <button class="action-item">
 
           <div class="action-icon">
             <i data-lucide="package"></i>
@@ -72,9 +107,9 @@ export function DashboardPage() {
             Stok
           </span>
 
-        </div>
+        </button>
 
-        <div class="action-item">
+        <button class="action-item">
 
           <div class="action-icon">
             <i data-lucide="truck"></i>
@@ -84,7 +119,7 @@ export function DashboardPage() {
             Kirim
           </span>
 
-        </div>
+        </button>
 
       </div>
 
@@ -96,9 +131,9 @@ export function DashboardPage() {
           Aktivitas
         </h3>
 
-        <span>
+        <button class="see-all-btn">
           Lihat Semua
-        </span>
+        </button>
 
       </div>
 
@@ -108,13 +143,21 @@ export function DashboardPage() {
 
           <div class="activity-left">
 
-            <h4>
-              Kopi Giras 1:1
-            </h4>
+            <div class="activity-icon">
+              <i data-lucide="factory"></i>
+            </div>
 
-            <p>
-              Diproses • 50kg
-            </p>
+            <div>
+
+              <h4>
+                Kopi Giras 1:1
+              </h4>
+
+              <p>
+                Diproses • 50kg
+              </p>
+
+            </div>
 
           </div>
 
@@ -124,6 +167,10 @@ export function DashboardPage() {
               SO-001
             </strong>
 
+            <span class="status processing">
+              Diproses
+            </span>
+
           </div>
 
         </div>
@@ -132,13 +179,21 @@ export function DashboardPage() {
 
           <div class="activity-left">
 
-            <h4>
-              RB Robusta Grade A
-            </h4>
+            <div class="activity-icon">
+              <i data-lucide="truck"></i>
+            </div>
 
-            <p>
-              Ready Kirim • 20kg
-            </p>
+            <div>
+
+              <h4>
+                RB Robusta Grade A
+              </h4>
+
+              <p>
+                Ready Kirim • 20kg
+              </p>
+
+            </div>
 
           </div>
 
@@ -147,6 +202,10 @@ export function DashboardPage() {
             <strong>
               SO-002
             </strong>
+
+            <span class="status ready">
+              Ready
+            </span>
 
           </div>
 
