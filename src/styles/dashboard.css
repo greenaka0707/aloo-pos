@@ -1,0 +1,96 @@
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+
+  gap: 24px;
+}
+
+/* ====================
+   HEADER
+==================== */
+
+.dashboard-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.dashboard-header p {
+  margin-top: 4px;
+
+  color: var(--text-light);
+
+  font-size: 15px;
+}
+
+/* ====================
+   SUMMARY
+==================== */
+
+.summary-scroll {
+  display: flex;
+
+  gap: 16px;
+
+  overflow-x: auto;
+
+  padding-bottom: 4px;
+}
+
+.summary-card {
+  min-width: 180px;
+
+  background: white;
+
+  border-radius: var(--radius);
+
+  padding: 20px;
+
+  box-shadow: var(--shadow);
+}
+
+.summary-card h3 {
+  font-size: 14px;
+
+  color: var(--text-light);
+}
+
+.summary-card strong {
+  display: block;
+
+  margin-top: 12px;
+
+  font-size: 28px;
+}
+
+/* ====================
+   QUICK ACTION
+==================== */
+
+.quick-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 16px;
+}
+
+.quick-card {
+  background: white;
+
+  border-radius: var(--radius);
+
+  padding: 20px;
+
+  box-shadow: var(--shadow);
+
+  border: none;
+
+  text-align: left;
+}
+
+.quick-card h4 {
+  margin-top: 12px;
+
+  font-size: 16px;
+}
