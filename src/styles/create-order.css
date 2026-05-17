@@ -92,7 +92,7 @@
 }
 
 .input {
-  height: 50px;
+  height: 52px;
 
   padding: 0 16px;
 }
@@ -146,35 +146,23 @@
    PRODUCT ITEM
 ========================= */
 
-.product-item {
-  margin-top: 18px;
-
-  padding-top: 18px;
-
-  border-top: 1px solid var(--border);
-}
-
-/* =========================
-   PRODUCT HEADER
-========================= */
-
 .product-item-head {
   display: flex;
 
   align-items: center;
   justify-content: space-between;
 
-  gap: 12px;
+  gap: 14px;
 
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .product-name {
-  font-size: 18px;
+  font-size: 22px;
 
   font-weight: 700;
 
-  line-height: 1.3;
+  line-height: 1.2;
 
   color: var(--text);
 }
@@ -184,9 +172,9 @@
 ========================= */
 
 .delete-item-btn {
-  height: 36px;
+  height: 42px;
 
-  padding: 0 14px;
+  padding: 0 16px;
 
   border: 1px solid #FECACA;
 
@@ -194,11 +182,11 @@
 
   color: #DC2626;
 
-  border-radius: 10px;
+  border-radius: 12px;
 
-  font-size: 13px;
+  font-size: 14px;
 
-  font-weight: 600;
+  font-weight: 700;
 
   flex-shrink: 0;
 }
@@ -212,7 +200,7 @@
 
   grid-template-columns: 1fr 1fr;
 
-  gap: 12px;
+  gap: 14px;
 }
 
 /* =========================
@@ -225,25 +213,27 @@
   align-items: center;
   justify-content: space-between;
 
-  margin-top: 16px;
+  margin-top: 20px;
 
-  padding-top: 14px;
+  padding-top: 18px;
 
   border-top: 1px solid var(--border);
 }
 
 .product-subtotal span {
-  font-size: 14px;
+  font-size: 15px;
 
   color: var(--text-light);
 }
 
 .product-subtotal strong {
-  font-size: 16px;
+  font-size: 20px;
 
   font-weight: 700;
 
   color: var(--text);
+
+  line-height: 1;
 }
 
 /* =========================
@@ -262,7 +252,7 @@
 .production-alert {
   margin-top: 14px;
 
-  padding: 12px 14px;
+  padding: 14px 16px;
 
   border-radius: 14px;
 
@@ -286,7 +276,7 @@
 }
 
 .production-alert p {
-  font-size: 13px;
+  font-size: 14px;
 
   line-height: 1.5;
 
@@ -298,7 +288,7 @@
 ========================= */
 
 .bom-list {
-  margin-top: 16px;
+  margin-top: 18px;
 
   display: flex;
   flex-direction: column;
@@ -371,6 +361,10 @@
 .primary-action {
   flex: 2;
 }
+
+/* =========================
+   INPUT FIX
+========================= */
 
 input[type="date"] {
   appearance: none;
