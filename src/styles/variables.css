@@ -1,13 +1,19 @@
 :root {
   --primary: #111827;
 
-  --bg: #F3F4F6;
+  --bg: #F5F5F5;
   --card: #FFFFFF;
 
   --text: #111827;
   --text-light: #6B7280;
 
   --border: #E5E7EB;
+
+  --orange: #F97316;
+  --orange-soft: #FFF7ED;
+
+  --success: #22C55E;
+  --danger: #EF4444;
 
   --radius: 28px;
 
