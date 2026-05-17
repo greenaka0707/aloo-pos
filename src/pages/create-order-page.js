@@ -15,7 +15,7 @@ export function CreateOrderPage() {
 
         <div>
 
-          <h2 class="text-2xl font-bold">
+          <h2 class="text-xl font-bold">
             Create Order
           </h2>
 
@@ -50,21 +50,16 @@ export function CreateOrderPage() {
             Customer
           </label>
 
-          <button class="search-select">
+          <div class="search-input">
 
-            <div class="search-select-left">
+            <i data-lucide="search"></i>
 
-              <i data-lucide="search"></i>
+            <input
+              type="text"
+              placeholder="Cari customer..."
+            />
 
-              <span>
-                Cari customer
-              </span>
-
-            </div>
-
-            <i data-lucide="chevron-right"></i>
-
-          </button>
+          </div>
 
         </div>
 
@@ -78,7 +73,7 @@ export function CreateOrderPage() {
 
           <div>
 
-            <h3 class="text-lg font-bold">
+            <h3 class="text-base font-bold">
               Produk
             </h3>
 
@@ -92,7 +87,7 @@ export function CreateOrderPage() {
 
             <i data-lucide="plus"></i>
 
-            Tambah
+            <span>Tambah</span>
 
           </button>
 
@@ -104,11 +99,19 @@ export function CreateOrderPage() {
 
           <div class="product-top">
 
-            <div>
+            <div class="product-info">
 
-              <strong class="text-md font-bold">
-                Kopi Giras 1:1
-              </strong>
+              <div class="search-input product-search">
+
+                <i data-lucide="search"></i>
+
+                <input
+                  type="text"
+                  placeholder="Cari produk..."
+                  value="Kopi Giras 1:1"
+                />
+
+              </div>
 
               <p class="text-light text-sm">
                 Manufacturing Product
@@ -117,7 +120,7 @@ export function CreateOrderPage() {
             </div>
 
             <button class="delete-btn">
-              <i data-lucide="trash-2"></i>
+              Hapus
             </button>
 
           </div>
@@ -160,7 +163,7 @@ export function CreateOrderPage() {
               Subtotal
             </span>
 
-            <strong class="text-md font-bold">
+            <strong class="text-base font-bold">
               Rp 1.250.000
             </strong>
 
@@ -178,7 +181,7 @@ export function CreateOrderPage() {
 
           <div>
 
-            <h3 class="text-lg font-bold">
+            <h3 class="text-base font-bold">
               Produksi Dibutuhkan
             </h3>
 
@@ -244,7 +247,7 @@ export function CreateOrderPage() {
             Subtotal
           </span>
 
-          <strong class="font-bold">
+          <strong class="text-base font-bold">
             Rp 1.250.000
           </strong>
 
@@ -256,7 +259,7 @@ export function CreateOrderPage() {
             Diskon
           </span>
 
-          <strong class="font-bold">
+          <strong class="text-base font-bold">
             Rp 0
           </strong>
 
@@ -300,7 +303,7 @@ export function CreateOrderPage() {
             Sisa
           </span>
 
-          <strong class="font-bold">
+          <strong class="text-base font-bold">
             Rp 1.250.000
           </strong>
 
