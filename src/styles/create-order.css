@@ -49,10 +49,11 @@
   gap: 4px; /* Diperkecil dari 6px */
 }
 
-/* Mengatur jarak antar form vertikal utama agar tidak merusak grid horizontal */
-.create-order-page > .card > .form-group + .form-group,
+/* REVISI SELECTOR: Menyesuaikan dengan class gabungan .card.create-card di HTML 
+   agar form berurutan vertikal dapet jarak pas, tanpa merusak grid samping */
+.create-order-page > .create-card > .form-group + .form-group,
 .create-order-page > .form-group + .form-group {
-  margin-top: 12px; /* Lebih kompak dari sebelumya yang 16px */
+  margin-top: 12px;
 }
 
 .form-label {
@@ -70,7 +71,9 @@
   color: var(--text);
   outline: none;
   transition: var(--transition);
-  font-size: 15px; /* Sedikit diturunkan dari 16px agar teks pas */
+  
+  /* FIX AUTO-ZOOM iOS: Wajib minimal 16px agar browser tidak melakukan zoom otomatis */
+  font-size: 16px !important; 
   box-sizing: border-box; /* Mengunci total height input */
 }
 
@@ -90,6 +93,8 @@
 .input::placeholder,
 .textarea::placeholder {
   color: #9CA3AF;
+  /* REVISI UX: Ukuran placeholder dikecilkan sedikit agar kotak tidak terlihat penuh */
+  font-size: 14px; 
 }
 
 .input:focus,
@@ -301,4 +306,6 @@ input[type="number"]::-webkit-inner-spin-button {
 
 input[type="number"] {
   appearance: textfield;
+  /* FIX AUTO-ZOOM TAMBAHAN: Memastikan tipe number murni tetap terkunci di 16px */
+  font-size: 16px !important; 
 }
