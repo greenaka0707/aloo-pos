@@ -15,7 +15,7 @@ export function CreateOrderPage() {
 
         <div>
 
-          <h2 class="text-xl font-bold">
+          <h2 class="text-2xl font-bold">
             Create Order
           </h2>
 
@@ -68,7 +68,7 @@ export function CreateOrderPage() {
 
           <div>
 
-            <h3 class="text-base font-bold">
+            <h3 class="text-lg font-bold">
               Produk
             </h3>
 
@@ -82,40 +82,41 @@ export function CreateOrderPage() {
 
             <i data-lucide="plus"></i>
 
-            <span>Tambah</span>
+            Tambah
 
           </button>
 
         </div>
 
-        <!-- ITEM -->
+        <!-- SEARCH -->
 
-        <div class="product-item-card">
+        <div class="form-group">
 
-          <div class="product-top">
+          <input
+            type="text"
+            class="input"
+            placeholder="Cari produk..."
+          />
 
-            <div class="product-info">
+        </div>
 
-              <input
-                type="text"
-                class="input"
-                placeholder="Cari produk..."
-                value="Kopi Giras 1:1"
-              />
+        <!-- PRODUCT ITEM -->
 
-              <p class="text-light text-sm">
-                Manufacturing Product
-              </p>
+        <div class="product-item">
 
-            </div>
+          <div class="product-item-head">
 
-            <button class="delete-btn">
+            <strong class="product-name">
+              Kopi Giras 1:1
+            </strong>
+
+            <button class="delete-item-btn">
               Hapus
             </button>
 
           </div>
 
-          <div class="product-inline">
+          <div class="product-row">
 
             <div class="form-group">
 
@@ -126,7 +127,7 @@ export function CreateOrderPage() {
               <input
                 type="number"
                 class="input"
-                placeholder="0"
+                value="50"
               />
 
             </div>
@@ -153,7 +154,7 @@ export function CreateOrderPage() {
               Subtotal
             </span>
 
-            <strong class="text-base font-bold">
+            <strong class="font-bold">
               Rp 1.250.000
             </strong>
 
@@ -171,7 +172,7 @@ export function CreateOrderPage() {
 
           <div>
 
-            <h3 class="text-base font-bold">
+            <h3 class="text-lg font-bold">
               Produksi Dibutuhkan
             </h3>
 
@@ -237,7 +238,7 @@ export function CreateOrderPage() {
             Subtotal
           </span>
 
-          <strong class="text-base font-bold">
+          <strong class="font-bold">
             Rp 1.250.000
           </strong>
 
@@ -246,10 +247,10 @@ export function CreateOrderPage() {
         <div class="summary-row">
 
           <span class="text-light text-sm">
-            Diskon
+            Bayar
           </span>
 
-          <strong class="text-base font-bold">
+          <strong class="font-bold">
             Rp 0
           </strong>
 
@@ -258,7 +259,7 @@ export function CreateOrderPage() {
         <div class="summary-row total-row">
 
           <span class="font-semibold">
-            Grand Total
+            Sisa
           </span>
 
           <strong class="text-lg font-bold">
@@ -284,18 +285,6 @@ export function CreateOrderPage() {
             class="input"
             placeholder="0"
           />
-
-        </div>
-
-        <div class="summary-row payment-row">
-
-          <span class="text-light text-sm">
-            Sisa
-          </span>
-
-          <strong class="text-base font-bold">
-            Rp 1.250.000
-          </strong>
 
         </div>
 
