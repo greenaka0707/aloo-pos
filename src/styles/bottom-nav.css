@@ -1,12 +1,12 @@
 .bottom-nav {
   position: fixed;
 
-  /* REVISI: Beri jarak sedikit dari kiri, kanan, dan bawah agar melayang dan radiusnya kelihatan */
-  left: 16px;
-  right: 16px;
-  bottom: 16px;
+  /* REVISI: Kembali nempel penuh ke samping kiri, kanan, dan bawah layar */
+  left: 0;
+  right: 0;
+  bottom: 0;
 
-  height: 68px; /* Sedikit dikompakkin agar skalanya lebih ideal */
+  height: 68px; /* Tetap kompak dan ideal */
 
   background: rgba(255, 255, 255, 0.95);
 
@@ -16,17 +16,19 @@
   align-items: center;
   justify-content: space-around;
 
-  /* REVISI: Tambahkan border-radius tumpul di semua sudut */
-  border-radius: 20px;
+  /* REVISI UTAMA: Hanya memberikan radius di sudut kiri atas dan kanan atas */
+  border-radius: 20px 20px 0 0;
 
-  /* REVISI: Ganti border-top dengan border tipis keliling atau shadow agar lengkungan rapi */
+  /* REVISI BORDER: Memberikan border di atas, kiri, dan kanan, tapi matikan bagian bawah */
   border: 1px solid var(--border);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  border-bottom: none; 
 
-  /* REVISI: Sesuaikan padding karena tingginya sudah dikompakkin */
+  /* Efek bayangan halus di atas navbar */
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
+
   padding-bottom: 0;
   
-  /* Supaya blur efeknya aman di dalam radius */
+  /* Memastikan efek blur dan sudut melengkung terpotong rapi */
   overflow: hidden; 
   z-index: 999;
 }
@@ -41,7 +43,7 @@
   align-items: center;
   justify-content: center;
 
-  gap: 4px; /* Diperkecil dari 6px agar lebih proporsional */
+  gap: 4px;
 
   color: #9CA3AF;
 
