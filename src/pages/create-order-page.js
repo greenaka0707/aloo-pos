@@ -150,14 +150,14 @@ export function CreateOrderPage() {
 
           <div class="product-subtotal">
 
-            <span class="text-light text-sm">
+            <span>
               Subtotal
             </span>
-
-            <strong class="font-bold">
+          
+            <strong>
               Rp 1.250.000
             </strong>
-
+          
           </div>
 
         </div>
