@@ -5,28 +5,52 @@
   right: 0;
   bottom: 0;
 
-  height: 72px;
+  height: 82px;
 
-  background: white;
+  background: rgba(255,255,255,0.95);
+
+  backdrop-filter: blur(16px);
 
   display: flex;
   align-items: center;
   justify-content: space-around;
 
   border-top:
-    1px solid #E2E8F0;
+    1px solid var(--border);
+
+  padding-bottom: 12px;
 }
 
 .nav-item {
   border: none;
   background: none;
 
-  font-size: 14px;
+  display: flex;
+  flex-direction: column;
 
-  color: #64748B;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  color: var(--text-light);
+
+  min-width: 60px;
+}
+
+.nav-item span {
+  font-size: 11px;
+}
+
+.nav-item svg {
+  width: 22px;
+  height: 22px;
+
+  stroke-width: 2.2;
 }
 
 .nav-item.active {
-  color: #0F766E;
+  color: var(--orange);
+
   font-weight: 600;
 }
