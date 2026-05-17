@@ -1,7 +1,7 @@
-import { DashboardPage } from "../pages/dashboard";
-import { OrderListPage } from "../pages/order-list-page";
-import { OrderDetailPage } from "../pages/order-detail-page";
-import { CreateOrderPage } from "../pages/create-order-page";
+import { DashboardPage } from "../pages/dashboard.js";
+import { OrderListPage } from "../pages/order-list-page.js";
+import { OrderDetailPage } from "../pages/order-detail-page.js";
+import { CreateOrderPage } from "../pages/create-order-page.js";
 
 export function renderRoute(route) {
 
