@@ -7,7 +7,7 @@ export function OrderDetailPage() {
       <div class="detail-header">
 
         <button
-          class="back-btn"
+          class="btn-icon"
           onclick="window.navigate('order')"
         >
           <i data-lucide="arrow-left"></i>
@@ -15,11 +15,11 @@ export function OrderDetailPage() {
 
         <div class="detail-header-text">
 
-          <h2>
+          <h2 class="text-3xl font-bold">
             SO-001
           </h2>
 
-          <p>
+          <p class="text-light text-md">
             Sales Order Detail
           </p>
 
@@ -29,21 +29,21 @@ export function OrderDetailPage() {
 
       <!-- STATUS -->
 
-      <div class="detail-status-card">
+      <div class="card detail-status-card">
 
         <div>
 
-          <span class="detail-status-label">
+          <span class="text-light text-sm">
             Status
           </span>
 
-          <h3>
+          <h3 class="text-2xl font-bold detail-status-title">
             Pending Produksi
           </h3>
 
         </div>
 
-        <span class="status pending">
+        <span class="badge badge-warning">
           Pending
         </span>
 
@@ -51,13 +51,15 @@ export function OrderDetailPage() {
 
       <!-- CUSTOMER -->
 
-      <div class="detail-card">
+      <div class="card detail-card">
 
         <div class="card-title">
 
-          <i data-lucide="user"></i>
+          <div class="icon-box">
+            <i data-lucide="user"></i>
+          </div>
 
-          <h3>
+          <h3 class="text-xl font-bold">
             Customer
           </h3>
 
@@ -66,18 +68,39 @@ export function OrderDetailPage() {
         <div class="detail-info">
 
           <div class="info-item">
-            <span>Nama</span>
-            <strong>PT Kopi Nusantara</strong>
+
+            <span class="text-light text-sm">
+              Nama
+            </span>
+
+            <strong class="text-lg font-bold">
+              PT Kopi Nusantara
+            </strong>
+
           </div>
 
           <div class="info-item">
-            <span>Telepon</span>
-            <strong>08123456789</strong>
+
+            <span class="text-light text-sm">
+              Telepon
+            </span>
+
+            <strong class="text-lg font-bold">
+              08123456789
+            </strong>
+
           </div>
 
           <div class="info-item">
-            <span>Alamat</span>
-            <strong>Surabaya</strong>
+
+            <span class="text-light text-sm">
+              Alamat
+            </span>
+
+            <strong class="text-lg font-bold">
+              Surabaya
+            </strong>
+
           </div>
 
         </div>
@@ -86,13 +109,15 @@ export function OrderDetailPage() {
 
       <!-- PRODUCT -->
 
-      <div class="detail-card">
+      <div class="card detail-card">
 
         <div class="card-title">
 
-          <i data-lucide="package"></i>
+          <div class="icon-box">
+            <i data-lucide="package"></i>
+          </div>
 
-          <h3>
+          <h3 class="text-xl font-bold">
             Produk
           </h3>
 
@@ -102,17 +127,17 @@ export function OrderDetailPage() {
 
           <div>
 
-            <strong>
+            <strong class="text-xl font-bold">
               Kopi Giras 1:1
             </strong>
 
-            <p>
+            <p class="text-light text-md product-subtitle">
               Qty 50kg
             </p>
 
           </div>
 
-          <span class="product-badge">
+          <span class="badge badge-primary">
             Manufacturing
           </span>
 
@@ -122,13 +147,15 @@ export function OrderDetailPage() {
 
       <!-- BOM -->
 
-      <div class="detail-card">
+      <div class="card detail-card">
 
         <div class="card-title">
 
-          <i data-lucide="factory"></i>
+          <div class="icon-box">
+            <i data-lucide="factory"></i>
+          </div>
 
-          <h3>
+          <h3 class="text-xl font-bold">
             Kebutuhan Produksi
           </h3>
 
@@ -138,11 +165,11 @@ export function OrderDetailPage() {
 
           <div class="bom-item">
 
-            <span>
+            <span class="text-light text-md">
               RB Robusta Grade A
             </span>
 
-            <strong>
+            <strong class="text-lg font-bold">
               25kg
             </strong>
 
@@ -150,11 +177,11 @@ export function OrderDetailPage() {
 
           <div class="bom-item">
 
-            <span>
+            <span class="text-light text-md">
               Jagung
             </span>
 
-            <strong>
+            <strong class="text-lg font-bold">
               25kg
             </strong>
 
@@ -166,13 +193,15 @@ export function OrderDetailPage() {
 
       <!-- TIMELINE -->
 
-      <div class="detail-card">
+      <div class="card detail-card">
 
         <div class="card-title">
 
-          <i data-lucide="clock-3"></i>
+          <div class="icon-box">
+            <i data-lucide="clock-3"></i>
+          </div>
 
-          <h3>
+          <h3 class="text-xl font-bold">
             Timeline
           </h3>
 
@@ -185,13 +214,15 @@ export function OrderDetailPage() {
             <div class="timeline-dot"></div>
 
             <div>
-              <strong>
+
+              <strong class="font-bold">
                 Order Dibuat
               </strong>
 
-              <p>
+              <p class="text-light text-sm">
                 15 Mei 2026
               </p>
+
             </div>
 
           </div>
@@ -201,13 +232,15 @@ export function OrderDetailPage() {
             <div class="timeline-dot"></div>
 
             <div>
-              <strong>
+
+              <strong class="font-bold">
                 Menunggu Produksi
               </strong>
 
-              <p>
+              <p class="text-light text-sm">
                 Pending
               </p>
+
             </div>
 
           </div>
@@ -217,13 +250,15 @@ export function OrderDetailPage() {
             <div class="timeline-dot"></div>
 
             <div>
-              <strong>
+
+              <strong class="font-bold">
                 Produksi
               </strong>
 
-              <p>
+              <p class="text-light text-sm">
                 Belum dimulai
               </p>
+
             </div>
 
           </div>
@@ -233,13 +268,15 @@ export function OrderDetailPage() {
             <div class="timeline-dot"></div>
 
             <div>
-              <strong>
+
+              <strong class="font-bold">
                 Pengiriman
               </strong>
 
-              <p>
+              <p class="text-light text-sm">
                 Menunggu
               </p>
+
             </div>
 
           </div>
@@ -252,15 +289,15 @@ export function OrderDetailPage() {
 
       <div class="detail-actions">
 
-        <button class="secondary-btn">
+        <button class="btn btn-secondary action-btn">
           Void
         </button>
 
-        <button class="secondary-btn">
+        <button class="btn btn-secondary action-btn">
           Edit
         </button>
 
-        <button class="primary-btn">
+        <button class="btn btn-primary action-btn primary-action">
           Mulai Produksi
         </button>
 
