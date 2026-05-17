@@ -102,75 +102,73 @@ export function CreateOrderPage() {
 
         <!-- PRODUCT ITEM -->
 
-        <div class="product-item">
+<div class="product-item">
 
-          <div class="product-item-head">
+  <!-- TOP -->
 
-            <div class="product-info">
+  <div class="product-item-head">
 
-              <strong class="product-name">
-                Kopi Giras 1:1
-              </strong>
+    <strong class="product-name">
+      Kopi Giras 1:1
+    </strong>
 
-            </div>
+    <button class="delete-item-btn">
+      Hapus
+    </button>
 
-            <button class="delete-item-btn">
-              Hapus
-            </button>
+  </div>
 
-          </div>
+  <!-- FORM -->
 
-          <!-- INLINE FORM -->
+  <div class="product-fields">
 
-          <div class="product-row">
+    <div class="form-group">
 
-            <div class="form-group">
+      <label class="form-label">
+        Qty
+      </label>
 
-              <label class="form-label">
-                Qty
-              </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        class="input"
+        value="50"
+      />
 
-              <input
-                type="text"
-                inputmode="numeric"
-                class="input"
-                value="50"
-              />
+    </div>
 
-            </div>
+    <div class="form-group">
 
-            <div class="form-group">
+      <label class="form-label">
+        Harga
+      </label>
 
-              <label class="form-label">
-                Harga
-              </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        class="input"
+        value="25000"
+      />
 
-              <input
-                type="text"
-                inputmode="numeric"
-                class="input"
-                value="25000"
-              />
+    </div>
 
-            </div>
+  </div>
 
-          </div>
+  <!-- SUBTOTAL -->
 
-          <!-- SUBTOTAL -->
+  <div class="product-subtotal">
 
-          <div class="product-subtotal">
+    <span>
+      Subtotal
+    </span>
 
-            <span>
-              Subtotal
-            </span>
+    <strong>
+      Rp 1.250.000
+    </strong>
 
-            <strong>
-              Rp 1.250.000
-            </strong>
+  </div>
 
-          </div>
-
-        </div>
+</div>
 
       </div>
 
