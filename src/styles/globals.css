@@ -1,10 +1,14 @@
-@import "./components.css";
 @import "./variables.css";
+@import "./utilities.css";
 @import "./layout.css";
-@import "./bottom-nav.css";
+@import "./components.css";
+
 @import "./dashboard.css";
 @import "./order.css";
-@import "./order-detail.css";
+@import "./detail.css";
+@import "./create-order.css";
+
+@import "./bottom-nav.css";
 
 * {
   margin: 0;
