@@ -15,52 +15,31 @@ export function CreateOrderPage() {
 
         <div>
 
-          <h2 class="text-3xl font-bold">
+          <h2 class="text-2xl font-bold">
             Create Order
           </h2>
 
-          <p class="text-light text-md">
-            Manufacturing sales order
+          <p class="text-light text-sm">
+            Sales order manufacturing
           </p>
 
         </div>
 
       </div>
 
-      <!-- CUSTOMER -->
+      <!-- ORDER INFO -->
 
       <div class="card create-card">
 
-        <div class="section-head">
-
-          <div class="icon-box">
-            <i data-lucide="user"></i>
-          </div>
-
-          <div>
-
-            <h3 class="text-xl font-bold">
-              Customer
-            </h3>
-
-            <p class="text-light text-sm">
-              Informasi customer
-            </p>
-
-          </div>
-
-        </div>
-
         <div class="form-group">
 
           <label class="form-label">
-            Nama Customer
+            Tanggal
           </label>
 
           <input
+            type="date"
             class="input"
-            type="text"
-            placeholder="Masukkan customer"
           />
 
         </div>
@@ -68,14 +47,24 @@ export function CreateOrderPage() {
         <div class="form-group">
 
           <label class="form-label">
-            Nomor Telepon
+            Customer
           </label>
 
-          <input
-            class="input"
-            type="text"
-            placeholder="08xxxxxxxxxx"
-          />
+          <button class="search-select">
+
+            <div class="search-select-left">
+
+              <i data-lucide="search"></i>
+
+              <span>
+                Cari customer
+              </span>
+
+            </div>
+
+            <i data-lucide="chevron-right"></i>
+
+          </button>
 
         </div>
 
@@ -87,81 +76,93 @@ export function CreateOrderPage() {
 
         <div class="section-head">
 
-          <div class="icon-box">
-            <i data-lucide="package"></i>
-          </div>
-
           <div>
 
-            <h3 class="text-xl font-bold">
+            <h3 class="text-lg font-bold">
               Produk
             </h3>
 
             <p class="text-light text-sm">
-              Pilih produk penjualan
+              Tambahkan item penjualan
             </p>
 
           </div>
 
-        </div>
+          <button class="btn btn-soft add-item-btn">
 
-        <div class="form-group">
+            <i data-lucide="plus"></i>
 
-          <label class="form-label">
-            Produk
-          </label>
+            Tambah
 
-          <select class="input">
-
-            <option>
-              Pilih Produk
-            </option>
-
-            <option>
-              Kopi Giras 1:1
-            </option>
-
-            <option>
-              RB Robusta Grade A
-            </option>
-
-            <option>
-              Arabika Flores
-            </option>
-
-          </select>
+          </button>
 
         </div>
 
-        <div class="qty-grid">
+        <!-- ITEM -->
 
-          <div class="form-group">
+        <div class="product-item-card">
 
-            <label class="form-label">
-              Qty
-            </label>
+          <div class="product-top">
 
-            <input
-              class="input"
-              type="number"
-              placeholder="0"
-            />
+            <div>
+
+              <strong class="text-md font-bold">
+                Kopi Giras 1:1
+              </strong>
+
+              <p class="text-light text-sm">
+                Manufacturing Product
+              </p>
+
+            </div>
+
+            <button class="delete-btn">
+              <i data-lucide="trash-2"></i>
+            </button>
 
           </div>
 
-          <div class="form-group">
+          <div class="product-grid">
 
-            <label class="form-label">
-              Unit
-            </label>
+            <div class="form-group">
 
-            <select class="input">
+              <label class="form-label">
+                Qty
+              </label>
 
-              <option>
-                KG
-              </option>
+              <input
+                type="number"
+                class="input"
+                placeholder="0"
+              />
 
-            </select>
+            </div>
+
+            <div class="form-group">
+
+              <label class="form-label">
+                Harga
+              </label>
+
+              <input
+                type="number"
+                class="input"
+                value="25000"
+              />
+
+            </div>
+
+          </div>
+
+          <div class="product-subtotal">
+
+            <span class="text-light text-sm">
+              Subtotal
+            </span>
+
+            <strong class="text-md font-bold">
+              Rp 1.250.000
+            </strong>
 
           </div>
 
@@ -169,63 +170,37 @@ export function CreateOrderPage() {
 
       </div>
 
-      <!-- STATUS PREVIEW -->
+      <!-- PRODUCTION -->
 
-      <div class="card create-card">
+      <div class="card create-card production-card">
 
-        <div class="preview-head">
+        <div class="production-head">
 
           <div>
 
-            <h3 class="text-xl font-bold">
-              Status Produksi
+            <h3 class="text-lg font-bold">
+              Produksi Dibutuhkan
             </h3>
 
             <p class="text-light text-sm">
-              Analisa otomatis system
+              Auto manufacturing analysis
             </p>
 
           </div>
 
           <span class="badge badge-warning">
-            Perlu Produksi
+            Diproses
           </span>
 
         </div>
 
-        <div class="preview-alert">
+        <div class="production-alert">
 
           <i data-lucide="factory"></i>
 
           <p>
-            Produk membutuhkan proses manufacturing
+            Stock produk tidak mencukupi dan perlu produksi
           </p>
-
-        </div>
-
-      </div>
-
-      <!-- BOM -->
-
-      <div class="card create-card">
-
-        <div class="section-head">
-
-          <div class="icon-box">
-            <i data-lucide="flask-conical"></i>
-          </div>
-
-          <div>
-
-            <h3 class="text-xl font-bold">
-              Kebutuhan Produksi
-            </h3>
-
-            <p class="text-light text-sm">
-              Auto generate BOM
-            </p>
-
-          </div>
 
         </div>
 
@@ -233,41 +208,25 @@ export function CreateOrderPage() {
 
           <div class="bom-item">
 
-            <div>
-
-              <strong class="text-lg font-bold">
-                RB Robusta Grade A
-              </strong>
-
-              <p class="text-light text-sm">
-                Bahan utama
-              </p>
-
-            </div>
-
-            <span class="badge badge-primary">
-              25kg
+            <span class="text-sm">
+              RB Robusta Grade A
             </span>
+
+            <strong class="text-sm font-bold">
+              25kg
+            </strong>
 
           </div>
 
           <div class="bom-item">
 
-            <div>
-
-              <strong class="text-lg font-bold">
-                Jagung
-              </strong>
-
-              <p class="text-light text-sm">
-                Campuran
-              </p>
-
-            </div>
-
-            <span class="badge badge-primary">
-              25kg
+            <span class="text-sm">
+              Jagung
             </span>
+
+            <strong class="text-sm font-bold">
+              25kg
+            </strong>
 
           </div>
 
@@ -281,25 +240,88 @@ export function CreateOrderPage() {
 
         <div class="summary-row">
 
-          <span class="text-light">
-            Total Qty
+          <span class="text-light text-sm">
+            Subtotal
           </span>
 
-          <strong class="text-lg font-bold">
-            50kg
+          <strong class="font-bold">
+            Rp 1.250.000
           </strong>
 
         </div>
 
         <div class="summary-row">
 
-          <span class="text-light">
-            Estimasi Produksi
+          <span class="text-light text-sm">
+            Diskon
+          </span>
+
+          <strong class="font-bold">
+            Rp 0
+          </strong>
+
+        </div>
+
+        <div class="summary-row total-row">
+
+          <span class="font-semibold">
+            Grand Total
           </span>
 
           <strong class="text-lg font-bold">
-            2 Jam
+            Rp 1.250.000
           </strong>
+
+        </div>
+
+      </div>
+
+      <!-- PAYMENT -->
+
+      <div class="card create-card">
+
+        <div class="form-group">
+
+          <label class="form-label">
+            Bayar
+          </label>
+
+          <input
+            type="number"
+            class="input"
+            placeholder="0"
+          />
+
+        </div>
+
+        <div class="summary-row payment-row">
+
+          <span class="text-light text-sm">
+            Sisa
+          </span>
+
+          <strong class="font-bold">
+            Rp 1.250.000
+          </strong>
+
+        </div>
+
+      </div>
+
+      <!-- NOTE -->
+
+      <div class="card create-card">
+
+        <div class="form-group">
+
+          <label class="form-label">
+            Catatan
+          </label>
+
+          <textarea
+            class="textarea"
+            placeholder="Tambahkan catatan..."
+          ></textarea>
 
         </div>
 
@@ -314,7 +336,7 @@ export function CreateOrderPage() {
         </button>
 
         <button class="btn btn-primary action-btn primary-action">
-          Generate Order
+          Submit
         </button>
 
       </div>
