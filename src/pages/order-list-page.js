@@ -8,11 +8,11 @@ export function OrderListPage() {
 
         <div>
       
-          <h2>
+          <h2 class="text-3xl font-bold">
             Sales Order
           </h2>
-      
-          <p>
+          
+          <p class="text-light text-md page-subtitle">
             Manufacturing sales workflow
           </p>
       
