@@ -2,7 +2,7 @@
 @import "./layout.css";
 @import "./bottom-nav.css";
 @import "./dashboard.css";
-
+@import "./order.css";
 
 * {
   margin: 0;
