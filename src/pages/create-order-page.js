@@ -104,68 +104,73 @@ export function CreateOrderPage() {
 
         <div class="product-item">
 
-  <div class="product-item-head">
+          <div class="product-item-head">
 
-    <div class="product-info">
+            <div class="product-info">
 
-      <strong class="product-name">
-        Kopi Giras 1:1
-      </strong>
+              <strong class="product-name">
+                Kopi Giras 1:1
+              </strong>
 
-    </div>
+            </div>
 
-    <button class="delete-item-btn">
-      Hapus
-    </button>
+            <button class="delete-item-btn">
+              Hapus
+            </button>
 
-  </div>
+          </div>
 
-  <div class="product-row">
+          <!-- INLINE FORM -->
 
-    <div class="form-group">
+          <div class="product-row">
 
-      <label class="form-label">
-        Qty
-      </label>
+            <div class="form-group">
 
-      <input
-        type="number"
-        class="input"
-        value="50"
-      />
+              <label class="form-label">
+                Qty
+              </label>
 
-    </div>
+              <input
+                type="text"
+                inputmode="numeric"
+                class="input"
+                value="50"
+              />
 
-    <div class="form-group">
+            </div>
 
-      <label class="form-label">
-        Harga
-      </label>
+            <div class="form-group">
 
-      <input
-        type="text"
-        inputmode="numeric"
-        class="input"
-        value="25000"
-      />
+              <label class="form-label">
+                Harga
+              </label>
 
-    </div>
+              <input
+                type="text"
+                inputmode="numeric"
+                class="input"
+                value="25000"
+              />
 
-  </div>
+            </div>
 
-  <div class="product-subtotal">
+          </div>
 
-    <span>
-      Subtotal
-    </span>
+          <!-- SUBTOTAL -->
 
-    <strong>
-      Rp 1.250.000
-    </strong>
+          <div class="product-subtotal">
 
-  </div>
+            <span>
+              Subtotal
+            </span>
 
-</div>
+            <strong>
+              Rp 1.250.000
+            </strong>
+
+          </div>
+
+        </div>
 
       </div>
 
@@ -286,7 +291,8 @@ export function CreateOrderPage() {
           </label>
 
           <input
-            type="number"
+            type="text"
+            inputmode="numeric"
             class="input"
             placeholder="0"
           />
