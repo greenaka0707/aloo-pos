@@ -2,7 +2,8 @@
   display: flex;
   flex-direction: column;
 
-  gap: var(--space-xl);
+  /* REVISI: Mengurangi gap antar seksi utama (Header, Search, Filter, List) */
+  gap: 14px;
 
   padding-bottom: 120px;
 }
@@ -20,6 +21,7 @@
 
 .page-subtitle {
   margin-top: var(--space-xs);
+  font-size: 13px; /* Sedikit disesuaikan untuk skala mobile */
 }
 
 /* =========================
@@ -27,14 +29,16 @@
 ========================= */
 
 .search-box {
-  height: 50px;
+  /* REVISI: Dioptimalkan dari 50px ke 44px agar lebih sleek */
+  height: 44px;
 
-  padding: 0 16px;
+  padding: 0 14px;
 
   display: flex;
   align-items: center;
 
-  gap: 12px;
+  gap: 10px;
+  box-sizing: border-box;
 }
 
 .search-box svg {
@@ -52,7 +56,8 @@
 
   background: transparent;
 
-  font-size: var(--text-md);
+  /* REVISI: Ukuran font disesuaikan agar pas dengan height baru */
+  font-size: 15px;
 
   color: var(--text);
 }
@@ -68,7 +73,7 @@
 .filter-scroll {
   display: flex;
 
-  gap: 12px;
+  gap: 10px;
 
   overflow-x: auto;
 
@@ -82,11 +87,12 @@
 }
 
 .filter-chip {
-  height: 40px;
+  /* REVISI: Dari 40px diturunkan ke 34px (standar ukuran chip mobile) */
+  height: 34px;
 
   border: none;
 
-  padding: 0 18px;
+  padding: 0 14px;
 
   border-radius: var(--radius-full);
 
@@ -96,7 +102,7 @@
 
   color: var(--text-light);
 
-  font-size: var(--text-sm);
+  font-size: 12px; /* Dikecilkan dari text-sm agar chip terlihat proporsional */
 
   font-weight: var(--font-medium);
 
@@ -107,6 +113,7 @@
   background: var(--orange-soft);
 
   color: var(--orange);
+  border-color: transparent; /* Menghilangkan border abu saat aktif agar clean */
 }
 
 /* =========================
@@ -117,16 +124,18 @@
   display: flex;
   flex-direction: column;
 
-  gap: 18px;
+  /* REVISI: Merapatkan jarak antar kartu orderan */
+  gap: 12px;
 }
 
 .order-card {
-  padding: 22px;
+  /* REVISI TOTAL: Komponen internal dipersempit dari padding/gap 22px ke 14px */
+  padding: 14px;
 
   display: flex;
   flex-direction: column;
 
-  gap: 22px;
+  gap: 14px;
 }
 
 .order-top {
@@ -136,8 +145,13 @@
   justify-content: space-between;
 }
 
+.order-top h3 {
+  font-size: 16px; /* Memastikan ID Order (SO-001) terbaca tegas */
+}
+
 .order-top p {
-  margin-top: 6px;
+  margin-top: 4px;
+  font-size: 13px;
 }
 
 /* =========================
@@ -148,11 +162,23 @@
   display: flex;
   align-items: center;
 
-  gap: 16px;
+  gap: 12px; /* Dirapatkan sedikit */
+}
+
+/* Jika ada wrapper ikon cangkir kopi/produk di dalam list */
+.order-product .icon-wrapper,
+.order-product i {
+  width: 36px;
+  height: 36px;
+}
+
+.order-product h4 {
+  font-size: 14px;
 }
 
 .order-product p {
-  margin-top: 4px;
+  margin-top: 2px;
+  font-size: 12px;
 }
 
 /* =========================
@@ -166,30 +192,40 @@
   justify-content: space-between;
 }
 
-.detail-btn {
-  height: 38px;
+.order-footer span {
+  font-size: 13px; /* Ukuran tanggal di footer kiri */
+}
 
-  padding: 0 18px;
+.detail-btn {
+  /* REVISI: Dari 38px dikompakkin ke 34px agar seimbang dengan chip filter */
+  height: 34px;
+
+  padding: 0 14px;
+
+  font-size: 13px;
 
   border-radius: var(--radius-md);
 }
 
 /* =========================
-   FAB
+   FAB (Floating Action Button)
 ========================= */
 
 .fab-btn {
   position: fixed;
 
-  right: 20px;
-  bottom: 95px;
+  /* REVISI: Digeser sedikit ke kanan dan posisinya dinaikkan (bottom: 100px) 
+     supaya tidak tabrakan atau menutupi navigasi bawah model floating */
+  right: 16px;
+  bottom: 100px;
 
-  width: 58px;
-  height: 58px;
+  /* REVISI: Dibuat sedikit lebih ringkas dari 58px ke 52px agar tidak terlalu masif */
+  width: 52px;
+  height: 52px;
 
   border: none;
 
-  border-radius: 20px;
+  border-radius: 16px; /* Menyesuaikan ukuran box baru */
 
   background: var(--orange);
 
@@ -199,13 +235,13 @@
   align-items: center;
   justify-content: center;
 
-  box-shadow:
-    0 12px 30px rgba(249,115,22,0.35);
+  box-shadow: 0 8px 24px rgba(249,115,22,0.3);
+  z-index: 99; /* Pastikan berada di bawah bottom-nav tapi di atas list */
 }
 
 .fab-btn svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
 
   stroke-width: 2.2;
 }
