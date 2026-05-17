@@ -1,0 +1,190 @@
+.create-order-page {
+  display: flex;
+  flex-direction: column;
+
+  gap: var(--space-lg);
+
+  padding-bottom: 140px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.create-header {
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.create-card {
+  padding: 22px;
+}
+
+/* =========================
+   SECTION HEAD
+========================= */
+
+.section-head {
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+
+  margin-bottom: 24px;
+}
+
+/* =========================
+   FORM
+========================= */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.form-group + .form-group {
+  margin-top: 18px;
+}
+
+.form-label {
+  font-size: var(--text-sm);
+
+  font-weight: var(--font-semibold);
+
+  color: var(--text);
+}
+
+.qty-grid {
+  display: grid;
+
+  grid-template-columns:
+    1fr 110px;
+
+  gap: 16px;
+
+  margin-top: 18px;
+}
+
+/* =========================
+   PREVIEW
+========================= */
+
+.preview-head {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 16px;
+}
+
+.preview-alert {
+  margin-top: 20px;
+
+  padding: 16px;
+
+  border-radius: var(--radius-lg);
+
+  background: var(--orange-soft);
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+.preview-alert svg {
+  width: 20px;
+  height: 20px;
+
+  color: var(--orange);
+
+  flex-shrink: 0;
+}
+
+.preview-alert p {
+  font-size: var(--text-sm);
+
+  color: var(--orange);
+
+  font-weight: var(--font-medium);
+}
+
+/* =========================
+   BOM
+========================= */
+
+.bom-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 18px;
+}
+
+.bom-item {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+}
+
+/* =========================
+   SUMMARY
+========================= */
+
+.summary-row {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+}
+
+.summary-row + .summary-row {
+  margin-top: 18px;
+}
+
+/* =========================
+   ACTIONS
+========================= */
+
+.create-actions {
+  position: fixed;
+
+  left: 0;
+  right: 0;
+  bottom: 84px;
+
+  display: flex;
+
+  gap: 12px;
+
+  padding: 16px 20px;
+
+  background: rgba(255,255,255,0.92);
+
+  backdrop-filter: blur(20px);
+}
+
+.action-btn {
+  height: 54px;
+
+  border-radius: var(--radius-lg);
+}
+
+.primary-action {
+  flex: 2;
+}
+
+.action-btn:not(.primary-action) {
+  flex: 1;
+}
