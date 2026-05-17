@@ -60,7 +60,10 @@
   gap: 6px;
 }
 
-.form-group + .form-group {
+/* REVISI: Membatasi jarak margin agar hanya berlaku pada struktur form vertikal utama, 
+   tidak merusak komponen berjejer horizontal di dalam grid */
+.create-order-page > .card > .form-group + .form-group,
+.create-order-page > .form-group + .form-group {
   margin-top: 16px;
 }
 
@@ -89,12 +92,19 @@
   transition: var(--transition);
 
   font-size: 16px;
+
+  /* REVISI: Mengunci ukuran elemen agar padding tidak mendesak element keluar border */
+  box-sizing: border-box; 
 }
 
 .input {
   height: 52px;
 
   padding: 0 16px;
+
+  /* REVISI: Memaksa teks value tegak di tengah secara vertikal pada browser iOS/Android */
+  line-height: normal; 
+  display: block;
 }
 
 .textarea {
@@ -201,6 +211,12 @@
   grid-template-columns: 1fr 1fr;
 
   gap: 14px;
+}
+
+/* REVISI: Mematikan paksa margin-top liar dari selector sibling (+) 
+   khusus untuk area input Qty & Harga di dalam grid agar tetap lurus sejajar */
+.product-fields .form-group {
+  margin-top: 0 !important;
 }
 
 /* =========================
