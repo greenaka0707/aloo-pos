@@ -4,7 +4,7 @@
 
 @import "./dashboard.css";
 @import "./order.css";
-@import "./detail.css";
+@import "./order-detail.css";
 @import "./create-order.css";
 
 @import "./bottom-nav.css";
