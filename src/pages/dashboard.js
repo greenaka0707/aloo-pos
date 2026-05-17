@@ -7,16 +7,18 @@ export function DashboardPage() {
       <div class="dashboard-top">
 
         <div>
-          <h2>
+
+          <h2 class="text-3xl font-bold">
             Welcome Back
           </h2>
 
-          <p class="dashboard-subtitle">
+          <p class="text-light text-md dashboard-subtitle">
             aloo pos
           </p>
+
         </div>
 
-        <button class="top-icon">
+        <button class="btn-icon">
           <i data-lucide="bell"></i>
         </button>
 
@@ -24,12 +26,13 @@ export function DashboardPage() {
 
       <!-- BALANCE -->
 
-      <div class="balance-card">
+      <div class="card balance-card">
 
         <div class="balance-head">
 
           <div>
-            <p class="balance-label">
+
+            <p class="text-light text-lg">
               Pending Order
             </p>
 
@@ -37,12 +40,13 @@ export function DashboardPage() {
               12
             </div>
 
-            <p class="balance-sub">
+            <p class="text-light balance-sub">
               Order menunggu produksi
             </p>
+
           </div>
 
-          <div class="balance-badge">
+          <div class="badge badge-primary">
             +3
           </div>
 
@@ -71,11 +75,11 @@ export function DashboardPage() {
 
       <!-- QUICK ACTION -->
 
-      <div class="quick-actions">
+      <div class="card quick-actions">
 
         <button class="action-item">
 
-          <div class="action-icon">
+          <div class="icon-box">
             <i data-lucide="plus"></i>
           </div>
 
@@ -87,7 +91,7 @@ export function DashboardPage() {
 
         <button class="action-item">
 
-          <div class="action-icon">
+          <div class="icon-box">
             <i data-lucide="factory"></i>
           </div>
 
@@ -99,7 +103,7 @@ export function DashboardPage() {
 
         <button class="action-item">
 
-          <div class="action-icon">
+          <div class="icon-box">
             <i data-lucide="package"></i>
           </div>
 
@@ -111,7 +115,7 @@ export function DashboardPage() {
 
         <button class="action-item">
 
-          <div class="action-icon">
+          <div class="icon-box">
             <i data-lucide="truck"></i>
           </div>
 
@@ -127,11 +131,11 @@ export function DashboardPage() {
 
       <div class="section-title">
 
-        <h3>
+        <h3 class="text-2xl font-bold">
           Aktivitas
         </h3>
 
-        <button class="see-all-btn">
+        <button class="btn btn-soft see-all-btn">
           Lihat Semua
         </button>
 
@@ -139,21 +143,21 @@ export function DashboardPage() {
 
       <div class="activity-list">
 
-        <div class="activity-card">
+        <div class="card activity-card">
 
           <div class="activity-left">
 
-            <div class="activity-icon">
+            <div class="icon-box">
               <i data-lucide="factory"></i>
             </div>
 
             <div>
 
-              <h4>
+              <h4 class="font-bold text-xl">
                 Kopi Giras 1:1
               </h4>
 
-              <p>
+              <p class="text-light">
                 Diproses • 50kg
               </p>
 
@@ -167,7 +171,7 @@ export function DashboardPage() {
               SO-001
             </strong>
 
-            <span class="status processing">
+            <span class="badge badge-info">
               Diproses
             </span>
 
@@ -175,21 +179,21 @@ export function DashboardPage() {
 
         </div>
 
-        <div class="activity-card">
+        <div class="card activity-card">
 
           <div class="activity-left">
 
-            <div class="activity-icon">
+            <div class="icon-box">
               <i data-lucide="truck"></i>
             </div>
 
             <div>
 
-              <h4>
+              <h4 class="font-bold text-xl">
                 RB Robusta Grade A
               </h4>
 
-              <p>
+              <p class="text-light">
                 Ready Kirim • 20kg
               </p>
 
@@ -203,7 +207,7 @@ export function DashboardPage() {
               SO-002
             </strong>
 
-            <span class="status ready">
+            <span class="badge badge-success">
               Ready
             </span>
 
