@@ -3,23 +3,53 @@ export function BottomNav() {
     <nav class="bottom-nav">
 
       <button class="nav-item active">
-        Dashboard
+
+        <i data-lucide="layout-grid"></i>
+
+        <span>
+          Dashboard
+        </span>
+
       </button>
 
       <button class="nav-item">
-        Order
+
+        <i data-lucide="shopping-cart"></i>
+
+        <span>
+          Order
+        </span>
+
       </button>
 
       <button class="nav-item">
-        Produksi
+
+        <i data-lucide="factory"></i>
+
+        <span>
+          Produksi
+        </span>
+
       </button>
 
       <button class="nav-item">
-        Stok
+
+        <i data-lucide="package"></i>
+
+        <span>
+          Stok
+        </span>
+
       </button>
 
       <button class="nav-item">
-        Akun
+
+        <i data-lucide="user"></i>
+
+        <span>
+          Akun
+        </span>
+
       </button>
 
     </nav>
