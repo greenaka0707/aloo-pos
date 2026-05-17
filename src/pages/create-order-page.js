@@ -104,63 +104,67 @@ export function CreateOrderPage() {
 
         <div class="product-item">
 
-          <div class="product-item-head">
+  <div class="product-item-head">
 
-            <strong class="product-name">
-              Kopi Giras 1:1
-            </strong>
+    <div class="product-info">
 
-            <button class="delete-item-btn">
-              Hapus
-            </button>
+      <strong class="product-name">
+        Kopi Giras 1:1
+      </strong>
 
-          </div>
+    </div>
 
-          <div class="product-row">
+    <button class="delete-item-btn">
+      Hapus
+    </button>
 
-            <div class="form-group">
+  </div>
 
-              <label class="form-label">
-                Qty
-              </label>
+  <div class="product-row">
 
-              <input
-                type="number"
-                class="input"
-                value="50"
-              />
+    <div class="form-group">
 
-            </div>
+      <label class="form-label">
+        Qty
+      </label>
 
-            <div class="form-group">
+      <input
+        type="number"
+        class="input"
+        value="50"
+      />
 
-              <label class="form-label">
-                Harga
-              </label>
+    </div>
 
-              <input
-                type="number"
-                class="input"
-                value="25000"
-              />
+    <div class="form-group">
 
-            </div>
+      <label class="form-label">
+        Harga
+      </label>
 
-          </div>
+      <input
+        type="number"
+        class="input"
+        value="25000"
+      />
 
-          <div class="product-subtotal">
+    </div>
 
-            <span>
-              Subtotal
-            </span>
-          
-            <strong>
-              Rp 1.250.000
-            </strong>
-          
-          </div>
+  </div>
 
-        </div>
+  <div class="product-subtotal">
+
+    <span>
+      Subtotal
+    </span>
+
+    <strong>
+      Rp 1.250.000
+    </strong>
+
+  </div>
+
+</div>
 
       </div>
 
