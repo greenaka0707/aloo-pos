@@ -2,58 +2,127 @@ export function DashboardPage() {
   return `
     <section class="dashboard-page">
 
-      <!-- HEADER -->
+      <!-- TOP -->
 
-      <div class="dashboard-header">
-        <h1>
-          ENNA POS
-        </h1>
+      <div class="dashboard-top">
+        <h2>
+          Welcome Back
+        </h2>
 
-        <p>
-          Mobile Manufacturing POS
-        </p>
+        <div>
+          🔔
+        </div>
       </div>
 
-      <!-- SUMMARY -->
+      <!-- BALANCE -->
 
-      <div class="summary-scroll">
+      <div class="balance-card">
 
-        <div class="summary-card">
-          <h3>Pending Order</h3>
-          <strong>12</strong>
+        <p class="balance-label">
+          Pending Order
+        </p>
+
+        <div class="balance-value">
+          12
         </div>
 
-        <div class="summary-card">
-          <h3>Produksi</h3>
-          <strong>5</strong>
-        </div>
-
-        <div class="summary-card">
-          <h3>Ready Kirim</h3>
-          <strong>3</strong>
-        </div>
+        <p class="balance-sub">
+          Order menunggu produksi
+        </p>
 
       </div>
 
       <!-- QUICK ACTION -->
 
-      <div class="quick-grid">
+      <div class="quick-actions">
 
-        <button class="quick-card">
-          <h4>Order Baru</h4>
-        </button>
+        <div class="action-item">
+          <div class="action-icon">
+            +
+          </div>
 
-        <button class="quick-card">
-          <h4>Produksi</h4>
-        </button>
+          <span>Order</span>
+        </div>
 
-        <button class="quick-card">
-          <h4>Inventory</h4>
-        </button>
+        <div class="action-item">
+          <div class="action-icon">
+            ⚙️
+          </div>
 
-        <button class="quick-card">
-          <h4>Pengiriman</h4>
-        </button>
+          <span>Produksi</span>
+        </div>
+
+        <div class="action-item">
+          <div class="action-icon">
+            📦
+          </div>
+
+          <span>Stok</span>
+        </div>
+
+        <div class="action-item">
+          <div class="action-icon">
+            🚚
+          </div>
+
+          <span>Kirim</span>
+        </div>
+
+      </div>
+
+      <!-- ACTIVITY -->
+
+      <div class="section-title">
+        <h3>
+          Aktivitas
+        </h3>
+
+        <span>
+          Lihat Semua
+        </span>
+      </div>
+
+      <div class="activity-list">
+
+        <div class="activity-card">
+
+          <div class="activity-left">
+            <h4>
+              Kopi Giras 1:1
+            </h4>
+
+            <p>
+              Diproses • 50kg
+            </p>
+          </div>
+
+          <div class="activity-right">
+            <strong>
+              SO-001
+            </strong>
+          </div>
+
+        </div>
+
+        <div class="activity-card">
+
+          <div class="activity-left">
+            <h4>
+              RB Robusta Grade A
+            </h4>
+
+            <p>
+              Ready Kirim • 20kg
+            </p>
+          </div>
+
+          <div class="activity-right">
+            <strong>
+              SO-002
+            </strong>
+          </div>
+
+        </div>
 
       </div>
 
