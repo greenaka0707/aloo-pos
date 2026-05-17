@@ -9,88 +9,144 @@
    HEADER
 ==================== */
 
-.dashboard-header h1 {
-  font-size: 32px;
+.dashboard-top {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dashboard-top h2 {
+  font-size: 28px;
   font-weight: 700;
 }
 
-.dashboard-header p {
-  margin-top: 4px;
-
-  color: var(--text-light);
-
-  font-size: 15px;
-}
-
 /* ====================
-   SUMMARY
+   BALANCE CARD
 ==================== */
 
-.summary-scroll {
-  display: flex;
-
-  gap: 16px;
-
-  overflow-x: auto;
-
-  padding-bottom: 4px;
-}
-
-.summary-card {
-  min-width: 180px;
-
+.balance-card {
   background: white;
 
-  border-radius: var(--radius);
+  border-radius: 32px;
 
-  padding: 20px;
+  padding: 28px;
 
   box-shadow: var(--shadow);
 }
 
-.summary-card h3 {
-  font-size: 14px;
-
+.balance-label {
   color: var(--text-light);
+
+  font-size: 14px;
 }
 
-.summary-card strong {
-  display: block;
-
+.balance-value {
   margin-top: 12px;
 
-  font-size: 28px;
+  font-size: 42px;
+  font-weight: 700;
+}
+
+.balance-sub {
+  margin-top: 8px;
+
+  color: var(--text-light);
 }
 
 /* ====================
    QUICK ACTION
 ==================== */
 
-.quick-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(2, 1fr);
-
-  gap: 16px;
-}
-
-.quick-card {
+.quick-actions {
   background: white;
 
-  border-radius: var(--radius);
+  border-radius: 28px;
 
   padding: 20px;
 
   box-shadow: var(--shadow);
 
-  border: none;
-
-  text-align: left;
+  display: flex;
+  justify-content: space-between;
 }
 
-.quick-card h4 {
-  margin-top: 12px;
+.action-item {
+  display: flex;
+  flex-direction: column;
 
+  align-items: center;
+
+  gap: 10px;
+}
+
+.action-icon {
+  width: 58px;
+  height: 58px;
+
+  border-radius: 50%;
+
+  background: #F3F4F6;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 22px;
+}
+
+/* ====================
+   ACTIVITY
+==================== */
+
+.section-title {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-title h3 {
+  font-size: 20px;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+.activity-card {
+  background: white;
+
+  border-radius: 24px;
+
+  padding: 18px;
+
+  box-shadow: var(--shadow);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.activity-left h4 {
   font-size: 16px;
+}
+
+.activity-left p {
+  margin-top: 4px;
+
+  font-size: 13px;
+
+  color: var(--text-light);
+}
+
+.activity-right {
+  text-align: right;
+}
+
+.activity-right strong {
+  font-size: 20px;
 }
