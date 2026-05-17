@@ -1,0 +1,327 @@
+.detail-page {
+  display: flex;
+  flex-direction: column;
+
+  gap: 20px;
+
+  padding-bottom: 140px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.detail-header {
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+}
+
+.back-btn {
+  width: 46px;
+  height: 46px;
+
+  border: none;
+
+  border-radius: 16px;
+
+  background: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--text);
+
+  border: 1px solid #F3F4F6;
+
+  box-shadow: var(--shadow);
+}
+
+.detail-header-text h2 {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.detail-header-text p {
+  margin-top: 4px;
+
+  color: var(--text-light);
+
+  font-size: 14px;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.detail-status-card {
+  background: white;
+
+  border-radius: 28px;
+
+  padding: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border: 1px solid #F3F4F6;
+
+  box-shadow: var(--shadow);
+}
+
+.detail-status-label {
+  font-size: 14px;
+
+  color: var(--text-light);
+}
+
+.detail-status-card h3 {
+  margin-top: 8px;
+
+  font-size: 24px;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.detail-card {
+  background: white;
+
+  border-radius: 28px;
+
+  padding: 22px;
+
+  border: 1px solid #F3F4F6;
+
+  box-shadow: var(--shadow);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 20px;
+}
+
+.card-title svg {
+  width: 20px;
+  height: 20px;
+
+  color: var(--orange);
+}
+
+.card-title h3 {
+  font-size: 18px;
+}
+
+/* =========================
+   INFO
+========================= */
+
+.detail-info {
+  display: flex;
+  flex-direction: column;
+
+  gap: 18px;
+}
+
+.info-item span {
+  font-size: 13px;
+
+  color: var(--text-light);
+}
+
+.info-item strong {
+  display: block;
+
+  margin-top: 6px;
+
+  font-size: 16px;
+}
+
+/* =========================
+   PRODUCT
+========================= */
+
+.product-item {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+}
+
+.product-item strong {
+  font-size: 18px;
+}
+
+.product-item p {
+  margin-top: 6px;
+
+  color: var(--text-light);
+}
+
+.product-badge {
+  padding: 8px 12px;
+
+  border-radius: 999px;
+
+  background: var(--orange-soft);
+
+  color: var(--orange);
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* =========================
+   BOM
+========================= */
+
+.bom-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
+}
+
+.bom-item {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bom-item span {
+  color: var(--text-light);
+}
+
+.bom-item strong {
+  font-size: 16px;
+}
+
+/* =========================
+   TIMELINE
+========================= */
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+
+  gap: 22px;
+}
+
+.timeline-item {
+  display: flex;
+
+  gap: 14px;
+
+  opacity: 0.45;
+}
+
+.timeline-item.active {
+  opacity: 1;
+}
+
+.timeline-dot {
+  width: 12px;
+  height: 12px;
+
+  margin-top: 6px;
+
+  border-radius: 999px;
+
+  background: #D1D5DB;
+}
+
+.timeline-item.active .timeline-dot {
+  background: var(--orange);
+}
+
+.timeline-item strong {
+  font-size: 15px;
+}
+
+.timeline-item p {
+  margin-top: 4px;
+
+  font-size: 13px;
+
+  color: var(--text-light);
+}
+
+/* =========================
+   ACTIONS
+========================= */
+
+.detail-actions {
+  position: fixed;
+
+  left: 0;
+  right: 0;
+  bottom: 84px;
+
+  background: rgba(255,255,255,0.92);
+
+  backdrop-filter: blur(20px);
+
+  padding: 16px 20px;
+
+  display: flex;
+
+  gap: 12px;
+}
+
+.secondary-btn,
+.primary-btn {
+  height: 52px;
+
+  border: none;
+
+  border-radius: 18px;
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.secondary-btn {
+  flex: 1;
+
+  background: white;
+
+  color: var(--text);
+
+  border: 1px solid #E5E7EB;
+}
+
+.primary-btn {
+  flex: 2;
+
+  background: var(--orange);
+
+  color: white;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.status {
+  padding: 8px 14px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status.pending {
+  background: #FEF3C7;
+
+  color: #D97706;
+}
