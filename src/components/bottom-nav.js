@@ -1,8 +1,15 @@
-export function BottomNav() {
+export function BottomNav(active = "dashboard") {
   return `
     <nav class="bottom-nav">
 
-      <button class="nav-item active">
+      <button
+        class="nav-item ${
+          active === "dashboard"
+            ? "active"
+            : ""
+        }"
+        onclick="window.navigate('dashboard')"
+      >
 
         <i data-lucide="layout-grid"></i>
 
@@ -12,7 +19,14 @@ export function BottomNav() {
 
       </button>
 
-      <button class="nav-item">
+      <button
+        class="nav-item ${
+          active === "order"
+            ? "active"
+            : ""
+        }"
+        onclick="window.navigate('order')"
+      >
 
         <i data-lucide="shopping-cart"></i>
 
