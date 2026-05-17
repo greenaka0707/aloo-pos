@@ -200,7 +200,6 @@
 
   display: flex;
   align-items: center;
-  justify-content: center;
 
   flex-shrink: 0;
 }
@@ -236,15 +235,25 @@
   align-items: center;
   justify-content: space-between;
 
-  padding-top: 8px;
+  margin-top: 4px;
+
+  padding-top: 14px;
 
   border-top: 1px solid var(--border);
 }
 
+.product-subtotal span {
+  font-size: 14px;
+
+  color: var(--text-light);
+}
+
 .product-subtotal strong {
-  font-size: 16px;
+  font-size: 18px;
 
   line-height: 1;
+
+  text-align: right;
 }
 
 /* =========================
