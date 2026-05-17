@@ -3,8 +3,9 @@ import { OrderListPage } from "../pages/order-list-page";
 import { OrderDetailPage } from "../pages/order-detail-page";
 import { CreateOrderPage } from "../pages/create-order-page";
 
-export function renderPage(page) {
-  switch (page) {
+export function renderRoute(route) {
+
+  switch (route) {
 
     case "dashboard":
       return DashboardPage();
