@@ -1,5 +1,3 @@
-import { BottomNav } from "../components/bottom-nav";
-
 export function AppLayout(content) {
   return `
     <div class="app-layout">
@@ -8,7 +6,7 @@ export function AppLayout(content) {
         ${content}
       </main>
 
-      ${BottomNav()}
+      <div id="bottom-nav"></div>
 
     </div>
   `;
