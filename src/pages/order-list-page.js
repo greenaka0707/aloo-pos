@@ -119,9 +119,12 @@ export function OrderListPage() {
               15 Mei 2026
             </span>
 
-            <button class="detail-btn">
-              Detail
-            </button>
+            <button
+  class="detail-btn"
+  onclick="window.navigate('order-detail')"
+>
+  Detail
+</button>
 
           </div>
 
