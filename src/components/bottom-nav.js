@@ -56,16 +56,7 @@ export function BottomNav(active = "dashboard") {
 
       </button>
 
-      <button class="nav-item">
-
-        <i data-lucide="user"></i>
-
-        <span>
-          Akun
-        </span>
-
-      </button>
-
+      
     </nav>
   `;
 }
