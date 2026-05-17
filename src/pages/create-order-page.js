@@ -60,7 +60,7 @@ export function CreateOrderPage() {
 
       </div>
 
-      <!-- PRODUCT -->
+      <!-- PRODUCT SEARCH -->
 
       <div class="card create-card">
 
@@ -88,8 +88,6 @@ export function CreateOrderPage() {
 
         </div>
 
-        <!-- SEARCH -->
-
         <div class="form-group">
 
           <input
@@ -100,75 +98,69 @@ export function CreateOrderPage() {
 
         </div>
 
-        <!-- PRODUCT ITEM -->
+      </div>
 
-<div class="product-item">
+      <!-- PRODUCT ITEM -->
 
-  <!-- TOP -->
+      <div class="card create-card">
 
-  <div class="product-item-head">
+        <div class="product-item-head">
 
-    <strong class="product-name">
-      Kopi Giras 1:1
-    </strong>
+          <strong class="product-name">
+            Kopi Giras 1:1
+          </strong>
 
-    <button class="delete-item-btn">
-      Hapus
-    </button>
+          <button class="delete-item-btn">
+            Hapus
+          </button>
 
-  </div>
+        </div>
 
-  <!-- FORM -->
+        <div class="product-fields">
 
-  <div class="product-fields">
+          <div class="form-group">
 
-    <div class="form-group">
+            <label class="form-label">
+              Qty
+            </label>
 
-      <label class="form-label">
-        Qty
-      </label>
+            <input
+              type="text"
+              inputmode="numeric"
+              class="input"
+              value="50"
+            />
 
-      <input
-        type="text"
-        inputmode="numeric"
-        class="input"
-        value="50"
-      />
+          </div>
 
-    </div>
+          <div class="form-group">
 
-    <div class="form-group">
+            <label class="form-label">
+              Harga
+            </label>
 
-      <label class="form-label">
-        Harga
-      </label>
+            <input
+              type="text"
+              inputmode="numeric"
+              class="input"
+              value="25000"
+            />
 
-      <input
-        type="text"
-        inputmode="numeric"
-        class="input"
-        value="25000"
-      />
+          </div>
 
-    </div>
+        </div>
 
-  </div>
+        <div class="product-subtotal">
 
-  <!-- SUBTOTAL -->
+          <span>
+            Subtotal
+          </span>
 
-  <div class="product-subtotal">
+          <strong>
+            Rp 1.250.000
+          </strong>
 
-    <span>
-      Subtotal
-    </span>
-
-    <strong>
-      Rp 1.250.000
-    </strong>
-
-  </div>
-
-</div>
+        </div>
 
       </div>
 
