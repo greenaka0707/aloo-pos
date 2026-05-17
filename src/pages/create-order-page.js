@@ -50,16 +50,11 @@ export function CreateOrderPage() {
             Customer
           </label>
 
-          <div class="search-input">
-
-            <i data-lucide="search"></i>
-
-            <input
-              type="text"
-              placeholder="Cari customer..."
-            />
-
-          </div>
+          <input
+            type="text"
+            class="input"
+            placeholder="Cari customer..."
+          />
 
         </div>
 
@@ -101,17 +96,12 @@ export function CreateOrderPage() {
 
             <div class="product-info">
 
-              <div class="search-input product-search">
-
-                <i data-lucide="search"></i>
-
-                <input
-                  type="text"
-                  placeholder="Cari produk..."
-                  value="Kopi Giras 1:1"
-                />
-
-              </div>
+              <input
+                type="text"
+                class="input"
+                placeholder="Cari produk..."
+                value="Kopi Giras 1:1"
+              />
 
               <p class="text-light text-sm">
                 Manufacturing Product
@@ -125,7 +115,7 @@ export function CreateOrderPage() {
 
           </div>
 
-          <div class="product-grid">
+          <div class="product-inline">
 
             <div class="form-group">
 
