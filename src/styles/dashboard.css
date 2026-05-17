@@ -2,7 +2,8 @@
   display: flex;
   flex-direction: column;
 
-  gap: var(--space-xl);
+  /* Menurunkan gap antar seksi utama agar lebih rapat */
+  gap: 16px; 
 
   padding-bottom: 120px;
 }
@@ -20,6 +21,7 @@
 
 .dashboard-subtitle {
   margin-top: var(--space-xs);
+  font-size: 13px; /* Memastikan teks sub-header pas di mobile */
 }
 
 /* =========================
@@ -27,7 +29,8 @@
 ========================= */
 
 .balance-card {
-  padding: 24px;
+  /* REVISI: Dipangkas dari 24px ke 16px agar hemat ruang atas-bawah & kanan-kiri */
+  padding: 16px; 
 }
 
 .balance-head {
@@ -38,41 +41,44 @@
 }
 
 .balance-value {
-  margin-top: 12px;
+  /* REVISI: Dari 64px (kebesaran) diturunkan ke 32px-36px agar proporsional di layar HP */
+  margin-top: 8px;
 
-  font-size: 64px;
+  font-size: 34px; 
   font-weight: var(--font-bold);
 
   line-height: var(--line-tight);
 
   color: var(--text);
+  letter-spacing: -0.5px;
 }
 
 .balance-sub {
-  margin-top: 10px;
+  margin-top: 6px;
 
-  font-size: var(--text-md);
+  font-size: 13px; /* Sedikit disesuaikan agar serasi dengan nilai saldo */
 }
 
 .balance-stats {
-  margin-top: 24px;
+  /* REVISI: Dikompakkin margin dan padding-nya */
+  margin-top: 16px;
 
-  padding-top: 20px;
+  padding-top: 14px;
 
   border-top: 1px solid var(--border);
 
   display: grid;
 
-  grid-template-columns:
-    repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
 
-  gap: var(--space-md);
+  gap: 10px;
 }
 
 .mini-stat strong {
   display: block;
 
-  font-size: var(--text-2xl);
+  /* REVISI: Angka stat kecil diturunkan ukurannya agar tidak overflow di HP kecil */
+  font-size: 18px; 
 
   font-weight: var(--font-bold);
 }
@@ -80,9 +86,9 @@
 .mini-stat span {
   display: block;
 
-  margin-top: 6px;
+  margin-top: 4px;
 
-  font-size: var(--text-sm);
+  font-size: 11px; /* Sedikit dikecilkan untuk label stat kecil */
 
   color: var(--text-light);
 }
@@ -92,7 +98,8 @@
 ========================= */
 
 .quick-actions {
-  padding: 20px;
+  /* REVISI: Padding card menu cepat dikurangi */
+  padding: 14px 16px;
 
   display: flex;
   justify-content: space-between;
@@ -107,11 +114,19 @@
 
   align-items: center;
 
-  gap: 12px;
+  /* REVISI: Jarak ikon ke teks dirapatkan sedikit */
+  gap: 8px; 
+}
+
+/* Kontainer ikon di Quick Action (jika ada div lingkarannya, pastikan tingginya ideal) */
+.action-item i, 
+.action-item svg {
+  width: 22px;
+  height: 22px;
 }
 
 .action-item span {
-  font-size: var(--text-sm);
+  font-size: 12px; /* Diturunkan dari text-sm agar pas berjejer horizontal */
 
   font-weight: var(--font-medium);
 
@@ -127,12 +142,20 @@
 
   align-items: center;
   justify-content: space-between;
+  margin-top: 4px;
+}
+
+.section-title h3 {
+  font-size: 16px; /* Ukuran heading seksi yang ideal untuk mobile */
 }
 
 .see-all-btn {
-  height: 38px;
+  /* REVISI: Tombol "Lihat Semua" dibuat lebih tipis dan kompak */
+  height: 32px; 
 
-  padding: 0 16px;
+  padding: 0 12px;
+
+  font-size: 12px;
 
   border-radius: var(--radius-md);
 }
@@ -142,14 +165,13 @@
 ========================= */
 
 .activity-list {
-  display: flex;
-  flex-direction: column;
-
-  gap: 18px;
+  /* REVISI: Jarak antar baris aktivitas dirapatkan dari 18px ke 12px */
+  gap: 12px; 
 }
 
 .activity-card {
-  padding: 20px;
+  /* REVISI: Diperkecil dari 20px ke 14px */
+  padding: 14px; 
 
   display: flex;
 
@@ -161,13 +183,25 @@
   display: flex;
   align-items: center;
 
-  gap: 16px;
+  /* REVISI: Jarak antar ikon/avatar ke teks dirapatkan */
+  gap: 12px; 
+}
+
+/* Jika ada avatar/ikon bulat di sebelah kiri */
+.activity-left .icon-wrapper,
+.activity-left i {
+  width: 36px;
+  height: 36px;
+}
+
+.activity-left h4 {
+  font-size: 14px;
 }
 
 .activity-left p {
-  margin-top: 6px;
+  margin-top: 2px;
 
-  font-size: var(--text-sm);
+  font-size: 12px;
 }
 
 .activity-right {
@@ -177,9 +211,14 @@
 .activity-right strong {
   display: block;
 
-  margin-bottom: 10px;
+  margin-bottom: 2px;
 
-  font-size: var(--text-lg);
+  /* REVISI: Ukuran nominal/status di kanan disesuaikan */
+  font-size: 15px; 
 
   font-weight: var(--font-bold);
+}
+
+.activity-right span {
+  font-size: 11px;
 }
