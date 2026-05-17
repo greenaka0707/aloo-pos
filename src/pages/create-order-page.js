@@ -143,7 +143,8 @@ export function CreateOrderPage() {
       </label>
 
       <input
-        type="number"
+        type="text"
+        inputmode="numeric"
         class="input"
         value="25000"
       />
