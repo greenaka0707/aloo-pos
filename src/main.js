@@ -5,3 +5,5 @@ document.querySelector("#app").innerHTML =
   AppLayout(
     DashboardPage()
   );
+
+lucide.createIcons();
