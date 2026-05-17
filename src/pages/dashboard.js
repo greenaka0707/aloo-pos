@@ -5,13 +5,15 @@ export function DashboardPage() {
       <!-- TOP -->
 
       <div class="dashboard-top">
+
         <h2>
           Welcome Back
         </h2>
 
-        <div>
-          🔔
-        </div>
+        <button class="top-icon">
+          <i data-lucide="bell"></i>
+        </button>
+
       </div>
 
       <!-- BALANCE -->
@@ -37,35 +39,51 @@ export function DashboardPage() {
       <div class="quick-actions">
 
         <div class="action-item">
+
           <div class="action-icon">
-            +
+            <i data-lucide="plus"></i>
           </div>
 
-          <span>Order</span>
+          <span>
+            Order
+          </span>
+
         </div>
 
         <div class="action-item">
+
           <div class="action-icon">
-            ⚙️
+            <i data-lucide="factory"></i>
           </div>
 
-          <span>Produksi</span>
+          <span>
+            Produksi
+          </span>
+
         </div>
 
         <div class="action-item">
+
           <div class="action-icon">
-            📦
+            <i data-lucide="package"></i>
           </div>
 
-          <span>Stok</span>
+          <span>
+            Stok
+          </span>
+
         </div>
 
         <div class="action-item">
+
           <div class="action-icon">
-            🚚
+            <i data-lucide="truck"></i>
           </div>
 
-          <span>Kirim</span>
+          <span>
+            Kirim
+          </span>
+
         </div>
 
       </div>
@@ -73,6 +91,7 @@ export function DashboardPage() {
       <!-- ACTIVITY -->
 
       <div class="section-title">
+
         <h3>
           Aktivitas
         </h3>
@@ -80,6 +99,7 @@ export function DashboardPage() {
         <span>
           Lihat Semua
         </span>
+
       </div>
 
       <div class="activity-list">
@@ -87,6 +107,7 @@ export function DashboardPage() {
         <div class="activity-card">
 
           <div class="activity-left">
+
             <h4>
               Kopi Giras 1:1
             </h4>
@@ -94,12 +115,15 @@ export function DashboardPage() {
             <p>
               Diproses • 50kg
             </p>
+
           </div>
 
           <div class="activity-right">
+
             <strong>
               SO-001
             </strong>
+
           </div>
 
         </div>
@@ -107,6 +131,7 @@ export function DashboardPage() {
         <div class="activity-card">
 
           <div class="activity-left">
+
             <h4>
               RB Robusta Grade A
             </h4>
@@ -114,12 +139,15 @@ export function DashboardPage() {
             <p>
               Ready Kirim • 20kg
             </p>
+
           </div>
 
           <div class="activity-right">
+
             <strong>
               SO-002
             </strong>
+
           </div>
 
         </div>
