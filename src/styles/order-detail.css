@@ -2,9 +2,11 @@
   display: flex;
   flex-direction: column;
 
-  gap: var(--space-lg);
+  /* REVISI: Mengurangi gap antar seksi utama agar informasi lebih cepat terbaca */
+  gap: 12px;
 
-  padding-bottom: 140px;
+  /* Jarak bawah ditambah sedikit karena ada tombol aksi melayang di atas nav */
+  padding-bottom: 160px;
 }
 
 /* =========================
@@ -15,11 +17,16 @@
   display: flex;
   align-items: center;
 
-  gap: 16px;
+  gap: 12px; /* Dirapatkan sedikit */
+}
+
+.detail-header-text h2 {
+  font-size: 22px; /* Menjaga ID Order (SO-001) tetap tegas tapi proporsional */
 }
 
 .detail-header-text p {
-  margin-top: 4px;
+  margin-top: 2px;
+  font-size: 13px;
 }
 
 /* =========================
@@ -27,7 +34,8 @@
 ========================= */
 
 .detail-status-card {
-  padding: 22px;
+  /* REVISI: Pangkas padding dari 22px ke 14px */
+  padding: 14px;
 
   display: flex;
   align-items: center;
@@ -35,7 +43,8 @@
 }
 
 .detail-status-title {
-  margin-top: 8px;
+  margin-top: 4px;
+  font-size: 13px;
 }
 
 /* =========================
@@ -43,16 +52,22 @@
 ========================= */
 
 .detail-card {
-  padding: 22px;
+  /* REVISI: Samakan standar padding card mobile menjadi 14px - 16px */
+  padding: 16px;
 }
 
 .card-title {
   display: flex;
   align-items: center;
 
-  gap: 16px;
+  gap: 12px;
 
-  margin-bottom: 22px;
+  /* REVISI: Jarak judul card ke konten di bawahnya dikompakkin */
+  margin-bottom: 14px;
+}
+
+.card-title h3 {
+  font-size: 16px; /* Ukuran ideal judul seksi di dalam card */
 }
 
 /* =========================
@@ -63,13 +78,19 @@
   display: flex;
   flex-direction: column;
 
-  gap: 18px;
+  /* REVISI: Jarak antar baris informasi (Nama, Telepon, Alamat) */
+  gap: 12px;
+}
+
+.info-item span {
+  font-size: 12px; /* Label informasi (ex: Alamat) */
 }
 
 .info-item strong {
   display: block;
 
-  margin-top: 6px;
+  margin-top: 2px;
+  font-size: 14px; /* Value informasi (ex: Surabaya) */
 }
 
 /* =========================
@@ -82,22 +103,31 @@
   align-items: center;
   justify-content: space-between;
 
-  gap: 16px;
+  gap: 14px;
+}
+
+.product-title {
+  font-size: 15px;
 }
 
 .product-subtitle {
-  margin-top: 6px;
+  margin-top: 2px;
+  font-size: 12px;
+}
+
+.product-item > strong {
+  font-size: 15px; /* Sizing berat/total harga di sebelah kanan */
 }
 
 /* =========================
-   BOM
+   BOM (Bill of Materials)
 ========================= */
 
 .bom-list {
   display: flex;
   flex-direction: column;
 
-  gap: 18px;
+  gap: 10px; /* Dirapatkan dari 18px agar list bahan baku rapi */
 }
 
 .bom-item {
@@ -105,6 +135,7 @@
 
   align-items: center;
   justify-content: space-between;
+  font-size: 14px;
 }
 
 /* =========================
@@ -115,13 +146,14 @@
   display: flex;
   flex-direction: column;
 
-  gap: 24px;
+  /* REVISI: Merapatkan jarak antar status pelacakan timeline */
+  gap: 16px; 
 }
 
 .timeline-item {
   display: flex;
 
-  gap: 14px;
+  gap: 12px;
 
   opacity: 0.4;
 }
@@ -131,10 +163,10 @@
 }
 
 .timeline-dot {
-  width: 12px;
-  height: 12px;
+  width: 10px; /* Sedikit dikecilkan agar sleek */
+  height: 10px;
 
-  margin-top: 6px;
+  margin-top: 5px;
 
   border-radius: var(--radius-full);
 
@@ -145,36 +177,54 @@
   background: var(--orange);
 }
 
+.timeline-item h4 {
+  font-size: 14px;
+}
+
 .timeline-item p {
-  margin-top: 4px;
+  margin-top: 2px;
+  font-size: 12px;
 }
 
 /* =========================
-   ACTIONS
+   ACTIONS (Tombol Void, Edit, Mulai Produksi)
 ========================= */
 
 .detail-actions {
   position: fixed;
 
-  left: 0;
-  right: 0;
-  bottom: 84px;
+  /* REVISI: Mengikuti pola melayang melengkung agar serasi dengan bottom nav */
+  left: 16px;
+  right: 16px;
+  
+  /* REVISI UTAMA: Ditempatkan pas di atas bottom nav melayang (68px height + 16px bottom) */
+  bottom: 92px; 
 
   display: flex;
 
-  gap: 12px;
+  gap: 10px;
 
-  padding: 16px 20px;
+  /* Padding box diperkecil agar tidak terlalu tebal memakan area konten */
+  padding: 12px;
 
-  background: rgba(255,255,255,0.92);
+  background: rgba(255, 255, 255, 0.95);
 
   backdrop-filter: blur(20px);
+  
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.03);
+  z-index: 990;
 }
 
 .action-btn {
-  height: 52px;
+  /* REVISI: Tinggi tombol disesuaikan dari 52px ke 46px agar jempol nyaman mengetuk */
+  height: 46px;
 
-  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: 700;
+
+  border-radius: 12px;
 }
 
 .primary-action {
