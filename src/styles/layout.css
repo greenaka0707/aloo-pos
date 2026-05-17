@@ -1,0 +1,8 @@
+.app-layout {
+  min-height: 100vh;
+  padding-bottom: 90px;
+}
+
+.app-content {
+  padding: 20px;
+}
