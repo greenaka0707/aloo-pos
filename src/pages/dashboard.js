@@ -2,8 +2,6 @@ export function DashboardPage() {
   return `
     <section class="dashboard-page">
 
-      <!-- TOP -->
-
       <div class="dashboard-top">
 
         <div>
@@ -18,13 +16,22 @@ export function DashboardPage() {
 
         </div>
 
-        <button class="btn-icon">
-          <i data-lucide="bell"></i>
-        </button>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          
+          <button 
+            class="btn-icon" 
+            onclick="window.navigate('akun')"
+          >
+            <i data-lucide="user"></i>
+          </button>
+
+          <button class="btn-icon">
+            <i data-lucide="bell"></i>
+          </button>
+
+        </div>
 
       </div>
-
-      <!-- BALANCE -->
 
       <div class="card balance-card">
 
@@ -72,8 +79,6 @@ export function DashboardPage() {
         </div>
 
       </div>
-
-      <!-- QUICK ACTION -->
 
       <div class="card quick-actions">
 
@@ -126,8 +131,6 @@ export function DashboardPage() {
         </button>
 
       </div>
-
-      <!-- ACTIVITY -->
 
       <div class="section-title">
 
