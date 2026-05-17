@@ -1,3 +1,7 @@
-document.querySelector("#app").innerHTML = `
-  <h1>ENNA POS</h1>
-`;
+import { AppLayout } from "./layouts/app-layout";
+import { DashboardPage } from "./pages/dashboard";
+
+document.querySelector("#app").innerHTML =
+  AppLayout(
+    DashboardPage()
+  );
