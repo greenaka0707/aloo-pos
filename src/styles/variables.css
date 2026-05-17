@@ -74,5 +74,35 @@
   ========================= */
 
   --transition: 0.2s ease;
+  
+  /* =========================
+   TYPOGRAPHY
+========================= */
+
+--text-xs: 12px;
+
+--text-sm: 14px;
+
+--text-md: 15px;
+
+--text-base: 16px;
+
+--text-lg: 18px;
+
+--text-xl: 20px;
+
+--text-2xl: 24px;
+
+--text-3xl: 32px;
+
+--font-medium: 500;
+
+--font-semibold: 600;
+
+--font-bold: 700;
+
+--line-tight: 1.1;
+
+--line-normal: 1.5;
 
 }
