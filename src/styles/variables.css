@@ -1,22 +1,78 @@
 :root {
-  --primary: #111827;
+
+  /* =========================
+     COLORS
+  ========================= */
 
   --bg: #F5F5F5;
-  --card: #FFFFFF;
 
-  --text: #111827;
+  --white: #FFFFFF;
+
+  --text: #0F172A;
+
   --text-light: #6B7280;
 
-  --border: #E5E7EB;
+  --border: #ECEFF3;
 
   --orange: #F97316;
-  --orange-soft: #FFF7ED;
 
-  --success: #22C55E;
-  --danger: #EF4444;
+  --orange-soft: #FFF4EB;
 
-  --radius: 28px;
+  --blue-soft: #EAF2FF;
+
+  --blue: #2563EB;
+
+  --yellow-soft: #FEF3C7;
+
+  --yellow: #D97706;
+
+  --green-soft: #DCFCE7;
+
+  --green: #16A34A;
+
+  --danger-soft: #FEE2E2;
+
+  --danger: #DC2626;
+
+  /* =========================
+     RADIUS
+  ========================= */
+
+  --radius-sm: 12px;
+
+  --radius-md: 16px;
+
+  --radius-lg: 22px;
+
+  --radius-xl: 28px;
+
+  --radius-full: 999px;
+
+  /* =========================
+     SHADOW
+  ========================= */
 
   --shadow:
-    0 4px 16px rgba(0,0,0,0.04);
+    0 4px 20px rgba(15, 23, 42, 0.04);
+
+  /* =========================
+     SPACING
+  ========================= */
+
+  --space-xs: 6px;
+
+  --space-sm: 10px;
+
+  --space-md: 16px;
+
+  --space-lg: 20px;
+
+  --space-xl: 28px;
+
+  /* =========================
+     TRANSITION
+  ========================= */
+
+  --transition: 0.2s ease;
+
 }
