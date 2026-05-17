@@ -1,0 +1,32 @@
+.bottom-nav {
+  position: fixed;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 72px;
+
+  background: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+
+  border-top:
+    1px solid #E2E8F0;
+}
+
+.nav-item {
+  border: none;
+  background: none;
+
+  font-size: 14px;
+
+  color: #64748B;
+}
+
+.nav-item.active {
+  color: #0F766E;
+  font-weight: 600;
+}
