@@ -1,44 +1,35 @@
 .create-order-page {
   display: flex;
   flex-direction: column;
-
-  gap: 16px;
-
+  gap: 12px; /* Diperkecil dari 16px agar lebih rapat */
   padding-bottom: 40px;
 }
 
 /* =========================
    HEADER
 ========================= */
-
 .create-header {
   display: flex;
   align-items: center;
-
-  gap: 16px;
+  gap: 12px;
 }
 
 /* =========================
    CARD
 ========================= */
-
 .create-card {
-  padding: 20px;
+  padding: 16px; /* Diperkecil dari 20px supaya hemat ruang di layar HP */
 }
 
 /* =========================
    SECTION HEAD
 ========================= */
-
 .section-head {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
-
   gap: 12px;
-
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .section-head h3 {
@@ -46,72 +37,53 @@
 }
 
 .section-head p {
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 /* =========================
    FORM
 ========================= */
-
 .form-group {
   display: flex;
   flex-direction: column;
-
-  gap: 6px;
+  gap: 4px; /* Diperkecil dari 6px */
 }
 
-/* REVISI: Membatasi jarak margin agar hanya berlaku pada struktur form vertikal utama, 
-   tidak merusak komponen berjejer horizontal di dalam grid */
+/* Mengatur jarak antar form vertikal utama agar tidak merusak grid horizontal */
 .create-order-page > .card > .form-group + .form-group,
 .create-order-page > .form-group + .form-group {
-  margin-top: 16px;
+  margin-top: 12px; /* Lebih kompak dari sebelumya yang 16px */
 }
 
 .form-label {
-  font-size: 13px;
-
+  font-size: 12px; /* Lebih proporsional untuk UI mobile */
   font-weight: 600;
-
   color: var(--text-light);
 }
 
 .input,
 .textarea {
   width: 100%;
-
   border: 1px solid var(--border);
-
-  border-radius: 14px;
-
+  border-radius: 12px; /* Di-adjust dari 14px agar serasi dengan tinggi yang baru */
   background: white;
-
   color: var(--text);
-
   outline: none;
-
   transition: var(--transition);
-
-  font-size: 16px;
-
-  /* REVISI: Mengunci ukuran elemen agar padding tidak mendesak element keluar border */
-  box-sizing: border-box; 
+  font-size: 15px; /* Sedikit diturunkan dari 16px agar teks pas */
+  box-sizing: border-box; /* Mengunci total height input */
 }
 
 .input {
-  height: 52px;
-
-  padding: 0 16px;
-
-  /* REVISI: Memaksa teks value tegak di tengah secara vertikal pada browser iOS/Android */
-  line-height: normal; 
+  height: 46px; /* DIOPTIMALKAN: Turun dari 52px, pas untuk standar jempol & mata di HP */
+  padding: 0 14px;
+  line-height: normal; /* Memaksa teks pas ditengah secara vertikal */
   display: block;
 }
 
 .textarea {
-  min-height: 100px;
-
-  padding: 14px 16px;
-
+  min-height: 80px;
+  padding: 12px 14px;
   resize: none;
 }
 
@@ -123,98 +95,71 @@
 .input:focus,
 .textarea:focus {
   border-color: var(--orange);
-
-  box-shadow:
-    0 0 0 4px rgba(249,115,22,0.08);
+  box-shadow: 0 0 0 4px rgba(249,115,22,0.08);
 }
 
 /* =========================
    ADD BUTTON
 ========================= */
-
 .add-item-btn {
-  height: 40px;
-
-  padding: 0 14px;
-
-  border-radius: 12px;
-
+  height: 36px; /* Sedikit dikompakkin */
+  padding: 0 12px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
-
-  gap: 6px;
-
+  gap: 4px;
   flex-shrink: 0;
 }
 
 .add-item-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 /* =========================
    PRODUCT ITEM
 ========================= */
-
 .product-item-head {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
-
   gap: 14px;
-
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .product-name {
-  font-size: 22px;
-
+  font-size: 18px; /* Dikecilkan dari 22px agar nama produk panjang tidak langsung patah baris */
   font-weight: 700;
-
   line-height: 1.2;
-
   color: var(--text);
 }
 
 /* =========================
    DELETE BUTTON
 ========================= */
-
 .delete-item-btn {
-  height: 42px;
-
-  padding: 0 16px;
-
+  height: 36px; /* Menyesuaikan tombol tambah */
+  padding: 0 14px;
   border: 1px solid #FECACA;
-
   background: #FEF2F2;
-
   color: #DC2626;
-
-  border-radius: 12px;
-
-  font-size: 14px;
-
+  border-radius: 10px;
+  font-size: 13px;
   font-weight: 700;
-
   flex-shrink: 0;
 }
 
 /* =========================
    PRODUCT FORM
 ========================= */
-
 .product-fields {
   display: grid;
-
   grid-template-columns: 1fr 1fr;
-
-  gap: 14px;
+  gap: 12px;
 }
 
-/* REVISI: Mematikan paksa margin-top liar dari selector sibling (+) 
-   khusus untuk area input Qty & Harga di dalam grid agar tetap lurus sejajar */
+/* FIX UTAMA: Mematikan paksa margin-top liar dari selector sibling (+) 
+   khusus untuk area input Qty & Harga di dalam grid agar lurus sejajar */
 .product-fields .form-group {
   margin-top: 0 !important;
 }
@@ -222,151 +167,114 @@
 /* =========================
    SUBTOTAL
 ========================= */
-
 .product-subtotal {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
-
-  margin-top: 20px;
-
-  padding-top: 18px;
-
+  margin-top: 16px;
+  padding-top: 14px;
   border-top: 1px solid var(--border);
 }
 
 .product-subtotal span {
-  font-size: 15px;
-
+  font-size: 14px;
   color: var(--text-light);
 }
 
 .product-subtotal strong {
-  font-size: 20px;
-
+  font-size: 18px; /* Dikecilkan sedikit dari 20px */
   font-weight: 700;
-
   color: var(--text);
-
   line-height: 1;
 }
 
 /* =========================
    PRODUCTION
 ========================= */
-
 .production-head {
   display: flex;
-
   align-items: flex-start;
   justify-content: space-between;
-
   gap: 12px;
 }
 
 .production-alert {
-  margin-top: 14px;
-
-  padding: 14px 16px;
-
-  border-radius: 14px;
-
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
   background: var(--orange-soft);
-
   display: flex;
   align-items: flex-start;
-
-  gap: 10px;
+  gap: 8px;
 }
 
 .production-alert svg {
-  width: 16px;
-  height: 16px;
-
+  width: 14px;
+  height: 14px;
   color: var(--orange);
-
   flex-shrink: 0;
-
   margin-top: 2px;
 }
 
 .production-alert p {
-  font-size: 14px;
-
-  line-height: 1.5;
-
+  font-size: 13px;
+  line-height: 1.4;
   color: var(--orange);
 }
 
 /* =========================
    BOM
 ========================= */
-
 .bom-list {
-  margin-top: 18px;
-
+  margin-top: 14px;
   display: flex;
   flex-direction: column;
-
-  gap: 14px;
+  gap: 10px;
 }
 
 .bom-item {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
-
   gap: 10px;
-
-  font-size: 14px;
+  font-size: 13px;
 }
 
 /* =========================
    SUMMARY
 ========================= */
-
 .summary-row {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
 }
 
 .summary-row + .summary-row {
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 .total-row {
-  padding-top: 16px;
-
+  padding-top: 12px;
   border-top: 1px solid var(--border);
 }
 
 .total-row strong {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 /* =========================
    ACTIONS
 ========================= */
-
 .create-actions {
   display: flex;
-
   gap: 12px;
-
   margin-top: 4px;
 }
 
 .action-btn {
-  height: 54px;
-
-  border-radius: 16px;
-
+  height: 48px; /* Dikecilkan dari 54px agar jempol tidak terlalu jauh mencetnya */
+  border-radius: 14px;
   font-size: 15px;
-
   font-weight: 700;
 }
 
@@ -381,7 +289,6 @@
 /* =========================
    INPUT FIX
 ========================= */
-
 input[type="date"] {
   appearance: none;
 }
@@ -389,7 +296,6 @@ input[type="date"] {
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
-
   margin: 0;
 }
 
