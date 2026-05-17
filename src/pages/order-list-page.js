@@ -7,21 +7,17 @@ export function OrderListPage() {
       <div class="page-header">
 
         <div>
-
-          <h2 class="text-3xl font-bold">
+      
+          <h2>
             Sales Order
           </h2>
-
-          <p class="text-light text-md page-subtitle">
+      
+          <p>
             Manufacturing sales workflow
           </p>
-
+      
         </div>
-
-        <button class="btn-icon">
-          <i data-lucide="plus"></i>
-        </button>
-
+      
       </div>
 
       <!-- SEARCH -->
@@ -201,8 +197,11 @@ export function OrderListPage() {
 
       <!-- FLOAT BUTTON -->
 
-      <button class="fab-btn">
-
+      <button
+        class="fab-btn"
+        onclick="window.navigate('create-order')"
+      >
+      
         <i data-lucide="plus"></i>
 
       </button>
