@@ -3,6 +3,7 @@
 @import "./bottom-nav.css";
 @import "./dashboard.css";
 @import "./order.css";
+@import "./order-detail.css";
 
 * {
   margin: 0;
