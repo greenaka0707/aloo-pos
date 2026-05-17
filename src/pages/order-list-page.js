@@ -8,17 +8,17 @@ export function OrderListPage() {
 
         <div>
 
-          <h2>
+          <h2 class="text-3xl font-bold">
             Sales Order
           </h2>
 
-          <p>
+          <p class="text-light text-md page-subtitle">
             Manufacturing sales workflow
           </p>
 
         </div>
 
-        <button class="header-btn">
+        <button class="btn-icon">
           <i data-lucide="plus"></i>
         </button>
 
@@ -26,7 +26,7 @@ export function OrderListPage() {
 
       <!-- SEARCH -->
 
-      <div class="search-box">
+      <div class="card search-box">
 
         <i data-lucide="search"></i>
 
@@ -69,23 +69,23 @@ export function OrderListPage() {
 
         <!-- ITEM -->
 
-        <div class="order-card">
+        <div class="card order-card">
 
           <div class="order-top">
 
             <div>
 
-              <h3>
+              <h3 class="font-bold text-xl">
                 SO-001
               </h3>
 
-              <p>
+              <p class="text-light text-sm">
                 PT Kopi Nusantara
               </p>
 
             </div>
 
-            <span class="status pending">
+            <span class="badge badge-warning">
               Pending
             </span>
 
@@ -95,15 +95,17 @@ export function OrderListPage() {
 
             <div class="order-product">
 
-              <i data-lucide="coffee"></i>
+              <div class="icon-box">
+                <i data-lucide="coffee"></i>
+              </div>
 
               <div>
 
-                <strong>
+                <strong class="font-bold text-lg">
                   Kopi Giras 1:1
                 </strong>
 
-                <p>
+                <p class="text-light text-sm">
                   50kg
                 </p>
 
@@ -115,16 +117,16 @@ export function OrderListPage() {
 
           <div class="order-footer">
 
-            <span>
+            <span class="text-light text-sm">
               15 Mei 2026
             </span>
 
             <button
-  class="detail-btn"
-  onclick="window.navigate('order-detail')"
->
-  Detail
-</button>
+              class="btn btn-soft detail-btn"
+              onclick="window.navigate('order-detail')"
+            >
+              Detail
+            </button>
 
           </div>
 
@@ -132,23 +134,23 @@ export function OrderListPage() {
 
         <!-- ITEM -->
 
-        <div class="order-card">
+        <div class="card order-card">
 
           <div class="order-top">
 
             <div>
 
-              <h3>
+              <h3 class="font-bold text-xl">
                 SO-002
               </h3>
 
-              <p>
+              <p class="text-light text-sm">
                 CV Barokah Kopi
               </p>
 
             </div>
 
-            <span class="status processing">
+            <span class="badge badge-info">
               Diproses
             </span>
 
@@ -158,15 +160,17 @@ export function OrderListPage() {
 
             <div class="order-product">
 
-              <i data-lucide="package"></i>
+              <div class="icon-box">
+                <i data-lucide="package"></i>
+              </div>
 
               <div>
 
-                <strong>
+                <strong class="font-bold text-lg">
                   RB Robusta Grade A
                 </strong>
 
-                <p>
+                <p class="text-light text-sm">
                   20kg
                 </p>
 
@@ -178,11 +182,14 @@ export function OrderListPage() {
 
           <div class="order-footer">
 
-            <span>
+            <span class="text-light text-sm">
               15 Mei 2026
             </span>
 
-            <button class="detail-btn">
+            <button
+              class="btn btn-soft detail-btn"
+              onclick="window.navigate('order-detail')"
+            >
               Detail
             </button>
 
