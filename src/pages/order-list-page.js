@@ -1,4 +1,27 @@
 export function OrderListPage() {
+  setTimeout(() => {
+    const container = document.querySelector(".data-list");
+    const fab = document.querySelector(".fab-btn");
+    const appLayout = document.querySelector(".app-layout");
+
+    // ==========================================================================
+    // KUNCI FIXED STICKY FAB: Paksa pindahkan FAB ke komponen root .app-layout
+    // ==========================================================================
+    if (fab && appLayout) {
+      fab.style.display = "flex"; // Pastikan tampil jika sempat tersembunyi di halaman detail
+      if (fab.parentElement !== appLayout) {
+        appLayout.appendChild(fab);
+      }
+    }
+
+    if (!container) return;
+
+    // Render ulang icon Lucide setelah komponen masuk ke DOM
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  }, 50);
+
   return `
     <section class="list-page">
 
@@ -51,6 +74,7 @@ export function OrderListPage() {
         <div class="card list-card">
           <div class="list-card-top">
             <div>
+              <h3 class="font-bold">SO-002</h3>
               <h3 class="font-bold">SO-002</h3>
               <p class="text-light text-sm">CV Barokah Kopi</p>
             </div>
