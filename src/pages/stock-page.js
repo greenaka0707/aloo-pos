@@ -1,206 +1,119 @@
 export function StockPage() {
   return `
-    <section class="stock-page">
-
-      <!-- HEADER -->
-
-      <div class="page-header">
-
+    <section class="order-page"> <div class="page-header">
         <div>
-
-          <h2 class="text-3xl font-bold">
+          <h2 class="font-bold">
             Stock
           </h2>
-
-          <p class="text-light text-md">
+          <p class="page-subtitle">
             Inventory management
           </p>
-
         </div>
-
       </div>
 
-      <!-- SEARCH -->
-
-      <div class="card stock-search">
-
-        <i data-lucide="search"></i>
-
+      <div class="card search-box"> <i data-lucide="search"></i>
         <input
           type="text"
           placeholder="Cari stock..."
         />
-
       </div>
 
-      <!-- FILTER -->
-
-      <div class="stock-filter">
-
-        <button class="filter-chip active">
-          Semua
-        </button>
-
-        <button class="filter-chip">
-          Barang Jadi
-        </button>
-
-        <button class="filter-chip">
-          Bahan Baku
-        </button>
-
-        <button class="filter-chip">
-          Menipis
-        </button>
-
+      <div class="filter-scroll"> <button class="filter-chip active">Semua</button>
+        <button class="filter-chip">Barang Jadi</button>
+        <button class="filter-chip">Bahan Baku</button>
+        <button class="filter-chip">Menipis</button>
       </div>
 
-      <!-- STOCK LIST -->
-
-      <div class="stock-list">
-
-        <!-- ITEM -->
-
-        <div
-          class="card stock-card"
+      <div class="order-list"> <div
+          class="card order-card" 
           onclick="window.navigate('stock-detail')"
+          style="cursor: pointer;"
         >
-
-          <div class="stock-top">
-
+          <div class="order-top">
             <div>
-
-              <span class="badge badge-primary">
-                Barang Jadi
-              </span>
-
+              <span class="badge badge-primary">Barang Jadi</span>
             </div>
-
-            <span class="badge badge-success">
-              Aman
-            </span>
-
+            <span class="badge badge-success">Aman</span>
           </div>
 
-          <div class="stock-product">
-
-            <div class="icon-box">
-              <i data-lucide="coffee"></i>
+          <div style="display: flex; align-items: flex-start; gap: var(--space-md); padding: var(--space-xs) 0;">
+            <div class="icon-box" style="width: 42px; height: 42px;">
+              <i data-lucide="coffee" style="width: 18px; height: 18px;"></i>
             </div>
-
-            <div class="stock-product-info">
-
-              <strong class="stock-product-name">
+            
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+              <strong style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">
                 Kopi Giras 1:1
               </strong>
-
-              <p class="stock-product-desc">
+              <p class="text-light text-xs" style="margin-bottom: 6px;">
                 Ready stock untuk penjualan
               </p>
-
-              <div class="stock-meta">
-
-                <div class="stock-meta-item">
+              
+              <div style="display: flex; gap: var(--space-md); align-items: center;">
+                <span class="badge" style="background: var(--bg); color: var(--text); height: 22px; font-size: var(--text-xs); padding: 0 var(--space-sm);">
                   Stock: 120kg
-                </div>
-
-                <div class="stock-meta-item">
-                  Minimum: 50kg
-                </div>
-
+                </span>
+                <span class="text-light text-xs">Min: 50kg</span>
               </div>
-
             </div>
-
           </div>
 
-          <div class="stock-footer">
-
-            <span class="text-light text-sm">
-              Updated 15 Mei 2026
-            </span>
-
+          <div class="order-footer">
+            <span class="text-light text-xs">Updated 15 Mei 2026</span>
             <button
-              class="btn btn-soft detail-btn"
+              class="detail-btn"
               onclick="event.stopPropagation(); window.navigate('stock-detail')"
             >
               Detail
             </button>
-
           </div>
-
         </div>
 
-        <!-- ITEM -->
-
         <div
-          class="card stock-card stock-warning"
+          class="card order-card"
           onclick="window.navigate('stock-detail')"
+          style="cursor: pointer; border-color: var(--orange);" 
         >
-
-          <div class="stock-top">
-
+          <div class="order-top">
             <div>
-
-              <span class="badge badge-info">
-                Bahan Baku
-              </span>
-
+              <span class="badge badge-info">Bahan Baku</span>
             </div>
-
-            <span class="badge badge-danger">
-              Menipis
-            </span>
-
+            <span class="badge badge-danger">Menipis</span>
           </div>
 
-          <div class="stock-product">
-
-            <div class="icon-box">
-              <i data-lucide="package"></i>
+          <div style="display: flex; align-items: flex-start; gap: var(--space-md); padding: var(--space-xs) 0;">
+            <div class="icon-box" style="width: 42px; height: 42px; background: var(--orange-soft); color: var(--orange);">
+              <i data-lucide="package" style="width: 18px; height: 18px;"></i>
             </div>
-
-            <div class="stock-product-info">
-
-              <strong class="stock-product-name">
+            
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+              <strong style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">
                 RB Robusta Grade A
               </strong>
-
-              <p class="stock-product-desc">
+              <p class="text-light text-xs" style="margin-bottom: 6px;">
                 Bahan baku roasting
               </p>
-
-              <div class="stock-meta">
-
-                <div class="stock-meta-item">
+              
+              <div style="display: flex; gap: var(--space-md); align-items: center;">
+                <span class="badge" style="background: var(--danger-soft); color: var(--danger); height: 22px; font-size: var(--text-xs); padding: 0 var(--space-sm); font-weight: var(--font-bold);">
                   Stock: 12kg
-                </div>
-
-                <div class="stock-meta-item">
-                  Minimum: 30kg
-                </div>
-
+                </span>
+                <span class="text-light text-xs">Min: 30kg</span>
               </div>
-
             </div>
-
           </div>
 
-          <div class="stock-footer">
-
-            <span class="text-light text-sm">
+          <div class="order-footer">
+            <span style="color: var(--danger); font-size: var(--text-xs); font-weight: var(--font-medium);">
               Restock dibutuhkan
             </span>
-
             <button
-              class="btn btn-soft detail-btn"
+              class="detail-btn"
               onclick="event.stopPropagation(); window.navigate('stock-detail')"
             >
               Detail
             </button>
-
           </div>
-
         </div>
 
       </div>
