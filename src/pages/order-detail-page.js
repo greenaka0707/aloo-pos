@@ -92,14 +92,18 @@ export function OrderDetailPage() {
 
       // 2.1 Render Kartu Status Utama harian (SUNTIKAN DUKUNGAN STATUS 'butuh produksi')
       let statusText = "Pending Produksi";
-      let badgeClass = "badge-warning";
+      
+      // ==========================================================================
+      // FIX UPDATE WARNA BADGE DETAIL: READY JADI BIRU PRIMER, DIKIRIM JADI HIJAU SUKSES
+      // ==========================================================================
+      let badgeClass = "badge-warning"; 
       
       const currentDbStatus = orderDataLocal.status ? orderDataLocal.status.toLowerCase() : 'pending';
 
       if (currentDbStatus === "butuh produksi") { statusText = "Butuh Produksi (MTO)"; badgeClass = "badge-warning"; }
       if (currentDbStatus === "diproses") { statusText = "Sedang Diproses"; badgeClass = "badge-info"; }
-      if (currentDbStatus === "ready") { statusText = "Siap Dikirim"; badgeClass = "badge-success"; }
-      if (currentDbStatus === "dikirim") { statusText = "Selesai Dikirim"; badgeClass = "badge-primary"; }
+      if (currentDbStatus === "ready") { statusText = "Siap Dikirim"; badgeClass = "badge-primary"; } // Menjadi Biru Tua / Cyan kontras gais
+      if (currentDbStatus === "dikirim") { statusText = "Selesai Dikirim"; badgeClass = "badge-success"; } // Menjadi Hijau Sukses harian
 
       statusCardArea.innerHTML = `
         <div>
@@ -289,7 +293,6 @@ export function OrderDetailPage() {
       if (currentDbStatus === "pending" || currentDbStatus === "butuh produksi") {
         actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:var(--orange); border:none; color:white;">Mulai Produksi</button>`;
       } else if (currentDbStatus === "diproses") {
-        // 🔒 KUNCi SISTEM (LOCK DETAIL ORDER): Selama tim gudang masih giling produksi, tombol dikunci mati gais!
         actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:var(--border); border:none; color:var(--text-light);" disabled>Proses Produksi Berjalan (Locked)</button>`;
       } else if (currentDbStatus === "ready") {
         actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:#06B6D4; border:none; color:white;">Kirim Barang</button>`;
@@ -297,7 +300,6 @@ export function OrderDetailPage() {
         actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn" style="background:var(--border); border:none; color:var(--text-light);" disabled>Order Closed</button>`;
       }
 
-      // Pasang Event Klik Listener untuk trigger download PDF A5 instan
       const printBtn = actionsArea.querySelector("#btn-print-invoice");
       if (printBtn) printBtn.addEventListener("click", downloadInvoiceA5);
 
@@ -316,7 +318,6 @@ export function OrderDetailPage() {
             nextBtn.disabled = true;
             nextBtn.textContent = "Updating...";
 
-            // HANYA MEMOTONG STOK KOPI MATANG JADI SAAT BARANG DIKIRIM BAWA KELILING SALES
             if (nextStatus === "dikirim") {
               for (const item of orderItemsLocal) {
                 const p = item.products || {};
@@ -324,14 +325,12 @@ export function OrderDetailPage() {
                 const orderQty = parseFloat(item.qty) || 0;
                 const newStock = currentStock - orderQty;
 
-                // A. Kurangi kolom stok kopi matang harian di tabel products
                 const { error: stockErr } = await supabase
                   .from("products")
                   .update({ stock: newStock })
                   .eq("id", p.id);
                 if (stockErr) throw stockErr;
 
-                // B. Masukkan sejarah riwayat resmi ke tabel stock_mutations dengan status OUT murni
                 const { error: mutationErr } = await supabase
                   .from("stock_mutations")
                   .insert([{
