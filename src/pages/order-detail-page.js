@@ -2,30 +2,12 @@ export function OrderDetailPage() {
   return `
     <section class="detail-page">
 
-      <div class="detail-header">
-        <button
-          class="btn-back"
-          onclick="window.navigate('order')"
-        >
-          <i data-lucide="arrow-left"></i>
-        </button>
-
-        <div class="detail-header-text">
-          <h2>SO-001</h2>
-          <p>Sales Order Detail</p>
-        </div>
-      </div>
-
       <div class="card detail-status-card">
         <div>
           <span class="detail-status-title">Status</span>
-          <h3 class="font-bold">
-            Pending Produksi
-          </h3>
+          <h3 class="font-bold">Pending Produksi</h3>
         </div>
-        <span class="badge badge-warning">
-          Pending
-        </span>
+        <span class="badge badge-warning">Pending</span>
       </div>
 
       <div class="card detail-card">
@@ -67,9 +49,7 @@ export function OrderDetailPage() {
             <strong class="title">Kopi Giras 1:1</strong>
             <span class="subtitle">Qty 50kg</span>
           </div>
-          <span class="badge badge-primary">
-            Manufacturing
-          </span>
+          <span class="badge badge-primary">Manufacturing</span>
         </div>
       </div>
 
@@ -142,15 +122,9 @@ export function OrderDetailPage() {
       </div>
 
       <div class="detail-actions">
-        <button class="action-btn">
-          Void
-        </button>
-        <button class="action-btn">
-          Edit
-        </button>
-        <button class="action-btn primary-action">
-          Mulai Produksi
-        </button>
+        <button class="action-btn">Void</button>
+        <button class="action-btn">Edit</button>
+        <button class="action-btn primary-action">Mulai Produksi</button>
       </div>
 
     </section>
