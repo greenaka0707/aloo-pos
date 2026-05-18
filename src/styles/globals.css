@@ -4,19 +4,17 @@
 
 @import "./dashboard.css";
 
-/* HALAMAN LIST UTAMA */
-@import "./order.css";
-@import "./produksi.css";
-@import "./stock.css";
-@import "./purchase.css";
+/* SATU FILE UNIVERSAL UNTUK SEMUA HALAMAN DAFTAR (SO, Produksi, Stok, Purchase) */
+@import "./list.css"; 
 
-/* SATU FILE BARU UNTUK SEMUA DETAIL */
+/* SATU FILE UNIVERSAL UNTUK SEMUA HALAMAN DETAIL */
 @import "./detail.css"; 
 
 /* HALAMAN FORM / INPUT */
 @import "./create-order.css";
 
 @import "./bottom-nav.css";
+
 
 /* =========================
    GLOBAL RESET & UTILITIES
