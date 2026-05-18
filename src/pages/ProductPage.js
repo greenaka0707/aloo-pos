@@ -1,11 +1,12 @@
 import { supabase } from "../supabaseClient.js";
 
-// 1. Buat fungsi helper internal untuk menarik data dari tabel Supabase
+// Fungsi untuk menarik data dari tabel 'products' di Supabase
 async function getSupabaseProducts() {
   try {
     const { data, error } = await supabase
-      .from('products') // Pastikan nama tabel di Supabase Anda adalah 'products'
-      .select('*');
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
     return data || [];
@@ -15,16 +16,15 @@ async function getSupabaseProducts() {
   }
 }
 
-// 2. Fungsi render utama halaman produk Anda
 export function ProductPage() {
-  // Memicu penarikan data asinkron setelah elemen dimasukkan ke DOM
+  // Jalankan penarikan data sesaat setelah HTML utama terpasang di layar
   setTimeout(async () => {
     const dataListContainer = document.querySelector(".product-data-list");
     if (!dataListContainer) return;
 
     const products = await getSupabaseProducts();
 
-    // Jika data kosong atau gagal diambil
+    // Jika data kosong
     if (products.length === 0) {
       dataListContainer.innerHTML = `
         <div class="card" style="padding: 24px; text-align: center; color: var(--text-light);">
@@ -34,7 +34,7 @@ export function ProductPage() {
       return;
     }
 
-    // Map data asli dari Supabase ke dalam komponen kartu list-card
+    // Tampilkan data ke dalam susunan kartu (list-card)
     dataListContainer.innerHTML = products.map(product => `
       <div class="card list-card">
         <div class="list-card-top">
@@ -82,28 +82,22 @@ export function ProductPage() {
       </div>
     `).join('');
 
-    // Inisialisasi ulang ikon Lucide khusus untuk kartu-kartu baru yang baru dimasukkan
+    // Render ulang icon Lucide agar muncul di kartu yang baru dibuat
     if (window.lucide) {
       window.lucide.createIcons();
     }
   }, 50);
 
-  // Return cangkang HTML utama halaman (Sesuai gaya layout list Anda)
   return `
     <section class="list-page">
-
       <div class="card search-box">
         <i data-lucide="search"></i>
-        <input
-          type="text"
-          placeholder="Cari produk..."
-        />
+        <input type="text" placeholder="Cari produk..." />
       </div>
 
       <div class="filter-scroll">
         <button class="filter-chip active">Semua</button>
         <button class="filter-chip">Coffee Blend</button>
-        <button class="filter-chip">Single Origin</button>
         <button class="filter-chip">RTD Beverages</button>
       </div>
 
@@ -113,13 +107,9 @@ export function ProductPage() {
         </div>
       </div>
 
-      <button
-        class="fab-btn"
-        onclick="window.navigate('create-product')"
-      >
+      <button class="fab-btn" onclick="window.navigate('create-product')">
         <i data-lucide="plus"></i>
       </button>
-
     </section>
   `;
 }
