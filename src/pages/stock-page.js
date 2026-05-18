@@ -1,6 +1,8 @@
 export function StockPage() {
   return `
-    <section class="order-page"> <div class="page-header">
+    <section class="list-page"> 
+
+      <div class="page-header">
         <div>
           <h2 class="font-bold">
             Stock
@@ -11,25 +13,29 @@ export function StockPage() {
         </div>
       </div>
 
-      <div class="card search-box"> <i data-lucide="search"></i>
+      <div class="card search-box"> 
+        <i data-lucide="search"></i>
         <input
           type="text"
           placeholder="Cari stock..."
         />
       </div>
 
-      <div class="filter-scroll"> <button class="filter-chip active">Semua</button>
+      <div class="filter-scroll"> 
+        <button class="filter-chip active">Semua</button>
         <button class="filter-chip">Barang Jadi</button>
         <button class="filter-chip">Bahan Baku</button>
         <button class="filter-chip">Menipis</button>
       </div>
 
-      <div class="order-list"> <div
-          class="card order-card" 
+      <div class="data-list"> 
+
+        <div
+          class="card list-card" 
           onclick="window.navigate('stock-detail')"
           style="cursor: pointer;"
         >
-          <div class="order-top">
+          <div class="list-card-top">
             <div>
               <span class="badge badge-primary">Barang Jadi</span>
             </div>
@@ -58,7 +64,7 @@ export function StockPage() {
             </div>
           </div>
 
-          <div class="order-footer">
+          <div class="list-card-footer">
             <span class="text-light text-xs">Updated 15 Mei 2026</span>
             <button
               class="detail-btn"
@@ -70,11 +76,11 @@ export function StockPage() {
         </div>
 
         <div
-          class="card order-card"
+          class="card list-card"
           onclick="window.navigate('stock-detail')"
           style="cursor: pointer; border-color: var(--orange);" 
         >
-          <div class="order-top">
+          <div class="list-card-top">
             <div>
               <span class="badge badge-info">Bahan Baku</span>
             </div>
@@ -103,7 +109,7 @@ export function StockPage() {
             </div>
           </div>
 
-          <div class="order-footer">
+          <div class="list-card-footer">
             <span style="color: var(--danger); font-size: var(--text-xs); font-weight: var(--font-medium);">
               Restock dibutuhkan
             </span>
