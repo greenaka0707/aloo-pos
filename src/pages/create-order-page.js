@@ -1,574 +1,318 @@
 import { supabase } from "../supabaseClient.js";
 
-export default function CreateOrderPage() {
-  let selectedCustomer = null;
-  let selectedSalesman = null;
-  let cart = [];
-  let isSubmitting = false;
-
-  const today = new Date().toISOString().split('T')[0];
+export function OrderDetailPage() {
+  const orderId = localStorage.getItem("selected_order_id");
+  let orderDataLocal = null;
+  let orderItemsLocal = [];
 
   setTimeout(async () => {
-    const container = document.querySelector(".create-page");
-    if (!container) return;
+    const container = document.querySelector(".detail-page");
+    if (!container || !orderId) return;
 
-    // Capture elemen DOM kontrol utama
-    const dateInput = container.querySelector("#order-date");
-    const customerInput = container.querySelector("#customer-search");
-    const customerFloat = container.querySelector("#customer-floating-list");
-    const quickAddCustBtn = container.querySelector("#quick-add-cust-btn");
-    
-    const salesmanInput = container.querySelector("#salesman-search");
-    const salesmanFloat = container.querySelector("#salesman-floating-list");
-    
-    const productInput = container.querySelector("#product-search");
-    const productFloat = container.querySelector("#product-floating-list");
-    const cartContainer = container.querySelector("#cart-items-container");
-    const manufacturingCard = container.querySelector("#manufacturing-analysis-card");
-    const bomDetails = container.querySelector("#bom-details-list");
-    
-    // Ringkasan Biaya & Catatan
-    const summarySubtotal = container.querySelector("#summary-subtotal");
-    const summaryBayar = container.querySelector("#summary-bayar");
-    const summarySisa = container.querySelector("#summary-sisa");
-    const bayarInput = container.querySelector("#pay-amount");
-    const catatanInput = container.querySelector("#order-note");
-
-    // Modal Customer
-    const customerModal = container.querySelector("#customer-modal");
-    const saveNewCustomerBtn = container.querySelector("#save-new-customer");
-    const closeCustomerModalBtn = container.querySelector("#close-customer-modal");
-    const newCustName = container.querySelector("#new-cust-name");
-    const newCustPhone = container.querySelector("#new-cust-phone");
-    const newCustAddress = container.querySelector("#new-cust-address");
-
-    if (dateInput) dateInput.value = today;
+    // Capture area render komponen dinamis di DOM
+    const statusCardArea = container.querySelector(".detail-status-card");
+    const customerCardArea = container.querySelector("#detail-customer-card-info");
+    const productCardArea = container.querySelector("#detail-product-card-list");
+    const productionCardArea = container.querySelector("#detail-production-card-bom");
+    const bomListArea = container.querySelector("#detail-bom-list-render");
+    const timelineArea = container.querySelector(".timeline");
+    const actionsArea = container.querySelector(".detail-actions");
 
     // ==========================================================================
-    // 1. LIVE SEARCH SALESMAN
+    // 1. QUERY DATA KOMPLEKS (MULTIPLE JOIN TABLES VIA SUPABASE)
     // ==========================================================================
-    if (salesmanInput && salesmanFloat) {
-      salesmanInput.addEventListener("input", async (e) => {
-        const val = e.target.value.trim();
-        if (val.length < 1) {
-          salesmanFloat.style.display = "none";
-          return;
-        }
+    async function fetchOrderDetail() {
+      try {
+        const { data: order, error } = await supabase
+          .from("sales_orders")
+          .select(`
+            id,
+            invoice_no,
+            order_date,
+            status,
+            total_amount,
+            customers ( name, phone, address ),
+            salesmen ( name )
+          `)
+          .eq("id", orderId)
+          .single();
 
-        const { data: salesmen, error } = await supabase
-          .from('salesmen')
-          .select('id, name, area_tugas')
-          .eq('status', 'aktif')
-          .ilike('name', `%${val}%`)
-          .limit(5);
+        if (error) throw error;
+        orderDataLocal = order;
 
-        if (!error && salesmen) {
-          salesmanFloat.innerHTML = salesmen.map(s => `
-            <div class="salesman-row-item" data-id="${s.id}" data-name="${s.name}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer;">
-              <strong style="font-size: var(--text-sm); display: block; color: var(--text);">${s.name}</strong>
-              <span class="text-xs text-light">${s.area_tugas || 'Semua Area'}</span>
-            </div>
-          `).join('');
-          salesmanFloat.style.display = "block";
+        // Tarik data item barang belanjaannya
+        const { data: items, error: itemsError } = await supabase
+          .from("sales_order_items")
+          .select(`
+            id,
+            qty,
+            unit_price,
+            products ( id, name, stock, unit, category )
+          `)
+          .eq("sales_order_id", orderId);
 
-          salesmanFloat.querySelectorAll(".salesman-row-item").forEach(row => {
-            row.addEventListener("click", (evt) => {
-              const target = evt.currentTarget;
-              selectedSalesman = parseInt(target.dataset.id);
-              salesmanInput.value = target.dataset.name;
-              salesmanFloat.style.display = "none";
-            });
-          });
-        }
-      });
+        if (itemsError) throw itemsError;
+        orderItemsLocal = items || [];
 
-      document.addEventListener("click", (e) => {
-        if (!salesmanInput.contains(e.target) && !salesmanFloat.contains(e.target)) {
-          salesmanFloat.style.display = "none";
-        }
-      });
+        renderAllDetailDOM();
+
+      } catch (err) {
+        container.innerHTML = `<p style="padding:var(--space-xl); text-align:center; color:var(--danger);">❌ Gagal muat detail nota: ${err.message}</p>`;
+      }
     }
 
     // ==========================================================================
-    // 2. LIVE SEARCH CUSTOMER + QUICK ADD MINIMALIS
+    // 2. LOGIKA RENDER UTAMA (STATUS, CUSTOMER, ITEM, & KEUANGAN)
     // ==========================================================================
-    if (customerInput && customerFloat && quickAddCustBtn) {
-      customerInput.addEventListener("input", async (e) => {
-        const val = e.target.value.trim();
-        if (val.length < 2) {
-          customerFloat.style.display = "none";
-          quickAddCustBtn.style.display = "none";
-          return;
-        }
+    function renderAllDetailDOM() {
+      if (!orderDataLocal) return;
 
-        const { data: customers, error } = await supabase
-          .from('customers')
-          .select('id, name, address, customer_code')
-          .ilike('name', `%${val}%`)
-          .limit(5);
+      // 2.1 Render Kartu Status Utama harian
+      let statusText = "Pending Produksi";
+      let badgeClass = "badge-warning";
+      if (orderDataLocal.status === "diproses") { statusText = "Sedang Diproses"; badgeClass = "badge-info"; }
+      if (orderDataLocal.status === "ready") { statusText = "Siap Dikirim"; badgeClass = "badge-success"; }
+      if (orderDataLocal.status === "dikirim") { statusText = "Selesai Dikirim"; badgeClass = "badge-primary"; }
 
-        if (!error && customers) {
-          if (customers.length === 0) {
-            customerFloat.style.display = "none";
-            // Memunculkan tombol plus kecil estetik di pojok kanan input jika tidak terdaftar
-            quickAddCustBtn.style.display = "flex";
-          } else {
-            quickAddCustBtn.style.display = "none";
-            customerFloat.innerHTML = customers.map(c => `
-              <div class="float-row-item" data-id="${c.id}" data-name="${c.name}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer;">
-                <strong style="font-size: var(--text-sm); display: block; color: var(--text);">${c.name}</strong>
-                <span class="text-xs text-light">${c.customer_code} - ${c.address || 'No Address'}</span>
-              </div>
-            `).join('');
-            customerFloat.style.display = "block";
+      statusCardArea.innerHTML = `
+        <div>
+          <span class="detail-status-title">Invoice: ${orderDataLocal.invoice_no}</span>
+          <h3 class="font-bold" style="color: var(--text);">${statusText}</h3>
+        </div>
+        <span class="badge ${badgeClass}" style="text-transform:uppercase;">${orderDataLocal.status || 'Pending'}</span>
+      `;
 
-            customerFloat.querySelectorAll(".float-row-item").forEach(row => {
-              row.addEventListener("click", (evt) => {
-                const target = evt.currentTarget;
-                selectedCustomer = { id: parseInt(target.dataset.id), name: target.dataset.name };
-                customerInput.value = target.dataset.name;
-                customerFloat.style.display = "none";
-                quickAddCustBtn.style.display = "none";
-              });
-            });
-          }
-        }
-      });
-
-      // Picu modal via tombol plus kecil
-      quickAddCustBtn.addEventListener("click", () => {
-        if (newCustName) newCustName.value = customerInput.value.trim();
-        if (customerModal) customerModal.style.display = "flex";
-        quickAddCustBtn.style.display = "none";
-      });
-
-      document.addEventListener("click", (e) => {
-        if (!customerInput.contains(e.target) && !customerFloat.contains(e.target) && !quickAddCustBtn.contains(e.target)) {
-          customerFloat.style.display = "none";
-        }
-      });
-    }
-
-    if (saveNewCustomerBtn && customerModal) {
-      saveNewCustomerBtn.addEventListener("click", async () => {
-        const nameVal = newCustName.value.trim();
-        if (!nameVal) return;
-
-        const custCode = 'CUST-' + Date.now().toString().slice(-6);
-
-        const { data, error } = await supabase
-          .from('customers')
-          .insert([{ customer_code: custCode, name: nameVal, phone: newCustPhone?.value || null, address: newCustAddress?.value || null, type: 'warung', salesman_id: selectedSalesman }])
-          .select();
-
-        if (!error && data && data.length > 0) {
-          selectedCustomer = { id: data[0].id, name: data[0].name };
-          if (customerInput) customerInput.value = data[0].name;
-          customerModal.style.display = "none";
-          if (newCustPhone) newCustPhone.value = "";
-          if (newCustAddress) newCustAddress.value = "";
-        } else {
-          alert("Gagal mendaftarkan customer baru: " + (error?.message || "Error database"));
-        }
-      });
-    }
-
-    if (closeCustomerModalBtn && customerModal) {
-      closeCustomerModalBtn.addEventListener("click", () => {
-        customerModal.style.display = "none";
-      });
-    }
-
-    // ==========================================================================
-    // 3. LIVE SEARCH PRODUK
-    // ==========================================================================
-    if (productInput && productFloat) {
-      productInput.addEventListener("input", async (e) => {
-        const val = e.target.value.trim();
-        if (val.length < 1) {
-          productFloat.style.display = "none";
-          return;
-        }
-
-        const { data: products, error } = await supabase
-          .from('products')
-          .select('id, name, stock, unit, category')
-          .ilike('name', `%${val}%`)
-          .limit(5);
-
-        if (!error && products) {
-          productFloat.innerHTML = products.map(p => `
-            <div class="product-row-item" data-id="${p.id}" data-name="${p.name}" data-stock="${p.stock || 0}" data-unit="${p.unit || 'kg'}" data-category="${p.category || ''}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <strong style="font-size: var(--text-sm); color: var(--text);">${p.name}</strong>
-                <span class="text-xs text-light" style="display: block; text-transform: uppercase;">${p.category || 'UNSET'}</span>
-              </div>
-              <span class="badge ${p.stock > 0 ? 'badge-success' : 'badge-warning'}" style="font-size: 11px;">
-                Stok: ${p.stock || 0} ${p.unit || 'kg'}
-              </span>
-            </div>
-          `).join('');
-          productFloat.style.display = "block";
-
-          productFloat.querySelectorAll(".product-row-item").forEach(row => {
-            row.addEventListener("click", (evt) => {
-              const target = evt.currentTarget;
-              const pId = parseInt(target.dataset.id);
-              
-              if (cart.some(item => item.id === pId)) {
-                productFloat.style.display = "none";
-                productInput.value = "";
-                return;
-              }
-
-              cart.push({
-                id: pId,
-                name: target.dataset.name,
-                stock: parseFloat(target.dataset.stock),
-                unit: target.dataset.unit,
-                category: target.dataset.category,
-                qty: 1,
-                price: 25000 
-              });
-
-              productFloat.style.display = "none";
-              productInput.value = "";
-              renderCartStructure(); // Bangun ulang list baris baru
-            });
-          });
-        }
-      });
-    }
-
-    // ==========================================================================
-    // 4. CORE ENGINE PERBAIKAN: MANIPULASI DOM INPUT INTERAKTIF (ANTI-KEYBOARD MENTAL)
-    // ==========================================================================
-    function renderCartStructure() {
-      if (cart.length === 0) {
-        cartContainer.innerHTML = `
-          <p class="text-light text-xs" style="text-align: center; padding: var(--space-md); background: var(--white); border-radius: var(--radius-md); margin-bottom: var(--space-md); border: 1px dashed var(--border);">
-            Belum ada produk terpilih harian.
-          </p>
+      // 2.2 Render Informasi Customer & Salesman Penanggung Jawab
+      const cust = orderDataLocal.customers || {};
+      if (customerCardArea) {
+        customerCardArea.innerHTML = `
+          <div class="info-item"><span>Nama Warung</span><strong>${cust.name || "Tanpa Nama"}</strong></div>
+          <div class="info-item"><span>Telepon / WA</span><strong>${cust.phone || "-"}</strong></div>
+          <div class="info-item"><span>Alamat Kirim</span><strong>${cust.address || "-"}</strong></div>
+          <div class="info-item" style="border-top: 1px dashed var(--border); padding-top: 6px; margin-top: 4px;">
+            <span>Sales Lapangan</span><strong style="color: var(--orange);">${orderDataLocal.salesmen?.name || "None"}</strong>
+          </div>
         `;
-        calculateTotalsOnly();
-        return;
       }
 
-      // Render struktur hanya sekali pas barang bertambah/berkurang dari list keranjang
-      cartContainer.innerHTML = cart.map((item, idx) => `
-        <div class="card create-card item-cart-row" data-idx="${idx}" style="margin-bottom: var(--space-sm); border: 1px solid var(--border);">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-sm); padding-bottom: 4px; border-bottom: 1px solid var(--border);">
-            <strong style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">${item.name}</strong>
-            <button class="btn-remove-cart" data-idx="${idx}" style="background: none; border: none; color: var(--danger); font-size: var(--text-xs); font-weight: var(--font-semibold); cursor: pointer;">Hapus</button>
-          </div>
-
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">Qty (${item.unit})</label>
-              <input type="number" pattern="[0-9]*" inputmode="numeric" class="input input-qty" value="${item.qty}" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Harga (Rp)</label>
-              <input type="number" pattern="[0-9]*" inputmode="numeric" class="input input-price" value="${item.price}" />
-            </div>
-          </div>
-
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: var(--space-sm); padding-top: 4px; border-top: 1px dashed var(--border);">
-            <span class="text-light text-xs">Subtotal</span>
-            <strong class="row-subtotal-text" style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">
-              Rp ${(item.qty * item.price).toLocaleString('id-ID')}
-            </strong>
-          </div>
-        </div>
-      `).join('');
-
-      // Pasang listener presisi untuk merubah teks subtotal tanpa render ulang element inputnya
-      cartContainer.querySelectorAll(".item-cart-row").forEach(row => {
-        const idx = parseInt(row.dataset.idx);
-        const qtyEl = row.querySelector(".input-qty");
-        const priceEl = row.querySelector(".input-price");
-        const subtotalTextEl = row.querySelector(".row-subtotal-text");
-
-        qtyEl.addEventListener("input", (e) => {
-          cart[idx].qty = parseFloat(e.target.value) || 0;
-          subtotalTextEl.textContent = `Rp ${(cart[idx].qty * cart[idx].price).toLocaleString('id-ID')}`;
-          calculateTotalsOnly();
-        });
-
-        priceEl.addEventListener("input", (e) => {
-          cart[idx].price = parseFloat(e.target.value) || 0;
-          subtotalTextEl.textContent = `Rp ${(cart[idx].qty * cart[idx].price).toLocaleString('id-ID')}`;
-          calculateTotalsOnly();
-        });
-      });
-
-      cartContainer.querySelectorAll(".btn-remove-cart").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-          const idx = parseInt(e.target.dataset.idx);
-          cart.splice(idx, 1);
-          renderCartStructure();
-        });
-      });
-
-      calculateTotalsOnly();
-    }
-
-    // Fungsi hitung kalkulasi matematika murni tanpa mengusik DOM Focus
-    function calculateTotalsOnly() {
-      let needsProduction = false;
+      // 2.3 Render Baris Belanjaan Item Produk
+      let needsBomAnalysis = false;
       let totalRobustaNeeded = 0;
       let totalJagungNeeded = 0;
 
-      cart.forEach(item => {
-        if (item.qty > item.stock) {
-          const shortage = item.qty - item.stock;
-          if (item.name.toLowerCase().includes("giras") || item.name.toLowerCase().includes("blend")) {
-            needsProduction = true;
-            totalRobustaNeeded += (shortage * 0.5); 
-            totalJagungNeeded += (shortage * 0.5);  
-          } else if (item.category === 'kopi_bubuk' || item.category === 'roastedbean') {
-            needsProduction = true;
-            totalRobustaNeeded += shortage; 
+      if (productCardArea) {
+        productCardArea.innerHTML = orderItemsLocal.map(item => {
+          const p = item.products || {};
+          const isShortage = item.qty > (p.stock || 0);
+          
+          if (isShortage) {
+            const gap = item.qty - (p.stock || 0);
+            if (p.name.toLowerCase().includes("giras") || p.name.toLowerCase().includes("blend")) {
+              needsBomAnalysis = true;
+              totalRobustaNeeded += (gap * 0.5);
+              totalJagungNeeded += (gap * 0.5);
+            } else if (p.category === 'kopi_bubuk' || p.category === 'roastedbean') {
+              needsBomAnalysis = true;
+              totalRobustaNeeded += gap;
+            }
           }
-        }
-      });
 
-      if (manufacturingCard) manufacturingCard.style.display = needsProduction ? "block" : "none";
-      if (needsProduction && bomDetails) {
-        let bomHtml = "";
-        if (totalRobustaNeeded > 0) {
-          bomHtml += `
-            <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
-              <span class="text-light text-sm">RB Robusta Base Material</span>
-              <strong style="font-size: var(--text-sm); color: var(--text);">${totalRobustaNeeded.toFixed(1)}kg</strong>
+          return `
+            <div class="detail-row-item" style="border-bottom: 1px solid var(--border); padding-bottom: var(--space-sm); margin-bottom: var(--space-sm);">
+              <div class="left-content">
+                <strong class="title" style="color:var(--text);">${p.name || "Produk Hilang"}</strong>
+                <span class="subtitle">Qty: ${item.qty} ${p.unit || 'kg'} &bull; @Rp ${(item.unit_price || 0).toLocaleString('id-ID')}</span>
+              </div>
+              <span class="badge ${isShortage ? 'badge-warning' : 'badge-success'}">
+                ${isShortage ? 'Butuh Produksi' : 'Stok Ready'}
+              </span>
             </div>
           `;
-        }
-        if (totalJagungNeeded > 0) {
-          bomHtml += `
-            <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
-              <span class="text-light text-sm">Jagung Roasted</span>
-              <strong style="font-size: var(--text-sm); color: var(--text);">${totalJagungNeeded.toFixed(1)}kg</strong>
-            </div>
-          `;
-        }
-        bomDetails.innerHTML = bomHtml;
+        }).join('') + `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:var(--space-md);">
+            <span class="text-sm text-light">Total Pembelian</span>
+            <strong style="font-size:var(--text-md); color:var(--text);">Rp ${(orderDataLocal.total_amount || 0).toLocaleString('id-ID')}</strong>
+          </div>
+        `;
       }
 
-      const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
-      const payVal = parseFloat(bayarInput?.value) || 0;
-      const sisaTotal = subtotalTotal - payVal;
-
-      if (summarySubtotal) summarySubtotal.textContent = `Rp ${subtotalTotal.toLocaleString('id-ID')}`;
-      if (summaryBayar) summaryBayar.textContent = `Rp ${payVal.toLocaleString('id-ID')}`;
-      if (summarySisa) {
-        summarySisa.textContent = `Rp ${sisaTotal.toLocaleString('id-ID')}`;
-        summarySisa.style.color = sisaTotal > 0 ? "var(--orange)" : "#10B981";
+      // 2.4 Render Kartu Kebutuhan Manufaktur Racikan Komposisi (BOM)
+      if (productionCardArea && bomListArea) {
+        if (needsBomAnalysis && orderDataLocal.status !== "dikirim" && orderDataLocal.status !== "ready") {
+          productionCardArea.style.display = "block";
+          let bomHtml = "";
+          if (totalRobustaNeeded > 0) {
+            bomHtml += `
+              <div class="detail-row-item"><div class="left-content"><span class="title">RB Robusta Base Material</span></div><strong class="right-value">${totalRobustaNeeded.toFixed(1)}kg</strong></div>
+            `;
+          }
+          if (totalJagungNeeded > 0) {
+            bomHtml += `
+              <div class="detail-row-item"><div class="left-content"><span class="title">Jagung Campuran</span></div><strong class="right-value">${totalJagungNeeded.toFixed(1)}kg</strong></div>
+            `;
+          }
+          bomListArea.innerHTML = bomHtml;
+        } else {
+          productionCardArea.style.display = "none";
+        }
       }
+
+      // 2.5 Render Tracing Visual Progress Timeline Kerja Lapangan
+      const st = orderDataLocal.status;
+      if (timelineArea) {
+        timelineArea.innerHTML = `
+          <div class="timeline-item active"><div class="timeline-dot"></div><div><h4>Order Dibuat</h4><p>${orderDataLocal.order_date}</p></div></div>
+          <div class="timeline-item ${st !== 'pending' ? 'active' : ''}"><div class="timeline-dot"></div><div><h4>Antrean Masuk</h4><p>${st === 'pending' ? 'Menunggu Produksi' : 'Disetujui Admin'}</p></div></div>
+          <div class="timeline-item ${st === 'ready' || st === 'dikirim' ? 'active' : ''}"><div class="timeline-dot"></div><div><h4>Proses Produksi</h4><p>${st === 'diproses' ? 'Sedang Digiling/Roasting' : (st === 'ready' || st === 'dikirim' ? 'Selesai Sempurna' : 'Belum Dimulai')}</p></div></div>
+          <div class="timeline-item ${st === 'dikirim' ? 'active' : ''}"><div class="timeline-dot"></div><div><h4>Pengiriman</h4><p>${st === 'dikirim' ? 'Barang Dibawa Sales' : 'Menunggu Siap'}</p></div></div>
+        `;
+      }
+
+      // 2.6 Render Tombol Aksi Lapangan Dinamis Berdasarkan Posisi Status
+      renderActionButtonsDOM();
     }
 
-    if (bayarInput) {
-      bayarInput.addEventListener("input", calculateTotalsOnly);
-    }
-
-    // Render inisialisasi awal struktur
-    renderCartStructure();
-
     // ==========================================================================
-    // 5. SUBMIT DATA KE SUPABASE
+    // 3. FIXED LOGIC CORE: PEMBETULAN STRING MUTASI DAN PEMOTONGAN STOK AKTUAL
     // ==========================================================================
-    const actionsArea = container.querySelector(".detail-actions");
-    if (actionsArea) {
-      const submitBtn = actionsArea.querySelector(".primary-action");
-      const draftBtn = actionsArea.querySelector(".action-btn:not(.primary-action)");
+    function renderActionButtonsDOM() {
+      const st = orderDataLocal.status;
+      
+      let leftButtonsHtml = `
+        <button class="action-btn" id="btn-back-order" style="background:var(--border); color:var(--text); border:none;">Kembali</button>
+      `;
 
-      if (submitBtn) {
-        submitBtn.addEventListener("click", async () => {
-          if (isSubmitting) return;
+      if (st === "pending") {
+        actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:var(--orange); border:none; color:white;">Mulai Produksi</button>`;
+      } else if (st === "diproses") {
+        actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:#14B8A6; border:none; color:white;">Set Siap Kirim</button>`;
+      } else if (st === "ready") {
+        actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:#06B6D4; border:none; color:white;">Kirim Barang</button>`;
+      } else {
+        actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn" style="background:var(--border); border:none; color:var(--text-light);" disabled>Order Closed</button>`;
+      }
 
-          if (!selectedCustomer) {
-            alert("⚠️ Harap pilih atau cari customer warung terlebih dahulu!");
-            return;
-          }
-          if (cart.length === 0) {
-            alert("⚠️ Keranjang belanja masih kosong!");
-            return;
-          }
+      const backBtn = actionsArea.querySelector("#btn-back-order");
+      if (backBtn) backBtn.addEventListener("click", () => { if(window.navigate) window.navigate("order"); });
 
-          isSubmitting = true;
-          submitBtn.disabled = true;
-          submitBtn.textContent = "Processing...";
+      const nextBtn = actionsArea.querySelector("#btn-next-status");
+      if (nextBtn) {
+        nextBtn.addEventListener("click", async () => {
+          // KUNCI LOGIKA: Menggunakan string murni database huruf kecil standar
+          let nextStatus = "diproses";
+          if (st === "diproses") nextStatus = "ready";
+          if (st === "ready") nextStatus = "dikirim";
 
           try {
-            const invoiceNo = 'SO-' + today.replace(/-/g, '') + '-' + Date.now().toString().slice(-4);
-            const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
-            const payAmount = parseFloat(bayarInput?.value) || 0;
+            nextBtn.disabled = true;
+            nextBtn.textContent = "Updating...";
 
-            const { data: orderData, error: orderError } = await supabase
-              .from('sales_orders')
-              .insert([{
-                invoice_no: invoiceNo,
-                order_date: dateInput?.value || today,
-                customer_id: selectedCustomer.id,
-                salesman_id: selectedSalesman,
-                total_amount: subtotalTotal,
-                discount: 0,
-                net_amount: subtotalTotal,
-                payment_method: payAmount >= subtotalTotal ? 'QRIS' : 'Cash',
-                status: 'pending' 
-              }])
-              .select();
+            // PROSES MUTASI WAJIB HANYA TERJADI PAS KLIK "KIRIM BARANG" (READY -> DIKIRIM)
+            if (nextStatus === "dikirim") {
+              for (const item of orderItemsLocal) {
+                const p = item.products || {};
+                const currentStock = parseFloat(p.stock) || 0;
+                const orderQty = parseFloat(item.qty) || 0;
+                const newStock = currentStock - orderQty;
 
-            if (orderError) throw orderError;
+                // A. Potong nilai angka stok di tabel master products
+                const { error: stockErr } = await supabase
+                  .from("products")
+                  .update({ stock: newStock })
+                  .eq("id", p.id);
+                
+                if (stockErr) throw stockErr;
 
-            const orderItemsPayload = cart.map(item => ({
-              sales_order_id: orderData[0].id,
-              product_id: item.id,
-              qty: item.qty,
-              unit_price: item.price
-            }));
+                // B. Catat mutasi sejarah barang keluar secara real-time ke tabel stock_mutations
+                const { error: mutationErr } = await supabase
+                  .from("stock_mutations")
+                  .insert([{
+                    product_id: p.id,
+                    type: "out",
+                    qty: orderQty,
+                    reference_no: orderDataLocal.invoice_no,
+                    description: `Penjualan Lapangan: ${orderDataLocal.invoice_no} (${orderDataLocal.customers?.name || 'Warung'})`
+                  }]);
+                
+                if (mutationErr) throw mutationErr;
+              }
+            }
 
-            const { error: itemsError } = await supabase
-              .from('sales_order_items')
-              .insert(orderItemsPayload);
+            // C. Jalankan pembaruan status nota induk orderan utama di database
+            const { error: updateErr } = await supabase
+              .from("sales_orders")
+              .update({ status: nextStatus })
+              .eq("id", orderId);
 
-            if (itemsError) throw itemsError;
+            if (updateErr) throw updateErr;
 
-            alert(`🎉 Sales Order ${invoiceNo} Berhasil Disimpan ke Antrean Pending!`);
-            if (window.navigate) window.navigate('order');
+            alert(`🎉 Status Order Resmi Naik Ke Tahap: ${nextStatus.toUpperCase()}! Arus stok tercatat.`);
+            fetchOrderDetail(); 
 
           } catch (err) {
-            alert("❌ Gagal menyimpan order: " + err.message);
-          } finally {
-            isSubmitting = false;
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Submit";
+            alert("❌ Gagal merubah status operational: " + err.message);
+            nextBtn.disabled = false;
+            renderActionButtonsDOM();
           }
         });
       }
-
-      if (draftBtn) {
-        draftBtn.addEventListener("click", () => {
-          if (window.navigate) window.navigate('order');
-        });
-      }
     }
+
+    fetchOrderDetail();
 
   }, 50);
 
-  // Perbaikan Total Layout: Tombol aksi diletakkan normal paling bawah form dengan tambahan padding-bottom aman
   return `
-    <section class="create-page" style="padding-bottom: 60px;">
+    <section class="detail-page" style="padding-bottom: var(--space-xl);">
 
-      <div class="card create-card">
-        <div class="form-group">
-          <label class="form-label">Tanggal</label>
-          <input type="date" id="order-date" class="input" />
+      <div class="card detail-status-card">
+        <div>
+          <span class="detail-status-title">Memuat...</span>
+          <h3 class="font-bold">Menghubungkan Database...</h3>
         </div>
+        <span class="badge badge-warning">...</span>
+      </div>
 
-        <div class="form-group" style="position: relative;">
-          <label class="form-label">Customer</label>
-          <div style="display: flex; gap: var(--space-xs); align-items: center; position: relative;">
-            <input type="text" id="customer-search" class="input" style="flex: 1;" placeholder="Ketik nama warung / cari customer..." autocomplete="off" />
-            
-            <button id="quick-add-cust-btn" style="display: none; width: 42px; height: 42px; background: var(--orange-soft); border: none; border-radius: var(--radius-sm); align-items: center; justify-content: center; color: var(--orange); font-size: 20px; font-weight: bold; cursor: pointer;">+</button>
-          </div>
-          <div id="customer-floating-list" class="card" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 1010; display: none; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0;"></div>
+      <div class="card detail-card">
+        <div class="card-title">
+          <div class="icon-box"><i data-lucide="user"></i></div>
+          <h3>Customer & Salesman</h3>
         </div>
-
-        <div class="form-group" style="margin-top: var(--space-md); position: relative;">
-          <label class="form-label">Salesman Lapangan</label>
-          <input type="text" id="salesman-search" class="input" placeholder="Ketik nama tim / cari salesman..." autocomplete="off" />
-          <div id="salesman-floating-list" class="card" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 1010; display: none; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0;"></div>
+        <div class="detail-info" id="detail-customer-card-info">
+          <p class="text-xs text-light">Memuat profil...</p>
         </div>
       </div>
 
-      <div class="card create-card">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-sm);">
-          <div>
-            <h3 style="font-size: var(--text-md); font-weight: var(--font-bold); color: var(--text);">Produk</h3>
-            <p class="text-light text-xs" style="margin-top: 1px;">Ketik nama item di bawah untuk menambahkan</p>
-          </div>
+      <div class="card detail-card">
+        <div class="card-title">
+          <div class="icon-box"><i data-lucide="package"></i></div>
+          <h3>Produk Terbeli</h3>
         </div>
-
-        <div class="form-group" style="position: relative;">
-          <input type="text" id="product-search" class="input" placeholder="Ketik nama kopi / jenis produk..." autocomplete="off" />
-          <div id="product-floating-list" class="card" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 1010; display: none; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0;"></div>
+        <div id="detail-product-card-list" style="margin-top: var(--space-md);">
+          <p class="text-xs text-light">Memuat list item...</p>
         </div>
       </div>
 
-      <div id="cart-items-container"></div>
-
-      <div class="card create-card" id="manufacturing-analysis-card" style="display: none;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md);">
-          <div>
-            <h3 style="font-size: var(--text-md); font-weight: var(--font-bold); color: var(--text);">Produksi Dibutuhkan</h3>
-            <p class="text-light text-xs" style="margin-top: 1px;">Auto manufacturing analysis</p>
-          </div>
-          <span class="badge badge-warning">Diproses</span>
+      <div class="card detail-card" id="detail-production-card-bom" style="display: none;">
+        <div class="card-title">
+          <div class="icon-box"><i data-lucide="factory"></i></div>
+          <h3>Kebutuhan Analisis Manufaktur (BOM)</h3>
         </div>
-        <div style="display: flex; align-items: center; gap: var(--space-sm); background: var(--warning-soft); color: #D97706; padding: var(--space-md); border-radius: var(--radius-md); margin-bottom: var(--space-md);">
-          <p style="font-size: var(--text-xs); font-weight: var(--font-medium); line-height: 1.4; margin: 0;">Stock produk gudang tidak mencukupi, sistem menjadwalkan produksi otomatis</p>
-        </div>
-        <div class="detail-info" id="bom-details-list" style="gap: var(--space-sm);"></div>
-      </div>
-
-      <div class="card create-card">
-        <div class="detail-info" style="gap: var(--space-sm);">
-          <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
-            <span class="text-light text-sm">Subtotal</span>
-            <strong id="summary-subtotal" style="font-size: var(--text-sm); font-weight: var(--font-bold);">Rp 0</strong>
-          </div>
-          <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
-            <span class="text-light text-sm">Bayar</span>
-            <strong id="summary-bayar" style="font-size: var(--text-sm); font-weight: var(--font-bold);">Rp 0</strong>
-          </div>
-          <div class="detail-row-item" style="border-top: 1px solid var(--border); padding-top: var(--space-sm); margin-top: 4px; display:flex; justify-content:space-between;">
-            <span class="font-semibold text-sm">Sisa Tagihan</span>
-            <strong id="summary-sisa" style="color: var(--orange); font-size: var(--text-md); font-weight: var(--font-bold);">Rp 0</strong>
-          </div>
+        <div class="bom-list" id="detail-bom-list-render" style="margin-top: var(--space-md);">
         </div>
       </div>
 
-      <div class="card create-card">
-        <div class="form-group">
-          <label class="form-label">Nominal Pembayaran Saat Ini (Rp)</label>
-          <input type="number" pattern="[0-9]*" inputmode="numeric" id="pay-amount" class="input" placeholder="0" />
+      <div class="card detail-card">
+        <div class="card-title">
+          <div class="icon-box"><i data-lucide="clock-3"></i></div>
+          <h3>Timeline Perjalanan Nota</h3>
+        </div>
+        <div class="timeline" style="margin-top: var(--space-md);">
         </div>
       </div>
 
-      <div class="card create-card">
-        <div class="form-group">
-          <label class="form-label">Catatan Order</label>
-          <textarea id="order-note" class="textarea" placeholder="Tambahkan instruksi pengiriman / racikan khusus harian..."></textarea>
-        </div>
-      </div>
-
-      <div class="detail-actions" style="margin-top: var(--space-xl); display: flex; gap: var(--space-md); padding: 0 var(--space-xs);">
-        <button class="action-btn" style="flex: 1; height: 48px; border-radius: var(--radius-md); font-weight: bold; cursor: pointer; border: 1px solid var(--border); background: #f9f9f9;">Kembali</button>
-        <button class="action-btn primary-action" style="flex: 1; height: 48px; background: var(--orange); color: white; border: none; border-radius: var(--radius-md); font-weight: bold; cursor: pointer;">Submit</button>
-      </div>
-
-      <div id="customer-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 99999; display: none; align-items: center; justify-content: center; padding: 20px;">
-        <div class="card" style="width: 100%; max-width: 400px; background: var(--white); padding: var(--space-lg); border-radius: var(--radius-md); box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
-          <h3 style="font-size: var(--text-md); font-weight: var(--font-bold); margin-bottom: var(--space-sm); color: var(--text);">Tambah Customer Baru</h3>
-          <div class="form-group" style="margin-bottom: var(--space-sm);">
-            <label class="form-label">Nama Warung / Toko</label>
-            <input type="text" id="new-cust-name" class="input" />
-          </div>
-          <div class="form-group" style="margin-bottom: var(--space-sm);">
-            <label class="form-label">No. Telepon / WA</label>
-            <input type="text" id="new-cust-phone" class="input" placeholder="08..." />
-          </div>
-          <div class="form-group" style="margin-bottom: var(--space-lg);">
-            <label class="form-label">Alamat Lengkap</label>
-            <input type="text" id="new-cust-address" class="input" placeholder="Nama jalan, nomor, area..." />
-          </div>
-          <div style="display: flex; gap: var(--space-md); justify-content: flex-end;">
-            <button id="close-customer-modal" style="background: var(--border); border:none; padding: 0 var(--space-md); border-radius: var(--radius-sm); height:38px; cursor:pointer;">Batal</button>
-            <button id="save-new-customer" style="background: var(--orange); color: white; border:none; padding: 0 var(--space-md); border-radius: var(--radius-sm); height:38px; font-weight:bold; cursor:pointer;">Simpan Data</button>
-          </div>
-        </div>
+      <div class="detail-actions" style="margin-top: var(--space-xl); display: flex; gap: var(--space-md);">
+        <button class="action-btn" style="flex:1;">Memuat...</button>
       </div>
 
     </section>
