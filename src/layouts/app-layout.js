@@ -1,4 +1,10 @@
-export function AppLayout(content) {
+import { BottomNav } from "../components/bottom-nav.js";
+
+export function AppLayout({
+  content,
+  route
+}) {
+
   return `
     <div class="app-layout">
 
@@ -6,7 +12,7 @@ export function AppLayout(content) {
         ${content}
       </main>
 
-      <div id="bottom-nav"></div>
+      ${BottomNav(route)}
 
     </div>
   `;
