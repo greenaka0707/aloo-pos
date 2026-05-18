@@ -1,13 +1,9 @@
 .detail-page {
   display: flex;
   flex-direction: column;
-
-  /* Jarak antar seksi utama */
-  gap: 12px;
-
-  /* REVISI: Disesuaikan menjadi 100px agar ketika discroll sampai mentok bawah, 
-     tombol tidak tertutup oleh bottom-nav kamu yang setinggi 78px */
-  padding-bottom: 100px;
+  gap: var(--section-gap); /* Menggunakan variabel global */
+  /* Diperkecil karena batas bawah aman sudah dikontrol oleh layout.css */
+  padding-bottom: 24px; 
 }
 
 /* =========================
@@ -17,17 +13,45 @@
 .detail-header {
   display: flex;
   align-items: center;
+  gap: var(--space-md); 
+}
 
-  gap: 12px; 
+/* REVISI KHUSUS: Tombol Back Bulat Sempurna */
+.detail-header .btn-back {
+  width: var(--icon-button-size);  /* Otomatis 44px */
+  height: var(--icon-button-size); /* Otomatis 44px */
+  border-radius: var(--radius-full); /* Bulat Sempurna */
+  background: var(--white);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.detail-header .btn-back:active {
+  transform: scale(0.95);
+}
+
+.detail-header .btn-back svg {
+  width: 18px;
+  height: 18px;
+  color: var(--text);
 }
 
 .detail-header-text h2 {
-  font-size: 22px; 
+  font-size: var(--text-xl); /* Diturunkan dari 22px ke 18px */
+  font-weight: var(--font-bold);
+  color: var(--text);
+  line-height: var(--line-tight);
 }
 
 .detail-header-text p {
   margin-top: 2px;
-  font-size: 13px;
+  font-size: var(--text-xs); /* Menggunakan variabel: 11px */
+  color: var(--text-light);
 }
 
 /* =========================
@@ -35,85 +59,88 @@
 ========================= */
 
 .detail-status-card {
-  padding: 14px;
-
+  padding: var(--card-padding);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .detail-status-title {
-  margin-top: 4px;
-  font-size: 13px;
+  font-size: var(--text-xs); /* Menggunakan variabel: 11px */
+  color: var(--text-light);
 }
 
 /* =========================
-   CARD
+   CARD DETAIL GENERAL
 ========================= */
 
 .detail-card {
-  padding: 16px;
+  padding: var(--card-padding); /* Menggunakan variabel: 14px */
 }
 
 .card-title {
   display: flex;
   align-items: center;
-
-  gap: 12px;
-
-  margin-bottom: 14px;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
 }
 
 .card-title h3 {
-  font-size: 16px; 
+  font-size: var(--text-md); /* Menggunakan variabel: 14px */
+  font-weight: var(--font-bold);
+  color: var(--text);
 }
 
 /* =========================
-   INFO
+   INFO LIST
 ========================= */
 
 .detail-info {
   display: flex;
   flex-direction: column;
-
-  gap: 12px;
+  gap: var(--space-md);
 }
 
 .info-item span {
-  font-size: 12px; 
+  font-size: var(--text-xs); /* Menggunakan variabel: 11px */
+  color: var(--text-light);
 }
 
 .info-item strong {
   display: block;
-
   margin-top: 2px;
-  font-size: 14px; 
+  font-size: var(--text-sm); /* Menggunakan variabel: 13px */
+  font-weight: var(--font-semibold);
+  color: var(--text);
 }
 
 /* =========================
-   PRODUCT
+   PRODUCT ITEM
 ========================= */
 
 .product-item {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
-
-  gap: 14px;
+  gap: var(--space-md);
 }
 
 .product-title {
-  font-size: 15px;
+  font-size: var(--text-sm); /* Menggunakan variabel: 13px */
+  font-weight: var(--font-semibold);
+  color: var(--text);
 }
 
 .product-subtitle {
   margin-top: 2px;
-  font-size: 12px;
+  font-size: var(--text-xs); /* Menggunakan variabel: 11px */
+  color: var(--text-light);
 }
 
 .product-item > strong {
-  font-size: 15px; 
+  font-size: var(--text-sm); /* Menggunakan variabel: 13px */
+  font-weight: var(--font-bold);
+  color: var(--text);
 }
 
 /* =========================
@@ -123,16 +150,15 @@
 .bom-list {
   display: flex;
   flex-direction: column;
-
-  gap: 10px; 
+  gap: var(--space-sm); 
 }
 
 .bom-item {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: var(--text-sm); /* Menggunakan variabel: 13px */
+  color: var(--text);
 }
 
 /* =========================
@@ -142,16 +168,14 @@
 .timeline {
   display: flex;
   flex-direction: column;
-
-  gap: 16px; 
+  gap: var(--space-md); 
 }
 
 .timeline-item {
   display: flex;
-
-  gap: 12px;
-
+  gap: var(--space-md);
   opacity: 0.4;
+  transition: var(--transition);
 }
 
 .timeline-item.active {
@@ -159,70 +183,76 @@
 }
 
 .timeline-dot {
-  width: 10px; 
-  height: 10px;
-
-  margin-top: 5px;
-
+  width: 8px; /* Diperkecil dari 10px agar lebih clean */
+  height: 8px;
+  margin-top: 4px;
   border-radius: var(--radius-full);
-
   background: #D1D5DB;
+  flex-shrink: 0;
 }
 
 .timeline-item.active .timeline-dot {
   background: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-soft); /* Efek ring glow lembut pada status aktif */
 }
 
 .timeline-item h4 {
-  font-size: 14px;
+  font-size: var(--text-sm); /* Menggunakan variabel: 13px */
+  font-weight: var(--font-semibold);
+  color: var(--text);
 }
 
 .timeline-item p {
   margin-top: 2px;
-  font-size: 12px;
+  font-size: var(--text-xs); /* Menggunakan variabel: 11px */
+  color: var(--text-light);
 }
 
 /* =========================
-   ACTIONS (Tombol Void, Edit, Mulai Produksi)
+   ACTIONS (Tombol Void, Edit, Mulai)
 ========================= */
 
 .detail-actions {
-  /* REVISI UTAMA: Mengubah dari melayang (fixed) menjadi bagian dari aliran halaman normal (static) */
   position: relative;
-  left: auto;
-  right: auto;
-  bottom: auto; 
-
   display: flex;
-  gap: 10px;
-
-  /* REVISI: Mengubah padding agar menyatu sebagai card horizontal biasa */
-  padding: 16px;
-
-  /* REVISI: Mengikuti styling dasar .card bawaan agar senada dengan komponen di atasnya */
+  gap: var(--space-sm);
+  padding: var(--card-padding);
   background: var(--white);
-  border-radius: var(--radius-xl);
+  /* REVISI RADIUS: Mengikuti radius standar card (16px) agar serasi */
+  border-radius: var(--radius-lg); 
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
-  
-  /* Jarak atas dari card sebelumnya (Timeline) */
-  margin-top: 8px;
+  margin-top: var(--space-xs);
   z-index: 10;
 }
 
 .action-btn {
-  height: 46px;
+  height: var(--button-height); /* Otomatis sinkron 46px */
+  font-size: var(--text-sm);    /* Otomatis sinkron 13px */
+  font-weight: var(--font-bold);
+  border-radius: var(--radius-md); /* Diubah ke 12px agar pas dengan tombol global */
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
 
-  font-size: 14px;
-  font-weight: 700;
-
-  border-radius: 12px;
+.action-btn:active {
+  transform: scale(0.97);
 }
 
 .primary-action {
   flex: 2;
+  background: var(--orange);
+  color: white;
 }
 
+/* Tombol sekunder di dalam grup aksi (seperti Edit / Void) */
 .action-btn:not(.primary-action) {
   flex: 1;
+  background: var(--white);
+  color: var(--text-light);
+  border: 1px solid var(--border);
 }
