@@ -2,22 +2,6 @@ export function CreateOrderPage() {
   return `
     <section class="create-page">
 
-      <div class="detail-header">
-        
-        <button
-          class="btn-back"
-          onclick="window.navigate('order')"
-        >
-          <i data-lucide="arrow-left"></i>
-        </button>
-
-        <div class="detail-header-text">
-          <h2>Create Order</h2>
-          <p>Sales order manufacturing</p>
-        </div>
-
-      </div>
-
       <div class="card create-card">
         <div class="form-group">
           <label class="form-label">Tanggal</label>
