@@ -1,132 +1,65 @@
 export function PurchaseListPage() {
   return `
-    <section class="purchase-page">
-
-      <!-- HEADER -->
+    <section class="list-page">
 
       <div class="page-header">
-
         <div>
-
-          <h2 class="text-3xl font-bold">
+          <h2 class="font-bold">
             Pembelian
           </h2>
-
-          <p class="text-light text-md">
+          <p class="page-subtitle">
             Supplier purchasing workflow
           </p>
-
         </div>
-
       </div>
 
-      <!-- SEARCH -->
-
-      <div class="card purchase-search">
-
+      <div class="card search-box">
         <i data-lucide="search"></i>
-
         <input
           type="text"
           placeholder="Cari pembelian..."
         />
-
       </div>
 
-      <!-- FILTER -->
-
-      <div class="purchase-filter">
-
-        <button class="filter-chip active">
-          Semua
-        </button>
-
-        <button class="filter-chip">
-          Pending
-        </button>
-
-        <button class="filter-chip">
-          Diterima
-        </button>
-
-        <button class="filter-chip">
-          Partial
-        </button>
-
-        <button class="filter-chip">
-          Void
-        </button>
-
+      <div class="filter-scroll">
+        <button class="filter-chip active">Semua</button>
+        <button class="filter-chip">Pending</button>
+        <button class="filter-chip">Diterima</button>
+        <button class="filter-chip">Partial</button>
+        <button class="filter-chip">Void</button>
       </div>
 
-      <!-- PURCHASE LIST -->
+      <div class="data-list">
 
-      <div class="purchase-list">
-
-        <!-- ITEM -->
-
-        <div class="card purchase-card">
-
-          <div class="purchase-top">
-
+        <div class="card list-card">
+          
+          <div class="list-card-top">
             <div>
-
-              <h3 class="font-bold text-xl">
-                PO-001
-              </h3>
-
-              <p class="text-light text-sm">
-                PT Sumber Kopi Nusantara
-              </p>
-
+              <h3 class="font-bold">PO-001</h3>
+              <p class="text-light text-sm">PT Sumber Kopi Nusantara</p>
             </div>
-
-            <span class="badge badge-warning">
-              Pending
-            </span>
-
+            <span class="badge badge-warning">Pending</span>
           </div>
 
-          <div class="purchase-summary">
-
-            <div class="purchase-summary-item">
-
-              <span class="text-light text-sm">
-                Total Item
-              </span>
-
-              <strong>
-                3 Produk
-              </strong>
-
+          <div class="list-card-summary">
+            <div class="list-card-summary-item">
+              <span>Total Item</span>
+              <strong>3 Produk</strong>
             </div>
-
-            <div class="purchase-summary-item">
-
-              <span class="text-light text-sm">
-                Qty
-              </span>
-
-              <strong>
-                100kg
-              </strong>
-
+            <div class="list-card-summary-item">
+              <span>Qty</span>
+              <strong>100kg</strong>
             </div>
-
           </div>
 
-          <div class="purchase-footer">
-
+          <div class="list-card-footer">
             <div>
-
-              <strong class="purchase-total">
+              <strong style="color: var(--orange); font-size: var(--text-md); display: block; font-weight: var(--font-bold);">
                 Rp 4.500.000
               </strong>
-
-              <p class="text-light text-sm">
+              <p class="text-light text-xs" style="margin-top: 1px;">
                 18 Mei 2026
               </p>
-
             </div>
 
             <button
@@ -135,75 +68,38 @@ export function PurchaseListPage() {
             >
               Detail
             </button>
-
           </div>
-
         </div>
 
-        <!-- ITEM -->
-
-        <div class="card purchase-card">
-
-          <div class="purchase-top">
-
+        <div class="card list-card">
+          
+          <div class="list-card-top">
             <div>
-
-              <h3 class="font-bold text-xl">
-                PO-002
-              </h3>
-
-              <p class="text-light text-sm">
-                CV Bahan Baku Kopi
-              </p>
-
+              <h3 class="font-bold">PO-002</h3>
+              <p class="text-light text-sm">CV Bahan Baku Kopi</p>
             </div>
-
-            <span class="badge badge-success">
-              Diterima
-            </span>
-
+            <span class="badge badge-success">Diterima</span>
           </div>
 
-          <div class="purchase-summary">
-
-            <div class="purchase-summary-item">
-
-              <span class="text-light text-sm">
-                Total Item
-              </span>
-
-              <strong>
-                2 Produk
-              </strong>
-
+          <div class="list-card-summary">
+            <div class="list-card-summary-item">
+              <span>Total Item</span>
+              <strong>2 Produk</strong>
             </div>
-
-            <div class="purchase-summary-item">
-
-              <span class="text-light text-sm">
-                Qty
-              </span>
-
-              <strong>
-                200kg
-              </strong>
-
+            <div class="list-card-summary-item">
+              <span>Qty</span>
+              <strong>200kg</strong>
             </div>
-
           </div>
 
-          <div class="purchase-footer">
-
+          <div class="list-card-footer">
             <div>
-
-              <strong class="purchase-total">
+              <strong style="color: var(--orange); font-size: var(--text-md); display: block; font-weight: var(--font-bold);">
                 Rp 2.000.000
               </strong>
-
-              <p class="text-light text-sm">
+              <p class="text-light text-xs" style="margin-top: 1px;">
                 17 Mei 2026
               </p>
-
             </div>
 
             <button
@@ -212,22 +108,16 @@ export function PurchaseListPage() {
             >
               Detail
             </button>
-
           </div>
-
         </div>
 
       </div>
-
-      <!-- FLOAT BUTTON -->
 
       <button
         class="fab-btn"
         onclick="window.navigate('create-purchase')"
       >
-
         <i data-lucide="plus"></i>
-
       </button>
 
     </section>
