@@ -4,6 +4,7 @@ export default function CreateOrderPage() {
   let selectedCustomer = null;
   let selectedSalesman = null;
   let cart = [];
+  let bomCart = []; // <--- 🛒 ARRAY BARU KHUSUS MENAMPUNG BAHAN BAKU PILIHAN MANUAL LO GALS
   let isSubmitting = false;
 
   const today = new Date().toISOString().split('T')[0];
@@ -178,7 +179,7 @@ export default function CreateOrderPage() {
     }
 
     // ==========================================================================
-    // 3. LIVE SEARCH PRODUK
+    // 3. LIVE SEARCH PRODUK JUALAN UTAMA
     // ==========================================================================
     if (productInput && productFloat) {
       productInput.addEventListener("input", async (e) => {
@@ -239,7 +240,7 @@ export default function CreateOrderPage() {
     }
 
     // ==========================================================================
-    // 4. MANIPULASI DOM INPUT INTERAKTIF
+    // 4. MANIPULASI DOM INPUT INTERAKTIF JUALAN KASIR
     // ==========================================================================
     function renderCartStructure() {
       if (cart.length === 0) {
@@ -309,82 +310,21 @@ export default function CreateOrderPage() {
       calculateTotalsOnly();
     }
 
-    // ==========================================================================
-    // SEARCH PRODUK BAHAN BAKU LANGSUNG KE TABEL PRODUCTS (DINAMIS 100%)
-    // ==========================================================================
-    async function calculateTotalsOnly() {
+    function calculateTotalsOnly() {
       let needsProduction = false;
-      let totalRobustaNeeded = 0;
-      let totalJagungNeeded = 0;
 
       cart.forEach(item => {
         if (item.qty > item.stock) {
-          const shortage = item.qty - item.stock;
-          if (item.name.toLowerCase().includes("giras") || item.name.toLowerCase().includes("blend")) {
-            needsProduction = true;
-            totalRobustaNeeded += (shortage * 0.5); 
-            totalJagungNeeded += (shortage * 0.5);  
-          } else if (item.category === 'kopi_bubuk' || item.category === 'roastedbean') {
-            needsProduction = true;
-            totalRobustaNeeded += shortage; 
-          }
+          needsProduction = true;
         }
       });
 
       if (manufacturingCard) manufacturingCard.style.display = needsProduction ? "block" : "none";
       
-      if (needsProduction && bomDetails) {
-        let bomHtml = "";
-        let bomPayloadArr = [];
-
-        // 🔍 SEARCH DATA PRODUK BAHAN BAKU LANGSUNG KE DATABASE BIAR DAPET ID & UNIT ASLI GALS!
-        if (totalRobustaNeeded > 0) {
-          const { data: matData } = await supabase
-            .from("products")
-            .select("id, name, unit")
-            .ilike("name", "%Robusta Base Material%")
-            .limit(1)
-            .single();
-
-          const rName = matData?.name || "RB Robusta Base Material";
-          const rUnit = matData?.unit || "kg";
-          const rId = matData?.id || 4; // Fallback ke ID default lo gais
-
-          bomPayloadArr.push({ material_id: rId, total_needed: totalRobustaNeeded });
-          
-          bomHtml += `
-            <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
-              <span class="text-light text-sm">${rName}</span>
-              <strong style="font-size: var(--text-sm); color: var(--text);">${totalRobustaNeeded.toFixed(1)}${rUnit}</strong>
-            </div>
-          `;
-        }
-
-        if (totalJagungNeeded > 0) {
-          const { data: matData } = await supabase
-            .from("products")
-            .select("id, name, unit")
-            .ilike("name", "%Jagung Roasted%")
-            .limit(1)
-            .single();
-
-          const jName = matData?.name || "Jagung Roasted";
-          const jUnit = matData?.unit || "kg";
-          const jId = matData?.id || 5;
-
-          bomPayloadArr.push({ material_id: jId, total_needed: totalJagungNeeded });
-
-          bomHtml += `
-            <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
-              <span class="text-light text-sm">${jName}</span>
-              <strong style="font-size: var(--text-sm); color: var(--text);">${totalJagungNeeded.toFixed(1)}${jUnit}</strong>
-            </div>
-          `;
-        }
-
-        bomDetails.innerHTML = bomHtml;
-        // Simpan array payload ID produk bahan baku ke DOM dataset
-        manufacturingCard.dataset.bomPayload = JSON.stringify(bomPayloadArr);
+      // Jika butuh produksi mati/hilang, kosongkan juga cart bahan mentahnya gais
+      if (!needsProduction) {
+        bomCart = [];
+        renderBomCartStructure();
       }
 
       const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
@@ -401,6 +341,115 @@ export default function CreateOrderPage() {
 
     if (bayarInput) {
       bayarInput.addEventListener("input", calculateTotalsOnly);
+    }
+
+    // ==========================================================================
+    // 💥 FITUR KEMAUAN LO: LIVE SEARCH BAHAN BAKU + INPUT QTY MANUAL (SKEMA TAMBAH PRODUK)
+    // ==========================================================================
+    const matInput = container.querySelector("#material-search-input");
+    const matFloat = container.querySelector("#material-floating-list");
+
+    if (matInput && matFloat) {
+      matInput.addEventListener("input", async (e) => {
+        const val = e.target.value.trim();
+        if (val.length < 1) {
+          matFloat.style.display = "none";
+          return;
+        }
+
+        // Cari bahan mentah keliling ke table products
+        const { data: materials, error } = await supabase
+          .from("products")
+          .select("id, name, stock, unit")
+          .ilike("name", `%${val}%`)
+          .limit(5);
+
+        if (!error && materials) {
+          matFloat.innerHTML = materials.map(m => `
+            <div class="mat-row-item" data-id="${m.id}" data-name="${m.name}" data-unit="${m.unit || 'kg'}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer; display:flex; justify-content:space-between;">
+              <strong style="font-size: var(--text-sm); color: var(--text);">${m.name}</strong>
+              <span class="text-xs text-light">Stok: ${m.stock || 0} ${m.unit || 'kg'}</span>
+            </div>
+          `).join('');
+          matFloat.style.display = "block";
+
+          matFloat.querySelectorAll(".mat-row-item").forEach(row => {
+            row.addEventListener("click", (evt) => {
+              const target = evt.currentTarget;
+              const mId = parseInt(target.dataset.id);
+
+              if (bomCart.some(b => b.id === mId)) {
+                matFloat.style.display = "none";
+                matInput.value = "";
+                return;
+              }
+
+              // Masukkan ke array penampung bahan baku gais
+              bomCart.push({
+                id: mId,
+                name: target.dataset.name,
+                unit: target.dataset.unit,
+                qty_needed: 1 // Qty awal default, diisi manual nanti
+              });
+
+              matFloat.style.display = "none";
+              matInput.value = "";
+              renderBomCartStructure();
+            });
+          });
+        }
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!matInput.contains(e.target) && !matFloat.contains(e.target)) {
+          matFloat.style.display = "none";
+        }
+      });
+    }
+
+    // RENDER BARIS BARU BAHAN BAKU BERDASARKAN INPUT MANUAL
+    function renderBomCartStructure() {
+      if (!bomDetails) return;
+
+      if (bomCart.length === 0) {
+        bomDetails.innerHTML = `
+          <p class="text-light text-xs" style="text-align: center; padding: var(--space-sm); color: var(--orange);">
+            Cari & pilih item bahan baku di atas gais...
+          </p>
+        `;
+        return;
+      }
+
+      bomDetails.innerHTML = bomCart.map((b, idx) => `
+        <div class="item-bom-row" data-idx="${idx}" style="display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); padding: var(--space-sm) 0; border-bottom: 1px dashed var(--border);">
+          <div style="flex: 2;">
+            <span class="text-sm font-medium" style="color: var(--text); display:block;">${b.name}</span>
+          </div>
+          <div style="flex: 1; display: flex; align-items: center; gap: 4px;">
+            <input type="number" step="0.01" class="input input-bom-qty" value="${b.qty_needed}" style="text-align: right; width: 80px; padding: 4px 8px; font-size: 13px;" />
+            <span class="text-xs text-light">${b.unit}</span>
+          </div>
+          <button type="button" class="btn-remove-bom" data-idx="${idx}" style="background: none; border: none; color: var(--danger); font-size: 16px; cursor: pointer; padding: 0 4px;">&times;</button>
+        </div>
+      `).join('');
+
+      // Pasang listener input qty manual anti-reset gais
+      bomDetails.querySelectorAll(".item-bom-row").forEach(row => {
+        const idx = parseInt(row.dataset.idx);
+        const qtyInp = row.querySelector(".input-bom-qty");
+
+        qtyInp.addEventListener("input", (e) => {
+          bomCart[idx].qty_needed = parseFloat(e.target.value) || 0;
+        });
+      });
+
+      bomDetails.querySelectorAll(".btn-remove-bom").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          const idx = parseInt(e.target.dataset.idx);
+          bomCart.splice(idx, 1);
+          renderBomCartStructure();
+        });
+      });
     }
 
     renderCartStructure();
@@ -482,13 +531,11 @@ export default function CreateOrderPage() {
             if (itemsError) throw itemsError;
 
             // ==========================================================================
-            // AUTO-INSERT PRODUCTIONS & DETAIL INGREDIENTS HASIL SEARCH PRODUK
+            // AUTO-INSERT INDUK PRD & DAFTAR ANAK BAHAN BAKU MANUAL HASIL TAMBAH LO GAIS
             // ==========================================================================
             if (autoNeedsProduction && targetShortageProduct) {
               const generatedPrdNo = 'PRD-' + today.replace(/-/g, '') + '-' + Date.now().toString().slice(-4);
-              const bomPayloadRaw = manufacturingCard.dataset.bomPayload;
-              const parsedBomItems = bomPayloadRaw ? JSON.parse(bomPayloadRaw) : [];
-
+              
               // A. Buat data induk produksi
               const { data: newProdData, error: newProdErr } = await supabase
                 .from('productions')
@@ -504,12 +551,12 @@ export default function CreateOrderPage() {
 
               if (newProdErr) throw newProdErr;
 
-              // B. Suntik data anak bahan baku berdasarkan hasil search dinamis di atas
-              if (newProdData && newProdData.length > 0 && parsedBomItems.length > 0) {
-                const ingredientsPayload = parsedBomItems.map(b => ({
+              // B. Ambil isi array bomCart yang lo input manual tadi, langsung tembak massal gais!
+              if (newProdData && newProdData.length > 0 && bomCart.length > 0) {
+                const ingredientsPayload = bomCart.map(b => ({
                   production_id: newProdData[0].id,
-                  material_id: b.material_id, // ID asli hasil search produk gais!
-                  qty_used: b.total_needed
+                  material_id: b.id, // ID rill hasil search bahan baku lo gais
+                  qty_used: b.qty_needed // Nilai Qty inputan manual lo di lapangan
                 }));
 
                 const { error: ingErr } = await supabase
@@ -570,7 +617,7 @@ export default function CreateOrderPage() {
       <div class="card create-card">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-sm);">
           <div>
-            <h3 style="font-size: var(--text-md); font-weight: var(--font-bold); color: var(--text);">Produk</h3>
+            <h3 style="font-size: var(--text-md); font-weight: var(--font-bold); color: var(--text);">Produk Jualan</h3>
             <p class="text-light text-xs" style="margin-top: 1px;">Ketik nama item di bawah untuk menambahkan</p>
           </div>
         </div>
@@ -584,17 +631,24 @@ export default function CreateOrderPage() {
       <div id="cart-items-container"></div>
 
       <div class="card create-card" id="manufacturing-analysis-card" style="display: none;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-sm);">
           <div>
             <h3 style="font-size: var(--text-md); font-weight: var(--font-bold); color: var(--text);">Produksi Dibutuhkan</h3>
-            <p class="text-light text-xs" style="margin-top: 1px;">Auto manufacturing analysis</p>
+            <p class="text-light text-xs" style="margin-top: 1px;">Ketik nama bahan mentah di bawah untuk meracik</p>
           </div>
           <span class="badge badge-warning">Diproses</span>
         </div>
-        <div style="display: flex; align-items: center; gap: var(--space-sm); background: var(--warning-soft); color: #D97706; padding: var(--space-md); border-radius: var(--radius-md); margin-bottom: var(--space-md);">
-          <p style="font-size: var(--text-xs); font-weight: var(--font-medium); line-height: 1.4; margin: 0;">Stock produk gudang tidak mencukupi, sistem menjadwalkan otomatis</p>
+        
+        <div class="form-group" style="position: relative; margin-bottom: var(--space-md);">
+          <input type="text" id="material-search-input" class="input" placeholder="Cari Bahan Baku (misal: Robusta, Jagung)..." autocomplete="off" style="border: 1px solid var(--orange);" />
+          <div id="material-floating-list" class="card" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 1020; display: none; max-height: 150px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0;"></div>
         </div>
-        <div class="detail-info" id="bom-details-list" style="gap: var(--space-sm);"></div>
+
+        <div style="display: flex; align-items: center; gap: var(--space-sm); background: var(--warning-soft); color: #D97706; padding: var(--space-xs) var(--space-sm); border-radius: var(--radius-sm); margin-bottom: var(--space-md);">
+          <p style="font-size: 11px; font-weight: var(--font-medium); margin: 0;">Isi kolom Qty di bawah untuk menentukan berat racikan harian gudang.</p>
+        </div>
+
+        <div class="detail-info" id="bom-details-list" style="gap: 4px;"></div>
       </div>
 
       <div class="card create-card">
@@ -624,7 +678,7 @@ export default function CreateOrderPage() {
       <div class="card create-card">
         <div class="form-group">
           <label class="form-label">Catatan Order</label>
-          <textarea id="order-note" class="textarea" placeholder="Tambahkan instruksi..."></textarea>
+          <textarea id="order-note" class="textarea" placeholder="Tambahkan instruksi pengiriman harian..."></textarea>
         </div>
       </div>
 
