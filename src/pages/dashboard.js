@@ -2,24 +2,26 @@ export function DashboardPage() {
   return `
     <section class="dashboard-page">
 
+      <!-- HEADER -->
+
       <div class="dashboard-top">
 
         <div>
 
-          <h2 class="text-3xl font-bold">
-            Welcome Back
+          <h2 class="dashboard-title">
+            Dashboard
           </h2>
 
-          <p class="text-light text-md dashboard-subtitle">
-            aloo pos
+          <p class="dashboard-subtitle">
+            Manufacturing overview
           </p>
 
         </div>
 
-        <div style="display: flex; gap: 10px; align-items: center;">
-          
-          <button 
-            class="btn-icon" 
+        <div class="dashboard-actions">
+
+          <button
+            class="btn-icon"
             onclick="window.navigate('akun')"
           >
             <i data-lucide="user"></i>
@@ -33,13 +35,15 @@ export function DashboardPage() {
 
       </div>
 
+      <!-- SUMMARY -->
+
       <div class="card balance-card">
 
         <div class="balance-head">
 
           <div>
 
-            <p class="text-light text-lg">
+            <p class="text-light text-md">
               Pending Order
             </p>
 
@@ -54,7 +58,7 @@ export function DashboardPage() {
           </div>
 
           <div class="badge badge-primary">
-            +3
+            +3 Hari Ini
           </div>
 
         </div>
@@ -63,7 +67,7 @@ export function DashboardPage() {
 
           <div class="mini-stat">
             <strong>5</strong>
-            <span>Diproses</span>
+            <span>Produksi</span>
           </div>
 
           <div class="mini-stat">
@@ -80,21 +84,44 @@ export function DashboardPage() {
 
       </div>
 
+      <!-- QUICK MENU -->
+
       <div class="card quick-actions">
 
-        <button class="action-item">
+        <button
+          class="action-item"
+          onclick="window.navigate('pembelian')"
+        >
 
           <div class="icon-box">
-            <i data-lucide="plus"></i>
+            <i data-lucide="shopping-bag"></i>
           </div>
 
           <span>
-            Order
+            Pembelian
           </span>
 
         </button>
 
-        <button class="action-item">
+        <button
+          class="action-item"
+          onclick="window.navigate('order')"
+        >
+
+          <div class="icon-box">
+            <i data-lucide="shopping-cart"></i>
+          </div>
+
+          <span>
+            Penjualan
+          </span>
+
+        </button>
+
+        <button
+          class="action-item"
+          onclick="window.navigate('produksi')"
+        >
 
           <div class="icon-box">
             <i data-lucide="factory"></i>
@@ -106,113 +133,70 @@ export function DashboardPage() {
 
         </button>
 
-        <button class="action-item">
+        <button
+          class="action-item"
+          onclick="window.navigate('stok')"
+        >
 
           <div class="icon-box">
             <i data-lucide="package"></i>
           </div>
 
           <span>
-            Stok
+            Stock
           </span>
 
         </button>
 
-        <button class="action-item">
+      </div>
+
+      <!-- STOCK ALERT -->
+
+      <div class="card dashboard-alert-card">
+
+        <div class="dashboard-alert-head">
 
           <div class="icon-box">
-            <i data-lucide="truck"></i>
+            <i data-lucide="triangle-alert"></i>
           </div>
 
-          <span>
-            Kirim
-          </span>
+          <div>
 
-        </button>
+            <h3 class="font-bold text-lg">
+              Stock Menipis
+            </h3>
 
-      </div>
-
-      <div class="section-title">
-
-        <h3 class="text-2xl font-bold">
-          Aktivitas
-        </h3>
-
-        <button class="btn btn-soft see-all-btn">
-          Lihat Semua
-        </button>
-
-      </div>
-
-      <div class="activity-list">
-
-        <div class="card activity-card">
-
-          <div class="activity-left">
-
-            <div class="icon-box">
-              <i data-lucide="factory"></i>
-            </div>
-
-            <div>
-
-              <h4 class="font-bold text-xl">
-                Kopi Giras 1:1
-              </h4>
-
-              <p class="text-light">
-                Diproses • 50kg
-              </p>
-
-            </div>
-
-          </div>
-
-          <div class="activity-right">
-
-            <strong>
-              SO-001
-            </strong>
-
-            <span class="badge badge-info">
-              Diproses
-            </span>
+            <p class="text-light text-sm">
+              2 bahan baku perlu restock
+            </p>
 
           </div>
 
         </div>
 
-        <div class="card activity-card">
+        <div class="dashboard-alert-list">
 
-          <div class="activity-left">
+          <div class="dashboard-alert-item">
 
-            <div class="icon-box">
-              <i data-lucide="truck"></i>
-            </div>
+            <span>
+              RB Robusta Grade A
+            </span>
 
-            <div>
-
-              <h4 class="font-bold text-xl">
-                RB Robusta Grade A
-              </h4>
-
-              <p class="text-light">
-                Ready Kirim • 20kg
-              </p>
-
-            </div>
+            <strong>
+              12kg
+            </strong>
 
           </div>
 
-          <div class="activity-right">
+          <div class="dashboard-alert-item">
+
+            <span>
+              Jagung
+            </span>
 
             <strong>
-              SO-002
+              8kg
             </strong>
-
-            <span class="badge badge-success">
-              Ready
-            </span>
 
           </div>
 
