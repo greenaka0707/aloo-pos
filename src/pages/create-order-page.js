@@ -1,6 +1,6 @@
 export function CreateOrderPage() {
   return `
-    <section class="create-order-page">
+    <section class="create-page">
 
       <div class="detail-header">
         
@@ -60,7 +60,7 @@ export function CreateOrderPage() {
           </button>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-md);">
+        <div class="form-grid-2">
           <div class="form-group">
             <label class="form-label">Qty</label>
             <input type="text" inputmode="numeric" class="input" value="50" />
