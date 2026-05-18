@@ -1,101 +1,128 @@
-import { supabase } from "../supabaseClient.js"; // ✔️ Diubah menjadi huruf kecil 'import'
+import { supabase } from "../supabaseClient.js";
 
-// Fungsi untuk menarik data dari tabel 'raw_material'
-async function getSupabaseStock() {
+// Ambil semua data dari satu tabel tunggal (products)
+async function getSupabaseInventory() {
   try {
     const { data, error } = await supabase
-      .from('raw_material')
+      .from('products') 
       .select('*')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error("❌ Gagal mengambil data stok:", error.message);
+    console.error("❌ Gagal mengambil data produk:", error.message);
     return [];
   }
 }
 
-// Disarankan menggunakan default export jika komponen ini dipanggil secara dinamis oleh router
-export default function StockPage() {
-  // Jalankan penarikan data setelah komponen terpasang di DOM
+export default function ProductPage() {
   setTimeout(async () => {
-    const stockContainer = document.querySelector(".stock-data-list");
-    if (!stockContainer) return;
+    const container = document.querySelector(".product-data-list");
+    const chips = document.querySelectorAll(".filter-chip");
+    if (!container) return;
 
-    const materials = await getSupabaseStock();
+    // 1. Ambil semua data master kopi
+    const allItems = await getSupabaseInventory();
 
-    if (materials.length === 0) {
-      stockContainer.innerHTML = `
-        <div class="card" style="padding: 24px; text-align: center; color: var(--text-light);">
-          Belum ada data bahan baku di database Supabase.
-        </div>
-      `;
-      return;
-    }
-
-    // Render list bahan baku dari Supabase
-    stockContainer.innerHTML = materials.map(mat => `
-      <div class="card list-card">
-        <div class="list-card-top">
-          <div>
-            <span class="badge badge-success">Gudang Utama</span>
+    // 2. Fungsi untuk merender item ke HTML
+    const renderList = (filteredItems) => {
+      if (filteredItems.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="padding: 24px; text-align: center; color: var(--text-light);">
+            Tidak ada data untuk kategori ini.
           </div>
-          <span class="text-xs text-light">Min. Stok: ${mat.min_stock} ${mat.unit}</span>
-        </div>
+        `;
+        return;
+      }
 
-        <div style="display: flex; align-items: flex-start; gap: var(--space-md); padding: var(--space-xs) 0;">
-          <div class="icon-box" style="width: 42px; height: 42px; background: rgba(16, 185, 129, 0.1); color: #10B981;">
-            <i data-lucide="package" style="width: 18px; height: 18px;"></i>
-          </div>
-          
-          <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
-            <strong style="font-size: var(--text-sm); color: var(--text); font-weight: var(--font-bold);">
-              ${mat.name}
-            </strong>
-            <p class="text-light text-xs">
-              ${mat.description || 'Tidak ada deskripsi.'}
-            </p>
-            
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-xs);">
-              <span class="text-xs font-semibold" style="color: ${mat.stock <= mat.min_stock ? '#EF4444' : 'var(--text-light)'}">
-                Stok Saat Ini:
-              </span>
-              <strong style="font-size: var(--text-md); color: ${mat.stock <= mat.min_stock ? '#EF4444' : '#10B981'}">
-                ${mat.stock} ${mat.unit}
-              </strong>
+      container.innerHTML = filteredItems.map(item => {
+        // Tentukan warna badge berdasarkan kategori produk kopi
+        let badgeClass = 'badge-warning';
+        if (item.category === 'roastedbean') badgeClass = 'badge-success';
+        if (item.category === 'kopi_bubuk') badgeClass = 'badge-primary';
+
+        return `
+          <div class="card list-card">
+            <div class="list-card-top">
+              <div>
+                <span class="badge ${badgeClass}">
+                  ${item.category ? item.category.toUpperCase().replace('_', ' ') : 'UNSET'}
+                </span>
+              </div>
+              <span class="text-xs text-light">Min. Stok: ${item.min_stock || 0} ${item.unit || 'kg'}</span>
+            </div>
+
+            <div style="display: flex; align-items: flex-start; gap: var(--space-md); padding: var(--space-xs) 0;">
+              <div class="icon-box" style="width: 42px; height: 42px; background: rgba(16, 185, 129, 0.1); color: #10B981;">
+                <i data-lucide="package" style="width: 18px; height: 18px;"></i>
+              </div>
+              
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+                <strong style="font-size: var(--text-sm); color: var(--text); font-weight: var(--font-bold);">
+                  ${item.name}
+                </strong>
+                <p class="text-light text-xs">${item.description || 'Tidak ada deskripsi.'}</p>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-xs);">
+                  <span class="text-xs font-semibold">Stok Saat Ini:</span>
+                  <strong style="font-size: var(--text-md); color: #10B981">${item.stock || 0} ${item.unit || 'kg'}</strong>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    `).join('');
+        `;
+      }).join('');
 
-    // Render ulang icon Lucide
-    if (window.lucide) {
-      window.lucide.createIcons();
-    }
+      if (window.lucide) window.lucide.createIcons();
+    };
+
+    // Render pertama kali (Semua produk kopi)
+    renderList(allItems);
+
+    // 3. Logika Filter Kategori Kopi saat diklik
+    chips.forEach(chip => {
+      chip.addEventListener("click", (e) => {
+        chips.forEach(c => c.classList.remove("active"));
+        e.target.classList.add("active");
+
+        const filterValue = e.target.textContent.trim().toLowerCase();
+
+        if (filterValue === "semua") {
+          renderList(allItems);
+        } else if (filterValue === "greenbean") {
+          renderList(allItems.filter(item => item.category === "greenbean"));
+        } else if (filterValue === "roastedbean") {
+          renderList(allItems.filter(item => item.category === "roastedbean"));
+        } else if (filterValue === "kopi bubuk") {
+          renderList(allItems.filter(item => item.category === "kopi_bubuk"));
+        }
+      });
+    });
+
   }, 50);
 
   return `
     <section class="list-page">
       <div class="card search-box">
         <i data-lucide="search"></i>
-        <input type="text" placeholder="Cari bahan baku..." />
+        <input type="text" placeholder="Cari produk kopi..." />
       </div>
 
       <div class="filter-scroll">
         <button class="filter-chip active">Semua</button>
-        <button class="filter-chip">Bahan Baku</button>
-        <button class="filter-chip">Kemasan</button>
+        <button class="filter-chip">Greenbean</button>
+        <button class="filter-chip">Roastedbean</button>
+        <button class="filter-chip">Kopi Bubuk</button>
       </div>
 
-      <div class="data-list stock-data-list">
+      <div class="data-list product-data-list">
         <div style="display: flex; justify-content: center; padding: 40px; color: var(--text-light);">
-          <p>Memuat data stok dari Supabase...</p>
+          <p>Memuat data produk dari Supabase...</p>
         </div>
       </div>
 
-      <button class="fab-btn" onclick="window.navigate('create-stock')">
+      <button class="fab-btn" onclick="window.navigate('create-product')">
         <i data-lucide="plus"></i>
       </button>
     </section>
