@@ -4,19 +4,23 @@
 
 @import "./dashboard.css";
 
+/* HALAMAN LIST UTAMA */
 @import "./order.css";
-@import "./order-detail.css";
-@import "./create-order.css";
-
 @import "./produksi.css";
-@import "./produksi-detail.css";
-
 @import "./stock.css";
-@import "./stock-detail.css";
-
 @import "./purchase.css";
 
+/* SATU FILE BARU UNTUK SEMUA DETAIL */
+@import "./detail.css"; 
+
+/* HALAMAN FORM / INPUT */
+@import "./create-order.css";
+
 @import "./bottom-nav.css";
+
+/* =========================
+   GLOBAL RESET & UTILITIES
+========================= */
 
 * {
   margin: 0;
@@ -28,13 +32,15 @@ body {
   font-family:
     -apple-system,
     BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
     sans-serif;
-
+  
   background: var(--bg);
-
   color: var(--text);
-
-  touch-action: manipulation;
+  
+  /* Mencegah delay klik 300ms di mobile & double-tap zoom yang mengganggu */
+  touch-action: manipulation; 
 }
 
 button,
@@ -44,8 +50,11 @@ textarea {
   font: inherit;
 }
 
+/* REVISI: Menggunakan variabel agar form otomatis padat (13px) 
+   dan serasi dengan teks di sekitarnya tanpa memaksa 16px */
 input,
 select,
 textarea {
-  font-size: 16px !important;
+  font-size: var(--text-sm);
+  color: var(--text);
 }
