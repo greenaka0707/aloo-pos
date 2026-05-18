@@ -52,10 +52,20 @@
 .navbar-container {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
+  
+  /* FIX: Mendorong konten kiri ke ujung kiri, dan aksi ke ujung kanan */
+  justify-content: space-between; 
+  
   width: 100%;
   pointer-events: auto; /* Tombol & link di dalam tetap bisa di-klik */
   padding-bottom: 8px;  /* Jarak aman menjauhi area pudar transparan bawah */
+}
+
+/* Membungkus tombol back dan teks judul agar selalu rapi di sebelah kiri */
+.navbar-left-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
 }
 
 .navbar-title-wrapper {
@@ -75,6 +85,42 @@
   font-size: 11px;
   color: var(--text-light);
   margin-top: 2px;
+}
+
+/* ==========================================================================
+   STRUKTUR BARU: KONTEN AKSI PROFIL & NOTIFIKASI KANAN
+   ========================================================================== */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs); /* Jarak antar ikon aksi */
+}
+
+/* Gaya tombol aksi profil & notif biar serasi dengan gaya kalcer */
+.btn-nav-action {
+  width: 38px;
+  height: 38px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  transition: var(--transition);
+  padding: 0;
+  cursor: pointer;
+}
+
+.btn-nav-action:active {
+  background: rgba(0, 0, 0, 0.05);
+  transform: scale(0.95);
+}
+
+.btn-nav-action svg,
+.btn-nav-action i {
+  width: 20px;
+  height: 20px;
 }
 
 /* TOMBOL BACK BULAT PUTIH + SHADOW */
@@ -122,8 +168,8 @@
   flex-direction: column;
   gap: var(--section-gap);
   
-  /* KUNCI 5: Padding atas dinaikkan menjadi 92px agar kartu tidak bertumpuk di bawah judul */
-  padding-top: 92px;
+  /* KUNCI 5: Padding atas dinaikkan menjadi 96px agar form pertama pas di bawah pudar gradasi */
+  padding-top: 96px;
   padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 20px);
   box-sizing: border-box;
 
