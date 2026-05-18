@@ -25,7 +25,7 @@ export function ProduksiListPage() {
     const filterChips = listPage.querySelectorAll(".filter-chip");
 
     // ==========================================================================
-    // 2. CORE ENGINE DATA: FETCH REAL PRODUCTION DATA (MULTI-JOIN BERANTAI)
+    // 2. CORE ENGINE DATA: FETCH REAL PRODUCTION DATA (FIXED TO invoice_no)
     // ==========================================================================
     async function fetchProductions() {
       try {
@@ -35,7 +35,7 @@ export function ProduksiListPage() {
           </p>
         `;
 
-        // Ambil data produksi, join ke info produk jadi, sales order ref, dan looper bahan baku
+        // ✔️ FIXED: Ganti order_no ke invoice_no agar sinkron dengan kolom DB asli lo
         const { data: productions, error } = await supabase
           .from("productions")
           .select(`
@@ -45,7 +45,7 @@ export function ProduksiListPage() {
             qty_produced,
             notes,
             sales_order_id,
-            sales_orders ( order_no, status ),
+            sales_orders ( invoice_no, status ),
             products ( name, unit ),
             production_ingredients (
               products ( name )
@@ -86,12 +86,12 @@ export function ProduksiListPage() {
         });
       }
 
-      // Filter berdasarkan nomor produksi, nama kopi matang, atau nomor SO referensi
+      // Filter berdasarkan nomor produksi, nama kopi matang, atau nomor invoice referensi
       if (searchQuery) {
         filtered = filtered.filter(p => 
           p.production_no?.toLowerCase().includes(searchQuery) || 
           p.products?.name?.toLowerCase().includes(searchQuery) ||
-          p.sales_orders?.order_no?.toLowerCase().includes(searchQuery)
+          p.sales_orders?.invoice_no?.toLowerCase().includes(searchQuery) // ✔️ FIXED: Ganti order_no ke invoice_no
         );
       }
 
@@ -108,7 +108,8 @@ export function ProduksiListPage() {
       container.innerHTML = filtered.map(p => {
         const pName = p.products?.name || "Produk Tidak Diketahui";
         const pUnit = p.products?.unit || "kg";
-        const refText = p.sales_orders?.order_no ? `Ref: ${p.sales_orders.order_no}` : "Produk Mandiri (MTS)";
+        // ✔️ FIXED: Mapping data dari p.sales_orders.invoice_no
+        const refText = p.sales_orders?.invoice_no ? `Ref: ${p.sales_orders.invoice_no}` : "Produk Mandiri (MTS)";
         
         // Looper badge kecil-kecil komposisi bahan mentah yang habis dikonsumsi
         const ingredientsBadges = p.production_ingredients?.map(ing => {
@@ -120,7 +121,7 @@ export function ProduksiListPage() {
           `;
         }).join('') || `<span class="text-xs text-light">Tanpa info resep</span>`;
 
-        // Konversi format tanggal bawaan DB ke Indonesia harian
+        // Konversi format tanggal bawaan DB ke Bahasa Indonesia harian
         let formattedDate = p.production_date;
         if (p.production_date) {
           const d = new Date(p.production_date);
