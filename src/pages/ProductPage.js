@@ -1,6 +1,5 @@
 import { supabase } from "../supabaseClient.js";
 
-// Ambil semua data dari satu tabel tunggal (products)
 async function getSupabaseInventory() {
   try {
     const { data, error } = await supabase
@@ -22,25 +21,25 @@ export default function ProductPage() {
     const chips = document.querySelectorAll(".filter-chip");
     if (!container) return;
 
-    // 1. Ambil semua data master kopi
+    // 1. Ambil data terpusat dari tabel products
     const allItems = await getSupabaseInventory();
 
-    // 2. Fungsi untuk merender item ke HTML
+    // 2. Fungsi render data ke element HTML list
     const renderList = (filteredItems) => {
       if (filteredItems.length === 0) {
         container.innerHTML = `
           <div class="card" style="padding: 24px; text-align: center; color: var(--text-light);">
-            Tidak ada data untuk kategori ini.
+            Belum ada data untuk kategori ini.
           </div>
         `;
         return;
       }
 
       container.innerHTML = filteredItems.map(item => {
-        // Tentukan warna badge berdasarkan kategori produk kopi
-        let badgeClass = 'badge-warning';
-        if (item.category === 'roastedbean') badgeClass = 'badge-success';
-        if (item.category === 'kopi_bubuk') badgeClass = 'badge-primary';
+        // Pewarnaan badge dinamis berdasarkan cluster kopi Anda
+        let badgeClass = 'badge-warning'; // Greenbean
+        if (item.category === 'roastedbean') badgeClass = 'badge-success'; // Roastedbean
+        if (item.category === 'kopi_bubuk') badgeClass = 'badge-primary';  // Kopi Bubuk
 
         return `
           <div class="card list-card">
@@ -65,7 +64,7 @@ export default function ProductPage() {
                 <p class="text-light text-xs">${item.description || 'Tidak ada deskripsi.'}</p>
                 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-xs);">
-                  <span class="text-xs font-semibold">Stok Saat Ini:</span>
+                  <span class="text-xs font-semibold">Stok Aktual:</span>
                   <strong style="font-size: var(--text-md); color: #10B981">${item.stock || 0} ${item.unit || 'kg'}</strong>
                 </div>
               </div>
@@ -77,10 +76,10 @@ export default function ProductPage() {
       if (window.lucide) window.lucide.createIcons();
     };
 
-    // Render pertama kali (Semua produk kopi)
+    // Tampilkan semua item saat pertama kali dibuka
     renderList(allItems);
 
-    // 3. Logika Filter Kategori Kopi saat diklik
+    // 3. Logika Filter Pencocokan Tab UI dengan Kolom Kategori Supabase
     chips.forEach(chip => {
       chip.addEventListener("click", (e) => {
         chips.forEach(c => c.classList.remove("active"));
@@ -92,7 +91,8 @@ export default function ProductPage() {
           renderList(allItems);
         } else if (filterValue === "greenbean") {
           renderList(allItems.filter(item => item.category === "greenbean"));
-        } else if (filterValue === "roastedbean") {
+        } else if (filterValue === "roasted bean") { 
+          // Mengamankan kecocokan teks tombol 'Roasted Bean' (pakai spasi) ke value db 'roastedbean'
           renderList(allItems.filter(item => item.category === "roastedbean"));
         } else if (filterValue === "kopi bubuk") {
           renderList(allItems.filter(item => item.category === "kopi_bubuk"));
@@ -106,19 +106,19 @@ export default function ProductPage() {
     <section class="list-page">
       <div class="card search-box">
         <i data-lucide="search"></i>
-        <input type="text" placeholder="Cari produk kopi..." />
+        <input type="text" placeholder="Cari item master..." />
       </div>
 
       <div class="filter-scroll">
         <button class="filter-chip active">Semua</button>
         <button class="filter-chip">Greenbean</button>
-        <button class="filter-chip">Roastedbean</button>
+        <button class="filter-chip">Roasted Bean</button>
         <button class="filter-chip">Kopi Bubuk</button>
       </div>
 
       <div class="data-list product-data-list">
         <div style="display: flex; justify-content: center; padding: 40px; color: var(--text-light);">
-          <p>Memuat data produk dari Supabase...</p>
+          <p>Memuat data portofolio kopi...</p>
         </div>
       </div>
 
