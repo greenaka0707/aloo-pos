@@ -7,17 +7,17 @@ export function OrderListPage() {
       <div class="page-header">
 
         <div>
-      
+
           <h2 class="text-3xl font-bold">
             Sales Order
           </h2>
-          
+
           <p class="text-light text-md page-subtitle">
             Manufacturing sales workflow
           </p>
-      
+
         </div>
-      
+
       </div>
 
       <!-- SEARCH -->
@@ -87,29 +87,37 @@ export function OrderListPage() {
 
           </div>
 
-          <div class="order-body">
+          <!-- SUMMARY -->
 
-            <div class="order-product">
+          <div class="order-summary">
 
-              <div class="icon-box">
-                <i data-lucide="coffee"></i>
-              </div>
+            <div class="order-summary-item">
 
-              <div>
+              <span class="text-light text-sm">
+                Total Item
+              </span>
 
-                <strong class="font-bold text-lg">
-                  Kopi Giras 1:1
-                </strong>
+              <strong>
+                3 Produk
+              </strong>
 
-                <p class="text-light text-sm">
-                  50kg
-                </p>
+            </div>
 
-              </div>
+            <div class="order-summary-item">
+
+              <span class="text-light text-sm">
+                Qty
+              </span>
+
+              <strong>
+                50kg
+              </strong>
 
             </div>
 
           </div>
+
+          <!-- FOOTER -->
 
           <div class="order-footer">
 
@@ -152,29 +160,37 @@ export function OrderListPage() {
 
           </div>
 
-          <div class="order-body">
+          <!-- SUMMARY -->
 
-            <div class="order-product">
+          <div class="order-summary">
 
-              <div class="icon-box">
-                <i data-lucide="package"></i>
-              </div>
+            <div class="order-summary-item">
 
-              <div>
+              <span class="text-light text-sm">
+                Total Item
+              </span>
 
-                <strong class="font-bold text-lg">
-                  RB Robusta Grade A
-                </strong>
+              <strong>
+                2 Produk
+              </strong>
 
-                <p class="text-light text-sm">
-                  20kg
-                </p>
+            </div>
 
-              </div>
+            <div class="order-summary-item">
+
+              <span class="text-light text-sm">
+                Qty
+              </span>
+
+              <strong>
+                20kg
+              </strong>
 
             </div>
 
           </div>
+
+          <!-- FOOTER -->
 
           <div class="order-footer">
 
@@ -201,7 +217,7 @@ export function OrderListPage() {
         class="fab-btn"
         onclick="window.navigate('create-order')"
       >
-      
+
         <i data-lucide="plus"></i>
 
       </button>
