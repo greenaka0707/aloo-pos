@@ -2,17 +2,6 @@ export function ProduksiListPage() {
   return `
     <section class="list-page"> 
 
-      <div class="page-header">
-        <div>
-          <h2 class="font-bold">
-            Produksi
-          </h2>
-          <p class="page-subtitle">
-            Manufacturing production workflow
-          </p>
-        </div>
-      </div>
-
       <div class="card search-box">
         <i data-lucide="search"></i>
         <input
@@ -32,7 +21,6 @@ export function ProduksiListPage() {
       <div class="data-list">
 
         <div class="card list-card">
-          
           <div class="list-card-top">
             <div>
               <h3 class="font-bold">PRD-001</h3>
