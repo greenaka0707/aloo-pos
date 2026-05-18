@@ -1,24 +1,30 @@
-@import "./variables.css"; /* REVISI: Ditambahkan tanda @ di depan import */
+/* ==========================================================================
+   MASTER INJECTS & ARCHITECTURE (Tersentralisasi & Highly Optimized)
+   ========================================================================== */
+
+@import "./variables.css"; 
 @import "./layout.css";
 @import "./components.css";
 
+/* RINGKASAN GRAFIK & ANALYTICS UTAMA */
 @import "./dashboard.css";
 
-/* SATU FILE UNIVERSAL UNTUK SEMUA HALAMAN DAFTAR (SO, Produksi, Stok, Purchase) */
+/* SATU FILE UNIVERSAL UNTUK SEMUA HALAMAN LIST / DAFTAR (SO, Produksi, Stok, PO) */
 @import "./list.css"; 
 
 /* SATU FILE UNIVERSAL UNTUK SEMUA HALAMAN DETAIL */
 @import "./detail.css"; 
 
-/* HALAMAN FORM / INPUT */
-@import "./create-order.css";
+/* SATU FILE UNIVERSAL UNTUK SEMUA FORM INPUT / PEMBUATAN DATA BARU */
+@import "./create.css";
 
+/* MENU UTAMA NAVIGASI BAWAH */
 @import "./bottom-nav.css";
 
 
-/* =========================
-   GLOBAL RESET & UTILITIES
-========================= */
+/* ==========================================================================
+   GLOBAL RESET & MOBILE UTILITIES
+   ========================================================================== */
 
 * {
   margin: 0;
@@ -37,8 +43,11 @@ body {
   background: var(--bg);
   color: var(--text);
   
-  /* Mencegah delay klik 300ms di mobile & double-tap zoom yang mengganggu */
+  /* Mencegah delay klik 300ms di mobile & double-tap zoom yang mengganggu operasional */
   touch-action: manipulation; 
+  
+  /* Menghilangkan bayangan highlight biru saat elemen ditekan di Android/iOS Chrome */
+  -webkit-tap-highlight-color: transparent;
 }
 
 button,
@@ -48,11 +57,18 @@ textarea {
   font: inherit;
 }
 
-/* REVISI: Menggunakan variabel agar form otomatis padat (13px) 
-   dan serasi dengan teks di sekitarnya tanpa memaksa 16px */
+/* Menggunakan variabel agar form otomatis padat (13px) 
+   dan serasi dengan teks di sekitarnya tanpa memaksa 16px raksasa */
 input,
 select,
 textarea {
   font-size: var(--text-sm);
   color: var(--text);
+}
+
+/* Mencegah gambar atau ikon SVG meluber merusak layout grid */
+img, svg {
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
 }
