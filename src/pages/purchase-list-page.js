@@ -2,17 +2,6 @@ export function PurchaseListPage() {
   return `
     <section class="list-page">
 
-      <div class="page-header">
-        <div>
-          <h2 class="font-bold">
-            Pembelian
-          </h2>
-          <p class="page-subtitle">
-            Supplier purchasing workflow
-          </p>
-        </div>
-      </div>
-
       <div class="card search-box">
         <i data-lucide="search"></i>
         <input
@@ -32,7 +21,6 @@ export function PurchaseListPage() {
       <div class="data-list">
 
         <div class="card list-card">
-          
           <div class="list-card-top">
             <div>
               <h3 class="font-bold">PO-001</h3>
@@ -72,7 +60,6 @@ export function PurchaseListPage() {
         </div>
 
         <div class="card list-card">
-          
           <div class="list-card-top">
             <div>
               <h3 class="font-bold">PO-002</h3>
