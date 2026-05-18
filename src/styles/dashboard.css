@@ -52,6 +52,107 @@
 }
 
 /* =========================
+   HERO SUMMARY
+========================= */
+
+.dashboard-hero-card {
+  padding: 22px;
+
+  border-radius: 28px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0EA5A4,
+      #0891B2
+    );
+
+  color: white;
+
+  box-shadow:
+    0 18px 40px rgba(14,165,164,0.18);
+}
+
+.dashboard-hero-top {
+  display: flex;
+
+  align-items: center;
+
+  gap: 16px;
+}
+
+.hero-icon {
+  width: 64px;
+  height: 64px;
+
+  border-radius: 20px;
+
+  background:
+    rgba(255,255,255,0.14);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  backdrop-filter: blur(10px);
+}
+
+.hero-icon svg {
+  width: 28px;
+  height: 28px;
+
+  color: white;
+}
+
+.hero-label {
+  font-size: 14px;
+
+  opacity: 0.9;
+}
+
+.hero-value {
+  margin-top: 8px;
+
+  font-size: 34px;
+
+  font-weight: 800;
+
+  line-height: 1;
+
+  color: white;
+}
+
+.dashboard-hero-stats {
+  margin-top: 26px;
+
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 14px;
+}
+
+.hero-stat strong {
+  display: block;
+
+  font-size: 24px;
+
+  font-weight: 800;
+
+  color: white;
+}
+
+.hero-stat span {
+  display: block;
+
+  margin-top: 4px;
+
+  font-size: 13px;
+
+  opacity: 0.85;
+}
+
+/* =========================
    SECTION
 ========================= */
 
