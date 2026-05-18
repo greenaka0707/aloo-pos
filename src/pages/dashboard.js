@@ -35,168 +35,265 @@ export function DashboardPage() {
 
       </div>
 
-      <!-- SUMMARY -->
-
-      <div class="card balance-card">
-
-        <div class="balance-head">
-
-          <div>
-
-            <p class="text-light text-md">
-              Pending Order
-            </p>
-
-            <div class="balance-value">
-              12
-            </div>
-
-            <p class="text-light balance-sub">
-              Order menunggu produksi
-            </p>
-
-          </div>
-
-          <div class="badge badge-primary">
-            +3 Hari Ini
-          </div>
-
-        </div>
-
-        <div class="balance-stats">
-
-          <div class="mini-stat">
-            <strong>5</strong>
-            <span>Produksi</span>
-          </div>
-
-          <div class="mini-stat">
-            <strong>3</strong>
-            <span>Ready</span>
-          </div>
-
-          <div class="mini-stat">
-            <strong>2</strong>
-            <span>Kirim</span>
-          </div>
-
-        </div>
-
-      </div>
-
       <!-- QUICK MENU -->
 
-      <div class="card quick-actions">
+      <div class="dashboard-section">
 
-        <button
-          class="action-item"
-          onclick="window.navigate('pembelian')"
-        >
+        <div class="section-title-row">
 
-          <div class="icon-box">
-            <i data-lucide="shopping-bag"></i>
-          </div>
+          <h3>
+            Aksi Cepat
+          </h3>
 
-          <span>
-            Pembelian
-          </span>
+        </div>
 
-        </button>
+        <div class="card quick-actions-grid">
 
-        <button
-          class="action-item"
-          onclick="window.navigate('order')"
-        >
+          <!-- PEMBELIAN -->
 
-          <div class="icon-box">
-            <i data-lucide="shopping-cart"></i>
-          </div>
+          <button
+            class="quick-menu-item"
+            onclick="window.navigate('pembelian')"
+          >
 
-          <span>
-            Penjualan
-          </span>
+            <div class="quick-menu-icon">
 
-        </button>
+              <i data-lucide="shopping-bag"></i>
 
-        <button
-          class="action-item"
-          onclick="window.navigate('produksi')"
-        >
+            </div>
 
-          <div class="icon-box">
-            <i data-lucide="factory"></i>
-          </div>
+            <span>
+              Pembelian
+            </span>
 
-          <span>
-            Produksi
-          </span>
+          </button>
 
-        </button>
+          <!-- PENJUALAN -->
 
-        <button
-          class="action-item"
-          onclick="window.navigate('stok')"
-        >
+          <button
+            class="quick-menu-item"
+            onclick="window.navigate('order')"
+          >
 
-          <div class="icon-box">
-            <i data-lucide="package"></i>
-          </div>
+            <div class="quick-menu-icon">
 
-          <span>
-            Stock
-          </span>
+              <i data-lucide="shopping-cart"></i>
 
-        </button>
+            </div>
+
+            <span>
+              Penjualan
+            </span>
+
+          </button>
+
+          <!-- PRODUKSI -->
+
+          <button
+            class="quick-menu-item"
+            onclick="window.navigate('produksi')"
+          >
+
+            <div class="quick-menu-icon">
+
+              <i data-lucide="factory"></i>
+
+            </div>
+
+            <span>
+              Produksi
+            </span>
+
+          </button>
+
+          <!-- STOCK -->
+
+          <button
+            class="quick-menu-item"
+            onclick="window.navigate('stok')"
+          >
+
+            <div class="quick-menu-icon">
+
+              <i data-lucide="package"></i>
+
+            </div>
+
+            <span>
+              Stock
+            </span>
+
+          </button>
+
+          <!-- PRODUK -->
+
+          <button
+            class="quick-menu-item"
+            onclick="window.navigate('produk')"
+          >
+
+            <div class="quick-menu-icon">
+
+              <i data-lucide="boxes"></i>
+
+            </div>
+
+            <span>
+              Produk
+            </span>
+
+          </button>
+
+          <!-- LAPORAN -->
+
+          <button
+            class="quick-menu-item"
+            onclick="window.navigate('laporan')"
+          >
+
+            <div class="quick-menu-icon">
+
+              <i data-lucide="bar-chart-3"></i>
+
+            </div>
+
+            <span>
+              Laporan
+            </span>
+
+          </button>
+
+        </div>
 
       </div>
 
-      <!-- STOCK ALERT -->
+      <!-- PRIORITAS -->
 
-      <div class="card dashboard-alert-card">
+      <div class="dashboard-section">
 
-        <div class="dashboard-alert-head">
+        <div class="section-title-row">
 
-          <div class="icon-box">
-            <i data-lucide="triangle-alert"></i>
+          <h3>
+            Prioritas Hari Ini
+          </h3>
+
+        </div>
+
+        <div class="card dashboard-priority-card">
+
+          <div class="priority-item">
+
+            <div class="priority-left">
+
+              <div class="priority-icon warning">
+
+                <i data-lucide="triangle-alert"></i>
+
+              </div>
+
+              <div>
+
+                <strong>
+                  Stock Menipis
+                </strong>
+
+                <p>
+                  2 bahan baku perlu restock
+                </p>
+
+              </div>
+
+            </div>
+
           </div>
 
-          <div>
+          <div class="priority-divider"></div>
 
-            <h3 class="font-bold text-lg">
-              Stock Menipis
-            </h3>
+          <div class="priority-stock-list">
 
-            <p class="text-light text-sm">
-              2 bahan baku perlu restock
-            </p>
+            <div class="priority-stock-item">
+
+              <span>
+                RB Robusta Grade A
+              </span>
+
+              <strong>
+                12kg
+              </strong>
+
+            </div>
+
+            <div class="priority-stock-item">
+
+              <span>
+                Jagung
+              </span>
+
+              <strong>
+                8kg
+              </strong>
+
+            </div>
 
           </div>
 
         </div>
 
-        <div class="dashboard-alert-list">
+      </div>
 
-          <div class="dashboard-alert-item">
+      <!-- RINGKASAN -->
 
-            <span>
-              RB Robusta Grade A
-            </span>
+      <div class="dashboard-section">
+
+        <div class="section-title-row">
+
+          <h3>
+            Ringkasan Operasional
+          </h3>
+
+        </div>
+
+        <div class="dashboard-summary-grid">
+
+          <!-- ORDER -->
+
+          <div class="card summary-card">
 
             <strong>
-              12kg
+              12
             </strong>
+
+            <span>
+              Pending Order
+            </span>
 
           </div>
 
-          <div class="dashboard-alert-item">
+          <!-- PRODUKSI -->
 
-            <span>
-              Jagung
-            </span>
+          <div class="card summary-card">
 
             <strong>
-              8kg
+              5
             </strong>
+
+            <span>
+              Produksi
+            </span>
+
+          </div>
+
+          <!-- READY -->
+
+          <div class="card summary-card">
+
+            <strong>
+              3
+            </strong>
+
+            <span>
+              Ready Kirim
+            </span>
 
           </div>
 
