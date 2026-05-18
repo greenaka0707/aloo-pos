@@ -6,7 +6,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--section-gap);
-  padding-bottom: 24px;
+  /* Bantalan bawah dinamis agar kartu terakhir tidak tenggelam di bawah menu navigasi */
+  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 24px);
+  position: relative; 
+  width: 100%;
 }
 
 /* =========================
@@ -181,6 +184,7 @@
 .fab-btn {
   position: fixed;
   right: 16px;
+  /* Terangkat mutlak di atas bottom-nav baru untuk menghindari benturan scroll */
   bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 16px);
   width: 48px;
   height: 48px;
@@ -192,7 +196,8 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 6px 16px rgba(249,115,22,0.25);
-  z-index: 99;
+  /* Lapisan tumpukan tertinggi agar kartu pesanan meluncur di belakang FAB */
+  z-index: 999; 
   transition: var(--transition);
 }
 
@@ -200,7 +205,8 @@
   transform: scale(0.92);
 }
 
-.fab-btn svg {
+.fab-btn svg,
+.fab-btn i {
   width: 20px;
   height: 20px;
   stroke-width: 2.2;
