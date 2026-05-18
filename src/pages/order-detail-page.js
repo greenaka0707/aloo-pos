@@ -67,12 +67,16 @@ export function OrderDetailPage() {
     function renderAllDetailDOM() {
       if (!orderDataLocal) return;
 
-      // 2.1 Render Kartu Status Utama harian
+      // 2.1 Render Kartu Status Utama harian (SUNTIKAN DUKUNGAN STATUS 'butuh produksi')
       let statusText = "Pending Produksi";
       let badgeClass = "badge-warning";
-      if (orderDataLocal.status === "diproses") { statusText = "Sedang Diproses"; badgeClass = "badge-info"; }
-      if (orderDataLocal.status === "ready") { statusText = "Siap Dikirim"; badgeClass = "badge-success"; }
-      if (orderDataLocal.status === "dikirim") { statusText = "Selesai Dikirim"; badgeClass = "badge-primary"; }
+      
+      const currentDbStatus = orderDataLocal.status ? orderDataLocal.status.toLowerCase() : 'pending';
+
+      if (currentDbStatus === "butuh produksi") { statusText = "Butuh Produksi (MTO)"; badgeClass = "badge-warning"; }
+      if (currentDbStatus === "diproses") { statusText = "Sedang Diproses"; badgeClass = "badge-info"; }
+      if (currentDbStatus === "ready") { statusText = "Siap Dikirim"; badgeClass = "badge-success"; }
+      if (currentDbStatus === "dikirim") { statusText = "Selesai Dikirim"; badgeClass = "badge-primary"; }
 
       statusCardArea.innerHTML = `
         <div>
@@ -138,7 +142,7 @@ export function OrderDetailPage() {
 
       // 2.4 Render Kartu Kebutuhan Manufaktur Racikan Komposisi (BOM)
       if (productionCardArea && bomListArea) {
-        if (needsBomAnalysis && orderDataLocal.status !== "dikirim" && orderDataLocal.status !== "ready") {
+        if (needsBomAnalysis && currentDbStatus !== "dikirim" && currentDbStatus !== "ready") {
           productionCardArea.style.display = "block";
           let bomHtml = "";
           if (totalRobustaNeeded > 0) {
@@ -158,13 +162,12 @@ export function OrderDetailPage() {
       }
 
       // 2.5 Render Tracing Visual Progress Timeline Kerja Lapangan
-      const st = orderDataLocal.status;
       if (timelineArea) {
         timelineArea.innerHTML = `
           <div class="timeline-item active"><div class="timeline-dot"></div><div><h4>Order Dibuat</h4><p>${orderDataLocal.order_date}</p></div></div>
-          <div class="timeline-item ${st !== 'pending' ? 'active' : ''}"><div class="timeline-dot"></div><div><h4>Antrean Masuk</h4><p>${st === 'pending' ? 'Menunggu Produksi' : 'Disetujui Admin'}</p></div></div>
-          <div class="timeline-item ${st === 'ready' || st === 'dikirim' ? 'active' : ''}"><div class="timeline-dot"></div><div><h4>Proses Produksi</h4><p>${st === 'diproses' ? 'Sedang Digiling/Roasting' : (st === 'ready' || st === 'dikirim' ? 'Selesai Sempurna' : 'Belum Dimulai')}</p></div></div>
-          <div class="timeline-item ${st === 'dikirim' ? 'active' : ''}"><div class="timeline-dot"></div><div><h4>Pengiriman</h4><p>${st === 'dikirim' ? 'Barang Dibawa Sales' : 'Menunggu Siap'}</p></div></div>
+          <div class="timeline-item ${currentDbStatus !== 'pending' ? 'active' : ''}"><div class="timeline-dot"></div><div><h4>Antrean Masuk</h4><p>${currentDbStatus === 'pending' || currentDbStatus === 'butuh produksi' ? 'Menunggu Produksi' : 'Disetujui Admin'}</p></div></div>
+          <div class="timeline-item ${currentDbStatus === 'ready' || currentDbStatus === 'dikirim' ? 'active' : ''}"><div class="timeline-dot"></div><div><h4>Proses Produksi</h4><p>${currentDbStatus === 'diproses' ? 'Sedang Digiling/Roasting' : (currentDbStatus === 'ready' || currentDbStatus === 'dikirim' ? 'Selesai Sempurna' : 'Belum Dimulai')}</p></div></div>
+          <div class="timeline-item ${currentDbStatus === 'dikirim' ? 'active' : ''}"><div class="timeline-dot"></div><div><h4>Pengiriman</h4><p>${currentDbStatus === 'dikirim' ? 'Barang Dibawa Sales' : 'Menunggu Siap'}</p></div></div>
         `;
       }
 
@@ -269,19 +272,19 @@ export function OrderDetailPage() {
     // 4. CORE TRIGGER UPDATE STATUS & EKSEKUSI ARUS MUTASI STOK
     // ==========================================================================
     function renderActionButtonsDOM() {
-      const st = orderDataLocal.status;
+      const currentDbStatus = orderDataLocal.status ? orderDataLocal.status.toLowerCase() : 'pending';
       
-      // Tambahkan tombol sakti "Cetak WA" di sebelah tombol Kembali agar sales gampang akses harian
       let leftButtonsHtml = `
         <button class="action-btn" id="btn-back-order" style="background:var(--border); color:var(--text); border:none;">Kembali</button>
         <button class="action-btn" id="btn-print-invoice" style="background:var(--orange-soft); color:var(--orange); border:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:4px;">Cetak WA</button>
       `;
 
-      if (st === "pending") {
+      // Menambahkan penanganan tombol operasional jika berstatus pending ataupun butuh produksi gais
+      if (currentDbStatus === "pending" || currentDbStatus === "butuh produksi") {
         actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:var(--orange); border:none; color:white;">Mulai Produksi</button>`;
-      } else if (st === "diproses") {
+      } else if (currentDbStatus === "diproses") {
         actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:#14B8A6; border:none; color:white;">Set Siap Kirim</button>`;
-      } else if (st === "ready") {
+      } else if (currentDbStatus === "ready") {
         actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:#06B6D4; border:none; color:white;">Kirim Barang</button>`;
       } else {
         actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn" style="background:var(--border); border:none; color:var(--text-light);" disabled>Order Closed</button>`;
@@ -298,13 +301,15 @@ export function OrderDetailPage() {
       if (nextBtn) {
         nextBtn.addEventListener("click", async () => {
           let nextStatus = "diproses";
-          if (st === "diproses") nextStatus = "ready";
-          if (st === "ready") nextStatus = "dikirim";
+          if (currentDbStatus === "pending" || currentDbStatus === "butuh produksi") nextStatus = "diproses";
+          if (currentDbStatus === "diproses") nextStatus = "ready";
+          if (currentDbStatus === "ready") nextStatus = "dikirim";
 
           try {
             nextBtn.disabled = true;
             nextBtn.textContent = "Updating...";
 
+            // CRITICAL ENGINE: HANYA MEMOTONG STOK KOPI MATANG JADI SAAT BARANG DIKIRIM (BAWA KELILING/NOT CLOSED)
             if (nextStatus === "dikirim") {
               for (const item of orderItemsLocal) {
                 const p = item.products || {};
@@ -312,22 +317,22 @@ export function OrderDetailPage() {
                 const orderQty = parseFloat(item.qty) || 0;
                 const newStock = currentStock - orderQty;
 
-                // A. Kurangi kolom stok di tabel products
+                // A. Kurangi kolom stok kopi matang harian di tabel products
                 const { error: stockErr } = await supabase
                   .from("products")
                   .update({ stock: newStock })
                   .eq("id", p.id);
                 if (stockErr) throw stockErr;
 
-                // B. Masukkan sejarah riwayat ke tabel stock_mutations
+                // B. Masukkan sejarah riwayat resmi ke tabel stock_mutations dengan status OUT murni
                 const { error: mutationErr } = await supabase
                   .from("stock_mutations")
                   .insert([{
                     product_id: p.id,
-                    type: "out",
+                    type: "out", // <--- Resmi keluar dipotong dari gudang menuju warung customer
                     qty: orderQty,
                     reference_no: orderDataLocal.invoice_no,
-                    description: `Penjualan Lapangan: ${orderDataLocal.invoice_no} (${orderDataLocal.customers?.name || 'Warung'})`
+                    description: `Penjualan Lapangan Berhasil: ${orderDataLocal.invoice_no} (${orderDataLocal.customers?.name || 'Warung'})`
                   }]);
                 if (mutationErr) throw mutationErr;
               }
@@ -340,7 +345,7 @@ export function OrderDetailPage() {
 
             if (updateErr) throw updateErr;
 
-            alert(`🎉 Status Order Resmi Naik Ke Tahap: ${nextStatus.toUpperCase()}! Arus stok tercatat.`);
+            alert(`🎉 Status Order Resmi Naik Ke Tahap: ${nextStatus.toUpperCase()}! Arus stok kopi matang tercatat.`);
             fetchOrderDetail(); 
 
           } catch (err) {
