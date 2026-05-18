@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
 
-  gap: 16px;
+  gap: 18px;
 
   padding-bottom: 120px;
 }
@@ -23,7 +23,11 @@
 .dashboard-title {
   font-size: 22px;
 
+  font-weight: 700;
+
   line-height: 1.1;
+
+  color: var(--text);
 }
 
 .dashboard-subtitle {
@@ -43,119 +47,77 @@
 }
 
 .dashboard-actions .btn-icon {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
 }
 
 /* =========================
-   BALANCE
+   SECTION
 ========================= */
 
-.balance-card {
-  padding: 16px;
-}
-
-.balance-head {
+.dashboard-section {
   display: flex;
-
-  align-items: flex-start;
-  justify-content: space-between;
+  flex-direction: column;
 
   gap: 12px;
 }
 
-.balance-value {
-  margin-top: 8px;
+.section-title-row h3 {
+  font-size: 18px;
 
-  font-size: 34px;
-  font-weight: var(--font-bold);
-
-  line-height: var(--line-tight);
+  font-weight: 700;
 
   color: var(--text);
-
-  letter-spacing: -0.5px;
 }
 
-.balance-sub {
-  margin-top: 6px;
+/* =========================
+   QUICK MENU
+========================= */
 
-  font-size: 13px;
-}
-
-.balance-stats {
-  margin-top: 16px;
-
-  padding-top: 14px;
-
-  border-top: 1px solid var(--border);
+.quick-actions-grid {
+  padding: 18px;
 
   display: grid;
 
   grid-template-columns: repeat(3, 1fr);
 
-  gap: 10px;
+  gap: 18px 14px;
 }
 
-.mini-stat strong {
-  display: block;
-
-  font-size: 18px;
-
-  font-weight: var(--font-bold);
-}
-
-.mini-stat span {
-  display: block;
-
-  margin-top: 4px;
-
-  font-size: 11px;
-
-  color: var(--text-light);
-}
-
-/* =========================
-   QUICK ACTION
-========================= */
-
-.quick-actions {
-  padding: 16px;
-
-  display: grid;
-
-  grid-template-columns: repeat(4, 1fr);
-
-  gap: 12px;
-}
-
-.action-item {
+.quick-menu-item {
   border: none;
-  background: none;
+  background: transparent;
 
   display: flex;
   flex-direction: column;
 
   align-items: center;
 
-  gap: 8px;
+  gap: 10px;
 }
 
-.action-item .icon-box {
-  width: 58px;
-  height: 58px;
+.quick-menu-icon {
+  width: 68px;
+  height: 68px;
 
-  border-radius: 18px;
+  border-radius: 20px;
+
+  background: var(--orange-soft);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.action-item i,
-.action-item svg {
-  width: 22px;
-  height: 22px;
+.quick-menu-icon svg {
+  width: 28px;
+  height: 28px;
+
+  color: var(--orange);
 }
 
-.action-item span {
-  font-size: 12px;
+.quick-menu-item span {
+  font-size: 13px;
 
   font-weight: 600;
 
@@ -163,41 +125,134 @@
 }
 
 /* =========================
-   STOCK ALERT
+   PRIORITY
 ========================= */
 
-.dashboard-alert-card {
-  padding: 16px;
-}
-
-.dashboard-alert-head {
-  display: flex;
-
-  align-items: center;
-
-  gap: 12px;
-}
-
-.dashboard-alert-list {
-  margin-top: 16px;
+.dashboard-priority-card {
+  padding: 18px;
 
   display: flex;
   flex-direction: column;
 
-  gap: 12px;
+  gap: 16px;
 }
 
-.dashboard-alert-item {
+.priority-item {
+  display: flex;
+
+  align-items: flex-start;
+}
+
+.priority-left {
+  display: flex;
+
+  gap: 14px;
+}
+
+.priority-icon {
+  width: 54px;
+  height: 54px;
+
+  border-radius: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+.priority-icon.warning {
+  background: var(--orange-soft);
+}
+
+.priority-icon.warning svg {
+  color: var(--orange);
+}
+
+.priority-left strong {
+  display: block;
+
+  font-size: 18px;
+
+  font-weight: 700;
+
+  margin-bottom: 4px;
+}
+
+.priority-left p {
+  font-size: 13px;
+
+  color: var(--text-light);
+}
+
+.priority-divider {
+  height: 1px;
+
+  background: var(--border);
+}
+
+.priority-stock-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+.priority-stock-item {
   display: flex;
 
   align-items: center;
   justify-content: space-between;
-
-  font-size: 14px;
 }
 
-.dashboard-alert-item strong {
-  font-size: 16px;
+.priority-stock-item span {
+  font-size: 15px;
+
+  color: var(--text);
+}
+
+.priority-stock-item strong {
+  font-size: 18px;
 
   font-weight: 700;
+
+  color: var(--text);
+}
+
+/* =========================
+   SUMMARY
+========================= */
+
+.dashboard-summary-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 12px;
+}
+
+.summary-card {
+  padding: 18px 14px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.summary-card strong {
+  font-size: 28px;
+
+  font-weight: 700;
+
+  line-height: 1;
+
+  color: var(--text);
+}
+
+.summary-card span {
+  font-size: 13px;
+
+  color: var(--text-light);
 }
