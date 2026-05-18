@@ -1,69 +1,65 @@
 .bottom-nav {
   position: fixed;
-
-  /* REVISI: Kembali nempel penuh ke samping kiri, kanan, dan bawah layar */
   left: 0;
   right: 0;
   bottom: 0;
 
-  height: 68px; /* Tetap kompak dan ideal */
+  /* REVISI 1: Menaikkan tinggi container agar ruang vertikal menu lebih lega */
+  height: 78px; 
 
   background: rgba(255, 255, 255, 0.95);
-
   backdrop-filter: blur(16px);
-
+  
   display: flex;
   align-items: center;
   justify-content: space-around;
 
-  /* REVISI UTAMA: Hanya memberikan radius di sudut kiri atas dan kanan atas */
-  border-radius: 20px 20px 0 0;
+  /* REVISI 2: Memperbesar radius sudut kiri & kanan atas agar lengkungannya tegas dan modern */
+  border-radius: 28px 28px 0 0;
 
-  /* REVISI BORDER: Memberikan border di atas, kiri, dan kanan, tapi matikan bagian bawah */
+  /* Pengaturan border & shadow halus */
   border: 1px solid var(--border);
   border-bottom: none; 
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.04);
 
-  /* Efek bayangan halus di atas navbar */
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
-
-  padding-bottom: 0;
+  /* REVISI 3: Memberikan padding bawah agar posisi teks terdorong naik secara proporsional */
+  padding-bottom: 8px;
   
-  /* Memastikan efek blur dan sudut melengkung terpotong rapi */
   overflow: hidden; 
   z-index: 999;
+  box-sizing: border-box; /* Memastikan kalkulasi height dan padding akurat */
 }
 
 .nav-item {
   border: none;
   background: none;
-
+  
   display: flex;
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
-
-  gap: 4px;
-
+  
+  /* REVISI 4: Jarak ikon ke teks disesuaikan agar serasi dengan container baru */
+  gap: 5px; 
+  
   color: #9CA3AF;
-
-  min-width: 60px;
+  min-width: 65px;
+  cursor: pointer;
 }
 
 .nav-item span {
   font-size: 11px;
+  font-weight: 500; /* Sedikit dipertebal agar teks kecil lebih solid dibaca */
 }
 
 .nav-item svg {
   width: 22px;
   height: 22px;
-
   stroke-width: 2.2;
 }
 
 .nav-item.active {
   color: var(--orange);
-  transition: 0.2s ease;
-
   font-weight: 600;
+  transition: color 0.2s ease, font-weight 0.2s ease;
 }
