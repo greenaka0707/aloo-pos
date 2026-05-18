@@ -1,25 +1,23 @@
 import { supabase } from "../supabaseClient.js";
 
 export default function CreateOrderPage() {
-  // State lokal untuk menampung data transaksi sebelum dikirim ke database
   let selectedCustomer = null;
   let selectedSalesman = null;
   let cart = [];
   let isSubmitting = false;
 
-  // Set nilai default tanggal hari ini pas form dibuka
   const today = new Date().toISOString().split('T')[0];
 
   setTimeout(async () => {
     const container = document.querySelector(".create-page");
     if (!container) return;
 
-    // Capture semua elemen input kontrol DOM
+    // Capture elemen DOM kontrol utama
     const dateInput = container.querySelector("#order-date");
     const customerInput = container.querySelector("#customer-search");
     const customerFloat = container.querySelector("#customer-floating-list");
+    const quickAddCustBtn = container.querySelector("#quick-add-cust-btn");
     
-    // Salesman Live Search Elements
     const salesmanInput = container.querySelector("#salesman-search");
     const salesmanFloat = container.querySelector("#salesman-floating-list");
     
@@ -29,14 +27,14 @@ export default function CreateOrderPage() {
     const manufacturingCard = container.querySelector("#manufacturing-analysis-card");
     const bomDetails = container.querySelector("#bom-details-list");
     
-    // Elemen Ringkasan Biaya
+    // Ringkasan Biaya & Catatan
     const summarySubtotal = container.querySelector("#summary-subtotal");
     const summaryBayar = container.querySelector("#summary-bayar");
     const summarySisa = container.querySelector("#summary-sisa");
     const bayarInput = container.querySelector("#pay-amount");
     const catatanInput = container.querySelector("#order-note");
 
-    // Jendela Jaga Modal Tambah Customer Baru
+    // Modal Customer
     const customerModal = container.querySelector("#customer-modal");
     const saveNewCustomerBtn = container.querySelector("#save-new-customer");
     const closeCustomerModalBtn = container.querySelector("#close-customer-modal");
@@ -44,7 +42,6 @@ export default function CreateOrderPage() {
     const newCustPhone = container.querySelector("#new-cust-phone");
     const newCustAddress = container.querySelector("#new-cust-address");
 
-    // Set tanggal default ke input
     if (dateInput) dateInput.value = today;
 
     // ==========================================================================
@@ -93,13 +90,14 @@ export default function CreateOrderPage() {
     }
 
     // ==========================================================================
-    // 2. LIVE SEARCH CUSTOMER + MODAL QUICK ADD
+    // 2. LIVE SEARCH CUSTOMER + QUICK ADD MINIMALIS
     // ==========================================================================
-    if (customerInput && customerFloat) {
+    if (customerInput && customerFloat && quickAddCustBtn) {
       customerInput.addEventListener("input", async (e) => {
         const val = e.target.value.trim();
         if (val.length < 2) {
           customerFloat.style.display = "none";
+          quickAddCustBtn.style.display = "none";
           return;
         }
 
@@ -111,22 +109,11 @@ export default function CreateOrderPage() {
 
         if (!error && customers) {
           if (customers.length === 0) {
-            customerFloat.innerHTML = `
-              <div class="float-item-action" style="padding: var(--space-sm); text-align: center; color: var(--orange); font-weight: bold; cursor: pointer;">
-                "${val}" Belum terdaftar. Tambah Baru?
-              </div>
-            `;
-            customerFloat.style.display = "block";
-            
-            const actionRow = customerFloat.querySelector(".float-item-action");
-            if (actionRow) {
-              actionRow.addEventListener("click", () => {
-                if (newCustName) newCustName.value = val;
-                if (customerModal) customerModal.style.display = "flex";
-                customerFloat.style.display = "none";
-              });
-            }
+            customerFloat.style.display = "none";
+            // Memunculkan tombol plus kecil estetik di pojok kanan input jika tidak terdaftar
+            quickAddCustBtn.style.display = "flex";
           } else {
+            quickAddCustBtn.style.display = "none";
             customerFloat.innerHTML = customers.map(c => `
               <div class="float-row-item" data-id="${c.id}" data-name="${c.name}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer;">
                 <strong style="font-size: var(--text-sm); display: block; color: var(--text);">${c.name}</strong>
@@ -138,20 +125,25 @@ export default function CreateOrderPage() {
             customerFloat.querySelectorAll(".float-row-item").forEach(row => {
               row.addEventListener("click", (evt) => {
                 const target = evt.currentTarget;
-                selectedCustomer = {
-                  id: parseInt(target.dataset.id),
-                  name: target.dataset.name
-                };
+                selectedCustomer = { id: parseInt(target.dataset.id), name: target.dataset.name };
                 customerInput.value = target.dataset.name;
                 customerFloat.style.display = "none";
+                quickAddCustBtn.style.display = "none";
               });
             });
           }
         }
       });
 
+      // Picu modal via tombol plus kecil
+      quickAddCustBtn.addEventListener("click", () => {
+        if (newCustName) newCustName.value = customerInput.value.trim();
+        if (customerModal) customerModal.style.display = "flex";
+        quickAddCustBtn.style.display = "none";
+      });
+
       document.addEventListener("click", (e) => {
-        if (!customerInput.contains(e.target) && !customerFloat.contains(e.target)) {
+        if (!customerInput.contains(e.target) && !customerFloat.contains(e.target) && !quickAddCustBtn.contains(e.target)) {
           customerFloat.style.display = "none";
         }
       });
@@ -241,89 +233,88 @@ export default function CreateOrderPage() {
 
               productFloat.style.display = "none";
               productInput.value = "";
-              calculateAndRender();
+              renderCartStructure(); // Bangun ulang list baris baru
             });
           });
-        }
-      });
-
-      document.addEventListener("click", (e) => {
-        if (!productInput.contains(e.target) && !productFloat.contains(e.target)) {
-          productFloat.style.display = "none";
         }
       });
     }
 
     // ==========================================================================
-    // 4. CORE ENGINE DATA: HITUNG & RENDER UTAMA
+    // 4. CORE ENGINE PERBAIKAN: MANIPULASI DOM INPUT INTERAKTIF (ANTI-KEYBOARD MENTAL)
     // ==========================================================================
-    function calculateAndRender() {
+    function renderCartStructure() {
       if (cart.length === 0) {
         cartContainer.innerHTML = `
           <p class="text-light text-xs" style="text-align: center; padding: var(--space-md); background: var(--white); border-radius: var(--radius-md); margin-bottom: var(--space-md); border: 1px dashed var(--border);">
             Belum ada produk terpilih harian.
           </p>
         `;
-      } else {
-        // FIX KEYBOARD: Memakai type="number" pattern="[0-9]*" inputmode="numeric" secara bersamaan sesuai screenshot
-        cartContainer.innerHTML = cart.map((item, idx) => `
-          <div class="card create-card" style="margin-bottom: var(--space-sm); border: 1px solid var(--border);">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-sm); padding-bottom: 4px; border-bottom: 1px solid var(--border);">
-              <strong style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">
-                ${item.name}
-              </strong>
-              <button class="btn-remove-cart" data-idx="${idx}" style="background: none; border: none; color: var(--danger); font-size: var(--text-xs); font-weight: var(--font-semibold); cursor: pointer;">
-                Hapus
-              </button>
-            </div>
-
-            <div class="form-grid-2">
-              <div class="form-group">
-                <label class="form-label">Qty (${item.unit})</label>
-                <input type="number" pattern="[0-9]*" inputmode="numeric" class="input cart-qty" data-idx="${idx}" value="${item.qty}" />
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Harga (Rp)</label>
-                <input type="number" pattern="[0-9]*" inputmode="numeric" class="input cart-price" data-idx="${idx}" value="${item.price}" />
-              </div>
-            </div>
-
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: var(--space-sm); padding-top: 4px; border-top: 1px dashed var(--border);">
-              <span class="text-light text-xs">Subtotal</span>
-              <strong style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">
-                Rp ${(item.qty * item.price).toLocaleString('id-ID')}
-              </strong>
-            </div>
-          </div>
-        `).join('');
-
-        cartContainer.querySelectorAll(".cart-qty").forEach(input => {
-          input.addEventListener("input", (e) => {
-            const idx = parseInt(e.target.dataset.idx);
-            cart[idx].qty = parseFloat(e.target.value) || 0;
-            calculateAndRender();
-          });
-        });
-
-        cartContainer.querySelectorAll(".cart-price").forEach(input => {
-          input.addEventListener("input", (e) => {
-            const idx = parseInt(e.target.dataset.idx);
-            cart[idx].price = parseFloat(e.target.value) || 0;
-            calculateAndRender();
-          });
-        });
-
-        cartContainer.querySelectorAll(".btn-remove-cart").forEach(btn => {
-          btn.addEventListener("click", (e) => {
-            const idx = parseInt(e.target.dataset.idx);
-            cart.splice(idx, 1);
-            calculateAndRender();
-          });
-        });
+        calculateTotalsOnly();
+        return;
       }
 
-      // 4.1 LOGIKA AUTOMATED MANUFACTURING ANALYSIS
+      // Render struktur hanya sekali pas barang bertambah/berkurang dari list keranjang
+      cartContainer.innerHTML = cart.map((item, idx) => `
+        <div class="card create-card item-cart-row" data-idx="${idx}" style="margin-bottom: var(--space-sm); border: 1px solid var(--border);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-sm); padding-bottom: 4px; border-bottom: 1px solid var(--border);">
+            <strong style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">${item.name}</strong>
+            <button class="btn-remove-cart" data-idx="${idx}" style="background: none; border: none; color: var(--danger); font-size: var(--text-xs); font-weight: var(--font-semibold); cursor: pointer;">Hapus</button>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Qty (${item.unit})</label>
+              <input type="number" pattern="[0-9]*" inputmode="numeric" class="input input-qty" value="${item.qty}" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Harga (Rp)</label>
+              <input type="number" pattern="[0-9]*" inputmode="numeric" class="input input-price" value="${item.price}" />
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: var(--space-sm); padding-top: 4px; border-top: 1px dashed var(--border);">
+            <span class="text-light text-xs">Subtotal</span>
+            <strong class="row-subtotal-text" style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">
+              Rp ${(item.qty * item.price).toLocaleString('id-ID')}
+            </strong>
+          </div>
+        </div>
+      `).join('');
+
+      // Pasang listener presisi untuk merubah teks subtotal tanpa render ulang element inputnya
+      cartContainer.querySelectorAll(".item-cart-row").forEach(row => {
+        const idx = parseInt(row.dataset.idx);
+        const qtyEl = row.querySelector(".input-qty");
+        const priceEl = row.querySelector(".input-price");
+        const subtotalTextEl = row.querySelector(".row-subtotal-text");
+
+        qtyEl.addEventListener("input", (e) => {
+          cart[idx].qty = parseFloat(e.target.value) || 0;
+          subtotalTextEl.textContent = `Rp ${(cart[idx].qty * cart[idx].price).toLocaleString('id-ID')}`;
+          calculateTotalsOnly();
+        });
+
+        priceEl.addEventListener("input", (e) => {
+          cart[idx].price = parseFloat(e.target.value) || 0;
+          subtotalTextEl.textContent = `Rp ${(cart[idx].qty * cart[idx].price).toLocaleString('id-ID')}`;
+          calculateTotalsOnly();
+        });
+      });
+
+      cartContainer.querySelectorAll(".btn-remove-cart").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          const idx = parseInt(e.target.dataset.idx);
+          cart.splice(idx, 1);
+          renderCartStructure();
+        });
+      });
+
+      calculateTotalsOnly();
+    }
+
+    // Fungsi hitung kalkulasi matematika murni tanpa mengusik DOM Focus
+    function calculateTotalsOnly() {
       let needsProduction = false;
       let totalRobustaNeeded = 0;
       let totalJagungNeeded = 0;
@@ -342,33 +333,28 @@ export default function CreateOrderPage() {
         }
       });
 
-      if (needsProduction) {
-        if (manufacturingCard) manufacturingCard.style.display = "block";
-        if (bomDetails) {
-          let bomHtml = "";
-          if (totalRobustaNeeded > 0) {
-            bomHtml += `
-              <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
-                <span class="text-light text-sm">RB Robusta Base Material</span>
-                <strong class="right-value" style="font-size: var(--text-sm); color: var(--text);">${totalRobustaNeeded.toFixed(1)}kg</strong>
-              </div>
-            `;
-          }
-          if (totalJagungNeeded > 0) {
-            bomHtml += `
-              <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
-                <span class="text-light text-sm">Jagung Roasted</span>
-                <strong class="right-value" style="font-size: var(--text-sm); color: var(--text);">${totalJagungNeeded.toFixed(1)}kg</strong>
-              </div>
-            `;
-          }
-          bomDetails.innerHTML = bomHtml;
+      if (manufacturingCard) manufacturingCard.style.display = needsProduction ? "block" : "none";
+      if (needsProduction && bomDetails) {
+        let bomHtml = "";
+        if (totalRobustaNeeded > 0) {
+          bomHtml += `
+            <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
+              <span class="text-light text-sm">RB Robusta Base Material</span>
+              <strong style="font-size: var(--text-sm); color: var(--text);">${totalRobustaNeeded.toFixed(1)}kg</strong>
+            </div>
+          `;
         }
-      } else {
-        if (manufacturingCard) manufacturingCard.style.display = "none";
+        if (totalJagungNeeded > 0) {
+          bomHtml += `
+            <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
+              <span class="text-light text-sm">Jagung Roasted</span>
+              <strong style="font-size: var(--text-sm); color: var(--text);">${totalJagungNeeded.toFixed(1)}kg</strong>
+            </div>
+          `;
+        }
+        bomDetails.innerHTML = bomHtml;
       }
 
-      // 4.2 LOGIKA INTEGRASI KEUANGAN
       const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
       const payVal = parseFloat(bayarInput?.value) || 0;
       const sisaTotal = subtotalTotal - payVal;
@@ -382,10 +368,11 @@ export default function CreateOrderPage() {
     }
 
     if (bayarInput) {
-      bayarInput.addEventListener("input", calculateAndRender);
+      bayarInput.addEventListener("input", calculateTotalsOnly);
     }
 
-    calculateAndRender();
+    // Render inisialisasi awal struktur
+    renderCartStructure();
 
     // ==========================================================================
     // 5. SUBMIT DATA KE SUPABASE
@@ -416,9 +403,7 @@ export default function CreateOrderPage() {
             const invoiceNo = 'SO-' + today.replace(/-/g, '') + '-' + Date.now().toString().slice(-4);
             const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
             const payAmount = parseFloat(bayarInput?.value) || 0;
-            const netAmount = subtotalTotal;
 
-            // A. Kirim Data ke Nota Induk (sales_orders)
             const { data: orderData, error: orderError } = await supabase
               .from('sales_orders')
               .insert([{
@@ -428,19 +413,16 @@ export default function CreateOrderPage() {
                 salesman_id: selectedSalesman,
                 total_amount: subtotalTotal,
                 discount: 0,
-                net_amount: netAmount,
-                payment_method: payAmount >= netAmount ? 'QRIS' : 'Cash',
+                net_amount: subtotalTotal,
+                payment_method: payAmount >= subtotalTotal ? 'QRIS' : 'Cash',
                 status: 'pending' 
               }])
               .select();
 
             if (orderError) throw orderError;
 
-            const orderId = orderData[0].id;
-
-            // B. Kirim Data ke Nota Detail (sales_order_items)
             const orderItemsPayload = cart.map(item => ({
-              sales_order_id: orderId,
+              sales_order_id: orderData[0].id,
               product_id: item.id,
               qty: item.qty,
               unit_price: item.price
@@ -474,9 +456,9 @@ export default function CreateOrderPage() {
 
   }, 50);
 
-  // FIX STYLING & KEYBOARD: Seluruh elemen input angka memakai perpaduan type, pattern, & inputmode angka murni. Tombol aksi diberi tumpukan layer teratas.
+  // Perbaikan Total Layout: Tombol aksi diletakkan normal paling bawah form dengan tambahan padding-bottom aman
   return `
-    <section class="create-page" style="padding-bottom: 160px; position: relative;">
+    <section class="create-page" style="padding-bottom: 60px;">
 
       <div class="card create-card">
         <div class="form-group">
@@ -486,7 +468,11 @@ export default function CreateOrderPage() {
 
         <div class="form-group" style="position: relative;">
           <label class="form-label">Customer</label>
-          <input type="text" id="customer-search" class="input" placeholder="Ketik nama warung / cari customer..." autocomplete="off" />
+          <div style="display: flex; gap: var(--space-xs); align-items: center; position: relative;">
+            <input type="text" id="customer-search" class="input" style="flex: 1;" placeholder="Ketik nama warung / cari customer..." autocomplete="off" />
+            
+            <button id="quick-add-cust-btn" style="display: none; width: 42px; height: 42px; background: var(--orange-soft); border: none; border-radius: var(--radius-sm); align-items: center; justify-content: center; color: var(--orange); font-size: 20px; font-weight: bold; cursor: pointer;">+</button>
+          </div>
           <div id="customer-floating-list" class="card" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 1010; display: none; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0;"></div>
         </div>
 
@@ -516,20 +502,14 @@ export default function CreateOrderPage() {
       <div class="card create-card" id="manufacturing-analysis-card" style="display: none;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md);">
           <div>
-            <h3 style="font-size: var(--text-md); font-weight: var(--font-bold); color: var(--text);">
-              Produksi Dibutuhkan
-            </h3>
+            <h3 style="font-size: var(--text-md); font-weight: var(--font-bold); color: var(--text);">Produksi Dibutuhkan</h3>
             <p class="text-light text-xs" style="margin-top: 1px;">Auto manufacturing analysis</p>
           </div>
           <span class="badge badge-warning">Diproses</span>
         </div>
-
         <div style="display: flex; align-items: center; gap: var(--space-sm); background: var(--warning-soft); color: #D97706; padding: var(--space-md); border-radius: var(--radius-md); margin-bottom: var(--space-md);">
-          <p style="font-size: var(--text-xs); font-weight: var(--font-medium); line-height: 1.4; margin: 0;">
-            Stock produk gudang tidak mencukupi, sistem menjadwalkan produksi otomatis
-          </p>
+          <p style="font-size: var(--text-xs); font-weight: var(--font-medium); line-height: 1.4; margin: 0;">Stock produk gudang tidak mencukupi, sistem menjadwalkan produksi otomatis</p>
         </div>
-
         <div class="detail-info" id="bom-details-list" style="gap: var(--space-sm);"></div>
       </div>
 
@@ -539,15 +519,13 @@ export default function CreateOrderPage() {
             <span class="text-light text-sm">Subtotal</span>
             <strong id="summary-subtotal" style="font-size: var(--text-sm); font-weight: var(--font-bold);">Rp 0</strong>
           </div>
-
           <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
             <span class="text-light text-sm">Bayar</span>
             <strong id="summary-bayar" style="font-size: var(--text-sm); font-weight: var(--font-bold);">Rp 0</strong>
           </div>
-
           <div class="detail-row-item" style="border-top: 1px solid var(--border); padding-top: var(--space-sm); margin-top: 4px; display:flex; justify-content:space-between;">
             <span class="font-semibold text-sm">Sisa Tagihan</span>
-            <strong id="summary-sisa" class="right-value" style="color: var(--orange); font-size: var(--text-md); font-weight: var(--font-bold);">Rp 0</strong>
+            <strong id="summary-sisa" style="color: var(--orange); font-size: var(--text-md); font-weight: var(--font-bold);">Rp 0</strong>
           </div>
         </div>
       </div>
@@ -566,15 +544,14 @@ export default function CreateOrderPage() {
         </div>
       </div>
 
-      <div class="detail-actions" style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: #ffffff; padding: var(--space-md) var(--space-lg) calc(var(--space-md) + 15px) var(--space-lg); box-shadow: 0 -8px 24px rgba(0,0,0,0.12); display: flex; gap: var(--space-md);">
-        <button class="action-btn" style="flex: 1; height: 46px; border-radius: var(--radius-md); font-weight: bold; cursor: pointer; border: 1px solid var(--border); background: #f9f9f9;">Kembali</button>
-        <button class="action-btn primary-action" style="flex: 1; height: 46px; background: var(--orange); color: white; border: none; border-radius: var(--radius-md); font-weight: bold; cursor: pointer;">Submit</button>
+      <div class="detail-actions" style="margin-top: var(--space-xl); display: flex; gap: var(--space-md); padding: 0 var(--space-xs);">
+        <button class="action-btn" style="flex: 1; height: 48px; border-radius: var(--radius-md); font-weight: bold; cursor: pointer; border: 1px solid var(--border); background: #f9f9f9;">Kembali</button>
+        <button class="action-btn primary-action" style="flex: 1; height: 48px; background: var(--orange); color: white; border: none; border-radius: var(--radius-md); font-weight: bold; cursor: pointer;">Submit</button>
       </div>
 
       <div id="customer-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 99999; display: none; align-items: center; justify-content: center; padding: 20px;">
         <div class="card" style="width: 100%; max-width: 400px; background: var(--white); padding: var(--space-lg); border-radius: var(--radius-md); box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
           <h3 style="font-size: var(--text-md); font-weight: var(--font-bold); margin-bottom: var(--space-sm); color: var(--text);">Tambah Customer Baru</h3>
-          
           <div class="form-group" style="margin-bottom: var(--space-sm);">
             <label class="form-label">Nama Warung / Toko</label>
             <input type="text" id="new-cust-name" class="input" />
@@ -587,7 +564,6 @@ export default function CreateOrderPage() {
             <label class="form-label">Alamat Lengkap</label>
             <input type="text" id="new-cust-address" class="input" placeholder="Nama jalan, nomor, area..." />
           </div>
-
           <div style="display: flex; gap: var(--space-md); justify-content: flex-end;">
             <button id="close-customer-modal" style="background: var(--border); border:none; padding: 0 var(--space-md); border-radius: var(--radius-sm); height:38px; cursor:pointer;">Batal</button>
             <button id="save-new-customer" style="background: var(--orange); color: white; border:none; padding: 0 var(--space-md); border-radius: var(--radius-sm); height:38px; font-weight:bold; cursor:pointer;">Simpan Data</button>
