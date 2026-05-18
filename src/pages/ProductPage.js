@@ -1,6 +1,6 @@
-import { supabase } from "../supabaseClient.js";
+import { supabase } from "../supabaseClient.js"; // ✔️ Diubah menjadi huruf kecil 'import'
 
-// Fungsi untuk menarik data dari tabel 'raw_material' (tanpa S)
+// Fungsi untuk menarik data dari tabel 'raw_material'
 async function getSupabaseStock() {
   try {
     const { data, error } = await supabase
@@ -16,7 +16,8 @@ async function getSupabaseStock() {
   }
 }
 
-export function StockPage() {
+// Disarankan menggunakan default export jika komponen ini dipanggil secara dinamis oleh router
+export default function StockPage() {
   // Jalankan penarikan data setelah komponen terpasang di DOM
   setTimeout(async () => {
     const stockContainer = document.querySelector(".stock-data-list");
