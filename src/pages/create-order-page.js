@@ -309,45 +309,92 @@ export default function CreateOrderPage() {
       calculateTotalsOnly();
     }
 
-    function calculateTotalsOnly() {
+    // ==========================================================================
+    // AMBIL DATA RESEP DINAMIS DARI DATABASE (TIDAK HARDCODED LAGI)
+    // ==========================================================================
+    async function calculateTotalsOnly() {
       let needsProduction = false;
-      let totalRobustaNeeded = 0;
-      let totalJagungNeeded = 0;
+      let bomItemsArr = [];
 
-      cart.forEach(item => {
-        if (item.qty > item.stock) {
-          const shortage = item.qty - item.stock;
-          if (item.name.toLowerCase().includes("giras") || item.name.toLowerCase().includes("blend")) {
+      try {
+        for (const item of cart) {
+          if (item.qty > item.stock) {
+            const shortage = item.qty - item.stock;
             needsProduction = true;
-            totalRobustaNeeded += (shortage * 0.5); 
-            totalJagungNeeded += (shortage * 0.5);  
-          } else if (item.category === 'kopi_bubuk' || item.category === 'roastedbean') {
-            needsProduction = true;
-            totalRobustaNeeded += shortage; 
+
+            // Tarik live komposisi resep berdasarkan produk jadi yang dipilih gais
+            const { data: recipes, error } = await supabase
+              .from("product_recipes")
+              .select(`
+                material_id,
+                qty_per_unit,
+                products!product_recipes_material_id_fkey ( name, unit )
+              `)
+              .eq("product_id", item.id);
+
+            if (!error && recipes && recipes.length > 0) {
+              recipes.forEach(rec => {
+                const totalMatQty = parseFloat(rec.qty_per_unit) * shortage;
+                const existingBom = bomItemsArr.find(b => b.material_id === rec.material_id);
+                
+                if (existingBom) {
+                  existingBom.total_needed += totalMatQty;
+                } else {
+                  bomItemsArr.push({
+                    material_id: rec.material_id,
+                    name: rec.products?.name || "Bahan Baku",
+                    unit: rec.products?.unit || "kg",
+                    total_needed: totalMatQty
+                  });
+                }
+              });
+            } else {
+              // Fallback default rasio lama lo jika master tabel resep lo belum lengkap di db gais
+              if (item.name.toLowerCase().includes("giras") || item.name.toLowerCase().includes("blend")) {
+                const fallbackMaterials = [
+                  { id: 4, name: "RB Robusta Base Material", unit: "kg" },
+                  { id: 5, name: "Jagung Roasted", unit: "kg" }
+                ];
+                fallbackMaterials.forEach(rm => {
+                  const totalMatQty = shortage * 0.5;
+                  const existingBom = bomItemsArr.find(b => b.material_id === rm.id);
+                  if (existingBom) {
+                    existingBom.total_needed += totalMatQty;
+                  } else {
+                    bomItemsArr.push({ material_id: rm.id, name: rm.name, unit: rm.unit, total_needed: totalMatQty });
+                  }
+                });
+              } else if (item.category === 'kopi_bubuk' || item.category === 'roastedbean') {
+                const totalMatQty = shortage;
+                const existingBom = bomItemsArr.find(b => b.material_id === 4);
+                if (existingBom) {
+                  existingBom.total_needed += totalMatQty;
+                } else {
+                  bomItemsArr.push({ material_id: 4, name: "RB Robusta Base Material", unit: "kg", total_needed: totalMatQty });
+                }
+              }
+            }
           }
         }
-      });
 
-      if (manufacturingCard) manufacturingCard.style.display = needsProduction ? "block" : "none";
-      if (needsProduction && bomDetails) {
-        let bomHtml = "";
-        if (totalRobustaNeeded > 0) {
-          bomHtml += `
-            <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
-              <span class="text-light text-sm">RB Robusta Base Material</span>
-              <strong style="font-size: var(--text-sm); color: var(--text);">${totalRobustaNeeded.toFixed(1)}kg</strong>
-            </div>
-          `;
+        // Ikat payload array objek bahan mentahnya ke element DOM card analisis gais
+        if (manufacturingCard) {
+          manufacturingCard.style.display = needsProduction ? "block" : "none";
+          manufacturingCard.dataset.bomPayload = JSON.stringify(bomItemsArr);
         }
-        if (totalJagungNeeded > 0) {
-          bomHtml += `
+
+        // Render visual baris resep dinamis di aplikasi kasir
+        if (needsProduction && bomDetails) {
+          bomDetails.innerHTML = bomItemsArr.map(b => `
             <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
-              <span class="text-light text-sm">Jagung Roasted</span>
-              <strong style="font-size: var(--text-sm); color: var(--text);">${totalJagungNeeded.toFixed(1)}kg</strong>
+              <span class="text-light text-sm">${b.name}</span>
+              <strong style="font-size: var(--text-sm); color: var(--text);">${b.total_needed.toFixed(1)}${b.unit}</strong>
             </div>
-          `;
+          `).join('');
         }
-        bomDetails.innerHTML = bomHtml;
+
+      } catch (err) {
+        console.error("Gagal melakukan kalkulasi analisis BOM harian: ", err);
       }
 
       const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
@@ -369,7 +416,7 @@ export default function CreateOrderPage() {
     renderCartStructure();
 
     // ==========================================================================
-    // 5. SUBMIT DATA KE SUPABASE (SUNTIK LOGIKA AUTO-INSERT PRODUKSI)
+    // 5. SUBMIT DATA KE SUPABASE (SUNTIK LOGIKA AUTO-INSERT PRODUKSI & INGREDIENTS)
     // ==========================================================================
     const actionsArea = container.querySelector(".detail-actions");
     if (actionsArea) {
@@ -398,7 +445,6 @@ export default function CreateOrderPage() {
             const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
             const payAmount = parseFloat(bayarInput?.value) || 0;
 
-            // A. Deteksi dini apakah ada item yang kurang stok dan butuh giling harian
             let autoNeedsProduction = false;
             let targetShortageProduct = null;
             let calculatedShortageQty = 0;
@@ -406,7 +452,6 @@ export default function CreateOrderPage() {
             cart.forEach(item => {
               if (item.qty > item.stock) {
                 autoNeedsProduction = true;
-                // Kita kunci info produk pertama yang memicu kekurangan untuk antrean awal
                 if (!targetShortageProduct) {
                   targetShortageProduct = item;
                   calculatedShortageQty = item.qty - item.stock;
@@ -414,7 +459,6 @@ export default function CreateOrderPage() {
               }
             });
 
-            // Tentukan status order: jika kurang stok set ke 'butuh produksi', jika aman tetap 'pending'
             const finalOrderStatus = autoNeedsProduction ? 'butuh produksi' : 'pending';
 
             const { data: orderData, error: orderError } = await supabase
@@ -448,12 +492,17 @@ export default function CreateOrderPage() {
             if (itemsError) throw itemsError;
 
             // ==========================================================================
-            // LOGIKA TAMBAHAN: AUTO-INSERT DATA KE LIST PRODUKSI SAAT SIMPAN ORDER
+            // FIX TRIGGER: INSERT INDUK PRODUKSI + ANAK INGREDIENTS DINAMIS SECARA BERSAMAAN
             // ==========================================================================
             if (autoNeedsProduction && targetShortageProduct) {
               const generatedPrdNo = 'PRD-' + today.replace(/-/g, '') + '-' + Date.now().toString().slice(-4);
               
-              await supabase
+              // Ambil payload kancingan bahan baku yang ditangkap dari memori DOM gais
+              const bomPayloadRaw = manufacturingCard.dataset.bomPayload;
+              const parsedBomItems = bomPayloadRaw ? JSON.parse(bomPayloadRaw) : [];
+
+              // A. Daftarkan baris induk transaksi produksi harian
+              const { data: newProdData, error: newProdErr } = await supabase
                 .from('productions')
                 .insert([{
                   production_no: generatedPrdNo,
@@ -462,7 +511,25 @@ export default function CreateOrderPage() {
                   qty_produced: calculatedShortageQty,
                   sales_order_id: orderData[0].id,
                   notes: `Auto-generated dari transaksi penjualan kasir ${invoiceNo}`
-                }]);
+                }])
+                .select();
+
+              if (newProdErr) throw newProdErr;
+
+              // B. Jika induk berhasil tersimpan, langsung suntik baris komposisi bahan baku mentahnya gais!
+              if (newProdData && newProdData.length > 0 && parsedBomItems.length > 0) {
+                const ingredientsPayload = parsedBomItems.map(b => ({
+                  production_id: newProdData[0].id,
+                  material_id: b.material_id, // ID asli produk mentah dari database gais!
+                  qty_used: b.total_needed
+                }));
+
+                const { error: ingErr } = await supabase
+                  .from('production_ingredients')
+                  .insert(ingredientsPayload);
+
+                if (ingErr) throw ingErr;
+              }
             }
 
             alert(`🎉 Sales Order ${invoiceNo} Berhasil Disimpan ke Antrean ${finalOrderStatus.toUpperCase()}!`);
