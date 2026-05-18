@@ -11,6 +11,7 @@ import { StockPage } from "../pages/stock-page.js";
 import { StockDetailPage } from "../pages/stock-detail-page.js";
 
 import { PurchaseListPage } from "../pages/purchase-list-page.js";
+import { CreatePurchasePage } from "../pages/create-purchase-page.js";
 
 export function renderRoute(route) {
 
@@ -58,6 +59,9 @@ export function renderRoute(route) {
 
     case "pembelian":
       return PurchaseListPage();
+      
+    case "create-purchase":
+      return CreatePurchasePage();
 
     default:
       return DashboardPage();
