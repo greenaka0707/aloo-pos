@@ -2,8 +2,7 @@
   display: flex;
   flex-direction: column;
 
-  /* Menurunkan gap antar seksi utama agar lebih rapat */
-  gap: 16px; 
+  gap: 16px;
 
   padding-bottom: 120px;
 }
@@ -15,13 +14,37 @@
 .dashboard-top {
   display: flex;
 
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+
+  gap: 12px;
+}
+
+.dashboard-title {
+  font-size: 22px;
+
+  line-height: 1.1;
 }
 
 .dashboard-subtitle {
-  margin-top: var(--space-xs);
-  font-size: 13px; /* Memastikan teks sub-header pas di mobile */
+  margin-top: 4px;
+
+  font-size: 13px;
+
+  color: var(--text-light);
+}
+
+.dashboard-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+.dashboard-actions .btn-icon {
+  width: 44px;
+  height: 44px;
 }
 
 /* =========================
@@ -29,8 +52,7 @@
 ========================= */
 
 .balance-card {
-  /* REVISI: Dipangkas dari 24px ke 16px agar hemat ruang atas-bawah & kanan-kiri */
-  padding: 16px; 
+  padding: 16px;
 }
 
 .balance-head {
@@ -38,29 +60,30 @@
 
   align-items: flex-start;
   justify-content: space-between;
+
+  gap: 12px;
 }
 
 .balance-value {
-  /* REVISI: Dari 64px (kebesaran) diturunkan ke 32px-36px agar proporsional di layar HP */
   margin-top: 8px;
 
-  font-size: 34px; 
+  font-size: 34px;
   font-weight: var(--font-bold);
 
   line-height: var(--line-tight);
 
   color: var(--text);
+
   letter-spacing: -0.5px;
 }
 
 .balance-sub {
   margin-top: 6px;
 
-  font-size: 13px; /* Sedikit disesuaikan agar serasi dengan nilai saldo */
+  font-size: 13px;
 }
 
 .balance-stats {
-  /* REVISI: Dikompakkin margin dan padding-nya */
   margin-top: 16px;
 
   padding-top: 14px;
@@ -77,8 +100,7 @@
 .mini-stat strong {
   display: block;
 
-  /* REVISI: Angka stat kecil diturunkan ukurannya agar tidak overflow di HP kecil */
-  font-size: 18px; 
+  font-size: 18px;
 
   font-weight: var(--font-bold);
 }
@@ -88,7 +110,7 @@
 
   margin-top: 4px;
 
-  font-size: 11px; /* Sedikit dikecilkan untuk label stat kecil */
+  font-size: 11px;
 
   color: var(--text-light);
 }
@@ -98,11 +120,13 @@
 ========================= */
 
 .quick-actions {
-  /* REVISI: Padding card menu cepat dikurangi */
-  padding: 14px 16px;
+  padding: 16px;
 
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 12px;
 }
 
 .action-item {
@@ -114,111 +138,66 @@
 
   align-items: center;
 
-  /* REVISI: Jarak ikon ke teks dirapatkan sedikit */
-  gap: 8px; 
+  gap: 8px;
 }
 
-/* Kontainer ikon di Quick Action (jika ada div lingkarannya, pastikan tingginya ideal) */
-.action-item i, 
+.action-item .icon-box {
+  width: 58px;
+  height: 58px;
+
+  border-radius: 18px;
+}
+
+.action-item i,
 .action-item svg {
   width: 22px;
   height: 22px;
 }
 
 .action-item span {
-  font-size: 12px; /* Diturunkan dari text-sm agar pas berjejer horizontal */
+  font-size: 12px;
 
-  font-weight: var(--font-medium);
+  font-weight: 600;
 
   color: var(--text);
 }
 
 /* =========================
-   SECTION TITLE
+   STOCK ALERT
 ========================= */
 
-.section-title {
+.dashboard-alert-card {
+  padding: 16px;
+}
+
+.dashboard-alert-head {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+.dashboard-alert-list {
+  margin-top: 16px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.dashboard-alert-item {
   display: flex;
 
   align-items: center;
   justify-content: space-between;
-  margin-top: 4px;
-}
 
-.section-title h3 {
-  font-size: 16px; /* Ukuran heading seksi yang ideal untuk mobile */
-}
-
-.see-all-btn {
-  /* REVISI: Tombol "Lihat Semua" dibuat lebih tipis dan kompak */
-  height: 32px; 
-
-  padding: 0 12px;
-
-  font-size: 12px;
-
-  border-radius: var(--radius-md);
-}
-
-/* =========================
-   ACTIVITY
-========================= */
-
-.activity-list {
-  /* REVISI: Jarak antar baris aktivitas dirapatkan dari 18px ke 12px */
-  gap: 12px; 
-}
-
-.activity-card {
-  /* REVISI: Diperkecil dari 20px ke 14px */
-  padding: 14px; 
-
-  display: flex;
-
-  align-items: center;
-  justify-content: space-between;
-}
-
-.activity-left {
-  display: flex;
-  align-items: center;
-
-  /* REVISI: Jarak antar ikon/avatar ke teks dirapatkan */
-  gap: 12px; 
-}
-
-/* Jika ada avatar/ikon bulat di sebelah kiri */
-.activity-left .icon-wrapper,
-.activity-left i {
-  width: 36px;
-  height: 36px;
-}
-
-.activity-left h4 {
   font-size: 14px;
 }
 
-.activity-left p {
-  margin-top: 2px;
+.dashboard-alert-item strong {
+  font-size: 16px;
 
-  font-size: 12px;
-}
-
-.activity-right {
-  text-align: right;
-}
-
-.activity-right strong {
-  display: block;
-
-  margin-bottom: 2px;
-
-  /* REVISI: Ukuran nominal/status di kanan disesuaikan */
-  font-size: 15px; 
-
-  font-weight: var(--font-bold);
-}
-
-.activity-right span {
-  font-size: 11px;
+  font-weight: 700;
 }
