@@ -2,305 +2,155 @@ export function OrderDetailPage() {
   return `
     <section class="detail-page">
 
-      <!-- HEADER -->
-
       <div class="detail-header">
-
         <button
-          class="btn-icon"
+          class="btn-back"
           onclick="window.navigate('order')"
         >
           <i data-lucide="arrow-left"></i>
         </button>
 
         <div class="detail-header-text">
-
-          <h2 class="text-3xl font-bold">
-            SO-001
-          </h2>
-
-          <p class="text-light text-md">
-            Sales Order Detail
-          </p>
-
+          <h2>SO-001</h2>
+          <p>Sales Order Detail</p>
         </div>
-
       </div>
 
-      <!-- STATUS -->
-
       <div class="card detail-status-card">
-
         <div>
-
-          <span class="text-light text-sm">
-            Status
-          </span>
-
-          <h3 class="text-2xl font-bold detail-status-title">
+          <span class="detail-status-title">Status</span>
+          <h3 class="font-bold">
             Pending Produksi
           </h3>
-
         </div>
-
         <span class="badge badge-warning">
           Pending
         </span>
-
       </div>
 
-      <!-- CUSTOMER -->
-
       <div class="card detail-card">
-
         <div class="card-title">
-
           <div class="icon-box">
             <i data-lucide="user"></i>
           </div>
-
-          <h3 class="text-xl font-bold">
-            Customer
-          </h3>
-
+          <h3>Customer</h3>
         </div>
 
         <div class="detail-info">
-
           <div class="info-item">
-
-            <span class="text-light text-sm">
-              Nama
-            </span>
-
-            <strong class="text-lg font-bold">
-              PT Kopi Nusantara
-            </strong>
-
+            <span>Nama</span>
+            <strong>PT Kopi Nusantara</strong>
           </div>
 
           <div class="info-item">
-
-            <span class="text-light text-sm">
-              Telepon
-            </span>
-
-            <strong class="text-lg font-bold">
-              08123456789
-            </strong>
-
+            <span>Telepon</span>
+            <strong>08123456789</strong>
           </div>
 
           <div class="info-item">
-
-            <span class="text-light text-sm">
-              Alamat
-            </span>
-
-            <strong class="text-lg font-bold">
-              Surabaya
-            </strong>
-
+            <span>Alamat</span>
+            <strong>Surabaya</strong>
           </div>
-
         </div>
-
       </div>
 
-      <!-- PRODUCT -->
-
       <div class="card detail-card">
-
         <div class="card-title">
-
           <div class="icon-box">
             <i data-lucide="package"></i>
           </div>
-
-          <h3 class="text-xl font-bold">
-            Produk
-          </h3>
-
+          <h3>Produk</h3>
         </div>
 
-        <div class="product-item">
-
-          <div>
-
-            <strong class="text-xl font-bold">
-              Kopi Giras 1:1
-            </strong>
-
-            <p class="text-light text-md product-subtitle">
-              Qty 50kg
-            </p>
-
+        <div class="detail-row-item">
+          <div class="left-content">
+            <strong class="title">Kopi Giras 1:1</strong>
+            <span class="subtitle">Qty 50kg</span>
           </div>
-
           <span class="badge badge-primary">
             Manufacturing
           </span>
-
         </div>
-
       </div>
 
-      <!-- BOM -->
-
       <div class="card detail-card">
-
         <div class="card-title">
-
           <div class="icon-box">
             <i data-lucide="factory"></i>
           </div>
-
-          <h3 class="text-xl font-bold">
-            Kebutuhan Produksi
-          </h3>
-
+          <h3>Kebutuhan Produksi</h3>
         </div>
 
         <div class="bom-list">
-
-          <div class="bom-item">
-
-            <span class="text-light text-md">
-              RB Robusta Grade A
-            </span>
-
-            <strong class="text-lg font-bold">
-              25kg
-            </strong>
-
+          <div class="detail-row-item">
+            <div class="left-content">
+              <span class="title">RB Robusta Grade A</span>
+            </div>
+            <strong class="right-value">25kg</strong>
           </div>
 
-          <div class="bom-item">
-
-            <span class="text-light text-md">
-              Jagung
-            </span>
-
-            <strong class="text-lg font-bold">
-              25kg
-            </strong>
-
+          <div class="detail-row-item">
+            <div class="left-content">
+              <span class="title">Jagung</span>
+            </div>
+            <strong class="right-value">25kg</strong>
           </div>
-
         </div>
-
       </div>
 
-      <!-- TIMELINE -->
-
       <div class="card detail-card">
-
         <div class="card-title">
-
           <div class="icon-box">
             <i data-lucide="clock-3"></i>
           </div>
-
-          <h3 class="text-xl font-bold">
-            Timeline
-          </h3>
-
+          <h3>Timeline</h3>
         </div>
 
         <div class="timeline">
-
           <div class="timeline-item active">
-
             <div class="timeline-dot"></div>
-
             <div>
-
-              <strong class="font-bold">
-                Order Dibuat
-              </strong>
-
-              <p class="text-light text-sm">
-                15 Mei 2026
-              </p>
-
+              <h4>Order Dibuat</h4>
+              <p>15 Mei 2026</p>
             </div>
-
           </div>
 
           <div class="timeline-item active">
-
             <div class="timeline-dot"></div>
-
             <div>
-
-              <strong class="font-bold">
-                Menunggu Produksi
-              </strong>
-
-              <p class="text-light text-sm">
-                Pending
-              </p>
-
+              <h4>Menunggu Produksi</h4>
+              <p>Pending</p>
             </div>
-
           </div>
 
           <div class="timeline-item">
-
             <div class="timeline-dot"></div>
-
             <div>
-
-              <strong class="font-bold">
-                Produksi
-              </strong>
-
-              <p class="text-light text-sm">
-                Belum dimulai
-              </p>
-
+              <h4>Produksi</h4>
+              <p>Belum dimulai</p>
             </div>
-
           </div>
 
           <div class="timeline-item">
-
             <div class="timeline-dot"></div>
-
             <div>
-
-              <strong class="font-bold">
-                Pengiriman
-              </strong>
-
-              <p class="text-light text-sm">
-                Menunggu
-              </p>
-
+              <h4>Pengiriman</h4>
+              <p>Menunggu</p>
             </div>
-
           </div>
-
         </div>
-
       </div>
 
-      <!-- ACTION -->
-
       <div class="detail-actions">
-
-        <button class="btn btn-secondary action-btn">
+        <button class="action-btn">
           Void
         </button>
-
-        <button class="btn btn-secondary action-btn">
+        <button class="action-btn">
           Edit
         </button>
-
-        <button class="btn btn-primary action-btn primary-action">
+        <button class="action-btn primary-action">
           Mulai Produksi
         </button>
-
       </div>
 
     </section>
