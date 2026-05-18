@@ -49,15 +49,18 @@ export function ProduksiDetailPage() {
         const pUnit = prod.products?.unit || "kg";
         const isMto = !!prod.sales_order_id;
         
-        // Tentukan nilai string status operasional rill harian lo gais
-        let currentStatus = "Selesai";
+        // ==========================================================================
+        // FIX KATA STATUS: SUPAYA DETAIL PRODUKSI SINKRON BACA DATA LIVE ORDER KASIR
+        // ==========================================================================
+        let currentStatus = "Diproses"; // Default awal operasional harian
         if (isMto && prod.sales_orders?.status) {
           const soStatus = prod.sales_orders.status.toLowerCase();
+          
           if (soStatus === "butuh produksi") currentStatus = "Pending";
-          else if (soStatus === "proses produksi") currentStatus = "Diproses";
-          else if (soStatus === "ready") currentStatus = "Ready";
+          else if (soStatus === "diproses") currentStatus = "Diproses"; // <-- Dicocokkan dengan isi status DB rill lo gais
+          else if (soStatus === "ready" || soStatus === "dikirim") currentStatus = "Ready"; // <-- Jika siap/dikirim set roaster selesai
         } else if (!isMto) {
-          currentStatus = "Selesai"; // MTS otomatis berstatus kelar harian
+          currentStatus = "Selesai"; // MTS otomatis berstatus kelar harian murni
         }
 
         // ==========================================================================
@@ -79,7 +82,7 @@ export function ProduksiDetailPage() {
           } else if (currentStatus === "Ready" || currentStatus === "Selesai") {
             statusTitle.textContent = "Roasting Selesai";
             statusBadge.className = "badge badge-success";
-            statusBadge.textContent = currentStatus;
+            statusBadge.textContent = "Selesai";
           }
         }
 
@@ -96,7 +99,7 @@ export function ProduksiDetailPage() {
             <div class="detail-row-item">
               <div class="left-content">
                 <strong class="title">${pName}</strong>
-                <span class="subtitle">Qty Produksi ${prod.qty_produced} ${pUnit}</span>
+                <span class="subtitle">Qty Pemenuhan ${prod.qty_produced} ${pUnit}</span>
               </div>
               <span class="badge ${isMto ? 'badge-primary' : 'badge-success'}">
                 ${isMto ? 'Make-to-Order' : 'Manufacturing (MTS)'}
@@ -119,7 +122,7 @@ export function ProduksiDetailPage() {
           `;
 
           if (!ingredients || ingredients.length === 0) {
-            ingHtml += `<p class="text-xs text-light" style="padding:var(--space-xs);">Komposisi bahan belum diinput atau resep kustom.</p>`;
+            ingHtml += `<p class="text-xs text-light" style="padding:var(--space-xs);">Bahan mentah racikan belum dimasukkan kasir.</p>`;
           } else {
             ingHtml += ingredients.map(ing => {
               const matName = ing.products?.name || "Bahan Mentah";
@@ -127,7 +130,6 @@ export function ProduksiDetailPage() {
               const currentStock = parseFloat(ing.products?.stock) || 0;
               const needQty = parseFloat(ing.qty_used) || 0;
               
-              // Cek kalkulasi lapangan apakah stok di rak saat ini mencukupi target racikan
               const isSafe = currentStock >= needQty;
 
               return `
@@ -180,7 +182,6 @@ export function ProduksiDetailPage() {
             `;
           }).join('');
 
-          // Pas selesai produksi, murni hanya hasil roasting kopi matang bertambah masuk gudang (+ / IN)
           impactHtml += `
             <div class="detail-row-item" style="border-top:1px dashed var(--border); padding-top:var(--space-xs); margin-top:4px;">
               <div class="left-content"><span class="title">${pName} (Hasil Roasting)</span></div>
@@ -216,7 +217,7 @@ export function ProduksiDetailPage() {
             </div>
             <div class="timeline-item ${isKelar ? 'active' : ''}">
               <div class="timeline-dot"></div>
-              <div><h4>Packing</h4><p>${isKelar ? 'Selesai Dikemas & Masuk Rak' : 'Menunggu'}</p></div>
+              <div><h4>Packing</h4><p>${isKelar ? 'Selesai Dikemas & Masuk Rak' : 'Menunggu Selesai'}</p></div>
             </div>
             <div class="timeline-item ${isKelar ? 'active' : ''}">
               <div class="timeline-dot"></div>
@@ -233,9 +234,9 @@ export function ProduksiDetailPage() {
             if (finishBtn) finishBtn.style.display = "none";
             if (editBtn) editBtn.style.display = "none";
             if (pauseBtn) pauseBtn.style.display = "none";
-            actionsArea.style.justifyContent = "center";
-            actionsArea.innerHTML = `<button class="action-btn" style="flex:1;" onclick="window.navigate('produksi-list')">Kembali ke List</button>`;
+            actionsArea.innerHTML = `<button class="action-btn" style="flex:1; height: 48px; background: var(--border); color: var(--text); border:none; font-weight:bold; border-radius: var(--radius-md);" onclick="window.navigate('produksi-list')">Kembali ke List</button>`;
           } else {
+            // Pasang event klik Finish jika statusnya beneran 'diproses' gais
             setupFinishAction(prod, ingredients);
             if (pauseBtn) pauseBtn.onclick = () => alert("Aktivitas mesin berhasil di-pause sementara gais!");
             if (editBtn) editBtn.onclick = () => alert("Fitur penyesuaian batch resep dalam pengembangan gais!");
@@ -267,7 +268,7 @@ export function ProduksiDetailPage() {
         newFinishBtn.textContent = "Processing...";
 
         try {
-          // 1. POTONG STOK BAHAN BAKU MENTAH & MUTASI OUT (FIXED VARIABEL OBJECT RELASI)
+          // 1. POTONG STOK BAHAN BAKU MENTAH & MUTASI OUT
           if (ingredients && ingredients.length > 0) {
             for (const ing of ingredients) {
               const materialId = ing.products?.id;
@@ -315,13 +316,11 @@ export function ProduksiDetailPage() {
             const currentStockProd = parseFloat(currentProd?.stock || 0);
             const newStockProd = currentStockProd + producedQty;
 
-            // Update stock bertambah di rak penyimpanan utama
             await supabase
               .from("products")
               .update({ stock: newStockProd })
               .eq("id", finishedProductId);
 
-            // Masukkan log rekaman IN murni untuk produk kopi jadi matang gais
             await supabase
               .from("stock_mutations")
               .insert([{
