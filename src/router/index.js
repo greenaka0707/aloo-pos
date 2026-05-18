@@ -2,6 +2,8 @@ import { DashboardPage } from "../pages/dashboard.js";
 import { OrderListPage } from "../pages/order-list-page.js";
 import { OrderDetailPage } from "../pages/order-detail-page.js";
 import { CreateOrderPage } from "../pages/create-order-page.js";
+import { ProduksiListPage } from "../pages/produksi-list-page.js";
+import { StockPage } from "../pages/stock-page.js";
 
 export function renderRoute(route) {
 
@@ -18,8 +20,16 @@ export function renderRoute(route) {
 
     case "create-order":
       return CreateOrderPage();
+      
+    case "produksi":
+      return ProduksiListPage();
+    
+    case "stok":
+      return StockPage();
 
     default:
       return DashboardPage();
+      
+      
   }
 }
