@@ -1,18 +1,14 @@
-import { AppLayout } from "./layouts/app-layout";
+import { AppLayout } from "./layouts/app-layout.js";
 
-import { BottomNav } from "./components/bottom-nav";
-
-import { renderRoute } from "./router";
+import { renderRoute } from "./router/index.js";
 
 function renderPage(route = "dashboard") {
 
   document.querySelector("#app").innerHTML =
-    AppLayout(
-      renderRoute(route)
-    );
-
-  document.querySelector("#bottom-nav").innerHTML =
-    BottomNav(route);
+    AppLayout({
+      content: renderRoute(route),
+      route
+    });
 
   lucide.createIcons();
 }
@@ -22,11 +18,34 @@ function renderPage(route = "dashboard") {
 ===================== */
 
 window.navigate = function(route) {
+
+  window.location.hash = route;
+
   renderPage(route);
 };
+
+/* =====================
+   HASH ROUTER
+===================== */
+
+window.addEventListener(
+  "hashchange",
+  () => {
+
+    const route =
+      window.location.hash.replace("#", "") ||
+      "dashboard";
+
+    renderPage(route);
+  }
+);
 
 /* =====================
    INITIAL
 ===================== */
 
-renderPage();
+const initialRoute =
+  window.location.hash.replace("#", "") ||
+  "dashboard";
+
+renderPage(initialRoute);
