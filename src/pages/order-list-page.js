@@ -2,13 +2,6 @@ export function OrderListPage() {
   return `
     <section class="list-page">
 
-      <div class="page-header">
-        <div>
-          <h2 class="font-bold">Sales Order</h2>
-          <p class="page-subtitle">Manufacturing sales workflow</p>
-        </div>
-      </div>
-
       <div class="card search-box">
         <i data-lucide="search"></i>
         <input type="text" placeholder="Cari sales order..." />
