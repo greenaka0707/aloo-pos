@@ -1,4 +1,4 @@
-import { supabase } from "../supabaseClient.js";
+import { supabase } from "../supabaseClient.js"; // ✔️ FIX: Menggunakan 'import' huruf kecil
 
 async function getSupabaseInventory() {
   try {
@@ -19,6 +19,16 @@ export default function ProductPage() {
   setTimeout(async () => {
     const container = document.querySelector(".product-data-list");
     const chips = document.querySelectorAll(".filter-chip");
+    
+    // ==========================================================================
+    // FIX KUNCI STICKY: Paksa pindahkan FAB ke komponen root .app-layout
+    // ==========================================================================
+    const fab = document.querySelector(".fab-btn");
+    const appLayout = document.querySelector(".app-layout");
+    if (fab && appLayout && fab.parentElement !== appLayout) {
+      appLayout.appendChild(fab);
+    }
+
     if (!container) return;
 
     // 1. Ambil data terpusat dari tabel products
@@ -36,7 +46,7 @@ export default function ProductPage() {
       }
 
       container.innerHTML = filteredItems.map(item => {
-        // Pewarnaan badge dinamis berdasarkan cluster kopi Anda
+        // Pewarnaan badge dinamis berdasarkan cluster kopi
         let badgeClass = 'badge-warning'; // Greenbean
         if (item.category === 'roastedbean') badgeClass = 'badge-success'; // Roastedbean
         if (item.category === 'kopi_bubuk') badgeClass = 'badge-primary';  // Kopi Bubuk
@@ -92,7 +102,6 @@ export default function ProductPage() {
         } else if (filterValue === "greenbean") {
           renderList(allItems.filter(item => item.category === "greenbean"));
         } else if (filterValue === "roasted bean") { 
-          // Mengamankan kecocokan teks tombol 'Roasted Bean' (pakai spasi) ke value db 'roastedbean'
           renderList(allItems.filter(item => item.category === "roastedbean"));
         } else if (filterValue === "kopi bubuk") {
           renderList(allItems.filter(item => item.category === "kopi_bubuk"));
