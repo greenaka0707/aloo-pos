@@ -250,7 +250,7 @@ export function ProduksiDetailPage() {
     }
 
     // ==========================================================================
-    // H. ACTION SUBMIT FINISH: POTONG MENTAH (OUT) & TAMBAH MATANG (IN)
+    // H. ACTION SUBMIT FINISH: POTONG MENTAH (OUT) & TAMBAH MATANG TARGET KASIR (IN)
     // ==========================================================================
     function setupFinishAction(prod, ingredients) {
       if (!finishBtn) return;
@@ -267,29 +267,31 @@ export function ProduksiDetailPage() {
         newFinishBtn.textContent = "Processing...";
 
         try {
-          // 1. POTONG STOK BAHAN BAKU MENTAH & MUTASI OUT
+          // 1. POTONG STOK BAHAN BAKU MENTAH & MUTASI OUT (FIXED VARIABEL OBJECT RELASI)
           if (ingredients && ingredients.length > 0) {
             for (const ing of ingredients) {
-              if (ing.products?.id && ing.qty_used > 0) {
+              const materialId = ing.products?.id;
+              const usedQty = parseFloat(ing.qty_used || 0);
+
+              if (materialId && usedQty > 0) {
                 const { data: currentMat } = await supabase
                   .from("products")
                   .select("stock")
-                  .eq("id", ing.products.id)
+                  .eq("id", materialId)
                   .single();
 
                 const currentStockMat = parseFloat(currentMat?.stock || 0);
-                const usedQty = parseFloat(ing.qty_used);
                 const newStockMat = currentStockMat - usedQty;
 
                 await supabase
                   .from("products")
                   .update({ stock: newStockMat })
-                  .eq("id", ing.products.id);
+                  .eq("id", materialId);
 
                 await supabase
                   .from("stock_mutations")
                   .insert([{
-                    product_id: ing.products.id,
+                    product_id: materialId,
                     type: "out",
                     qty: usedQty,
                     reference_no: prod.production_no,
@@ -299,37 +301,39 @@ export function ProduksiDetailPage() {
             }
           }
 
-          // 2. TAMBAH STOK KOPI MATANG JADI & MUTASI IN (TETAP DIAM DI GUDANG)
-          if (prod.products?.id && prod.qty_produced > 0) {
+          // 2. TAMBAH STOK HASIL PRODUKSI UTAMA (PRODUK PERTAMA TERBELI YANG KURANG STOK)
+          const finishedProductId = prod.products?.id;
+          const producedQty = parseFloat(prod.qty_produced || 0);
+
+          if (finishedProductId && producedQty > 0) {
             const { data: currentProd } = await supabase
               .from("products")
               .select("stock")
-              .eq("id", prod.products.id)
+              .eq("id", finishedProductId)
               .single();
 
             const currentStockProd = parseFloat(currentProd?.stock || 0);
-            const producedQty = parseFloat(prod.qty_produced);
             const newStockProd = currentStockProd + producedQty;
 
-            // Update stock bertambah di tabel products gudang utama
+            // Update stock bertambah di rak penyimpanan utama
             await supabase
               .from("products")
               .update({ stock: newStockProd })
-              .eq("id", prod.products.id);
+              .eq("id", finishedProductId);
 
-            // Masukkan log rekaman IN murni
+            // Masukkan log rekaman IN murni untuk produk kopi jadi matang gais
             await supabase
               .from("stock_mutations")
               .insert([{
-                product_id: prod.products.id,
+                product_id: finishedProductId,
                 type: "in",
                 qty: producedQty,
                 reference_no: prod.production_no,
-                description: `Hasil matang roasting bertambah dari batch produksi nomor ${prod.production_no}`
+                description: `Hasil matang roasting bertambah masuk gudang dari batch nomor ${prod.production_no}`
               }]);
           }
 
-          // 3. JIKA BERSUMBER DARI SALES ORDER, NAIKKAN STATUSNYA JADI READY
+          // 3. JIKA BERSUMBER DARI SALES ORDER, NAIKKAN STATUSNYA JADI READY UNTUK UNLOCK DETAIL ORDER
           if (prod.sales_order_id) {
             const { error: soErr } = await supabase
               .from("sales_orders")
@@ -339,7 +343,7 @@ export function ProduksiDetailPage() {
             if (soErr) throw soErr;
           }
 
-          alert(`🎉 Sesi produksi selesai! Bahan mentah berhasil dipotong (OUT) dan kopi matang bertambah masuk rak (IN) gais!`);
+          alert(`🎉 Sesi produksi selesai! Bahan mentah berhasil dipotong (OUT) dan produk matang ${prod.products?.name || ''} bertambah masuk rak (IN) gais!`);
           loadProductionDetail();
 
         } catch (err) {
@@ -371,7 +375,7 @@ export function ProduksiDetailPage() {
       <div class="card detail-card">
         <div class="card-title">
           <div class="icon-box"><i data-lucide="package"></i></div>
-          <h3>Produk ...</h3>
+          <h3>Produk Produksi</h3>
         </div>
         <div class="detail-info"><p class="text-xs text-light">Memuat nama item...</p></div>
       </div>
@@ -387,7 +391,7 @@ export function ProduksiDetailPage() {
       <div class="card detail-card">
         <div class="card-title">
           <div class="icon-box"><i data-lucide="activity"></i></div>
-          <h3>Progress ...</h3>
+          <h3>Progress Produksi</h3>
         </div>
         <div class="timeline"></div>
       </div>
