@@ -173,30 +173,31 @@
   padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 20px);
   box-sizing: border-box;
 
-  /* UPDATE KUNCI UNTUK PULL TO REFRESH GESTURE */
-  /* Animasi membal balik ke atas super mulus & elastis */
+  /* ==========================================================================
+     UPDATE KUNCI UNTUK SLIDE & PULL REFRESH GESTURE
+     ========================================================================== */
+  /* Diperbarui: Fokus transpasar dan pergeseran transform dioptimalkan ke 300ms */
   transition: 
-    opacity 150ms ease-out, 
-    margin-top 150ms cubic-bezier(0.25, 0.8, 0.25, 1),
-    transform 300ms cubic-bezier(0.25, 0.8, 0.25, 1); 
+    opacity 200ms ease-out, 
+    transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1); 
   
   /* Hardware Acceleration: Memaksa HP pakai tenaga GPU pas ditarik biar anti-lag/patah-patah */
   will-change: transform; 
   
   opacity: 1;
-  margin-top: 0;
+  transform: translateX(0); /* Default di tengah layar */
 }
 
-/* PAGE OUT */
+/* PAGE OUT: Saat tab lama mau menghilang, dia bergeser tipis ke kiri */
 .app-content.page-leave {
   opacity: 0;
-  margin-top: -6px; 
+  transform: translateX(-24px); 
 }
 
-/* PAGE IN */
+/* PAGE IN: Saat tab baru masuk, dia datang meluncur halus dari kanan luar */
 .app-content.page-enter {
   opacity: 0;
-  margin-top: 6px;
+  transform: translateX(24px); 
 }
 
 /* ==========================================================================
