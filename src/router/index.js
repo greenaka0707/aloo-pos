@@ -19,7 +19,7 @@ import { CreatePurchasePage } from "../pages/create-purchase-page.js";
 import ProductPage from "../pages/ProductPage.js"; 
 
 // 🕵️ 3. SUNTIKAN: IMPORT COMPONENT LAYAR PIN IPHONE LO GAIS
-import { PinLock } from "./PinLock.js"; // <--- Sesuaikan jalur foldernya gais (misal "../components/PinLock.js")
+import { PinLock } from "../components/PinLock.js";
 
 export function renderRoute(route) {
 
