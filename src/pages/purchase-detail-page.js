@@ -2,30 +2,12 @@ export function PurchaseDetailPage() {
   return `
     <section class="detail-page">
 
-      <div class="detail-header">
-        <button
-          class="btn-back"
-          onclick="window.navigate('pembelian')"
-        >
-          <i data-lucide="arrow-left"></i>
-        </button>
-
-        <div class="detail-header-text">
-          <h2>PO-001</h2>
-          <p>Purchase Detail</p>
-        </div>
-      </div>
-
       <div class="card detail-status-card">
         <div>
           <span class="detail-status-title">Status</span>
-          <h3 class="font-bold">
-            Menunggu Penerimaan
-          </h3>
+          <h3 class="font-bold">Menunggu Penerimaan</h3>
         </div>
-        <span class="badge badge-warning">
-          Pending
-        </span>
+        <span class="badge badge-warning">Pending</span>
       </div>
 
       <div class="card detail-card">
@@ -143,15 +125,9 @@ export function PurchaseDetailPage() {
       </div>
 
       <div class="detail-actions">
-        <button class="action-btn">
-          Void
-        </button>
-        <button class="action-btn">
-          Edit
-        </button>
-        <button class="action-btn primary-action">
-          Terima Barang
-        </button>
+        <button class="action-btn">Void</button>
+        <button class="action-btn">Edit</button>
+        <button class="action-btn primary-action">Terima Barang</button>
       </div>
 
     </section>
