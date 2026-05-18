@@ -25,10 +25,10 @@
   left: 0;
   right: 0;
   
-  /* KUNCI 1: Ukuran bar ditinggikan menjadi 76px agar tulisan bernapas lega */
+  /* UKURAN: Ukuran bar ditinggikan menjadi 76px agar tulisan bernapas lega */
   height: 76px; 
   
-  /* KUNCI 2: Gradasi putih murni memudar halus ke transparan (Tanpa Glass/Blur) */
+  /* GRADASI: Gradasi putih murni memudar halus ke transparan (Tanpa Glass/Blur) */
   background: linear-gradient(
     to bottom, 
     rgba(255, 255, 255, 1) 0%, 
@@ -40,7 +40,7 @@
   display: flex;
   align-items: center;
   
-  /* KUNCI 3: Jarak padding kesamping digedein biar tidak mepet */
+  /* PADDING: Jarak padding kesamping digedein biar tidak mepet */
   padding: 0 var(--space-lg);
   z-index: 1000; 
 
@@ -74,7 +74,7 @@
 }
 
 .navbar-title {
-  /* KUNCI 4: Ukuran font judul dinaikkan ke var(--text-base) agar tegas */
+  /* UKURAN FONT: Ukuran font judul dinaikkan ke var(--text-base) agar tegas */
   font-size: var(--text-base); 
   font-weight: var(--font-bold);
   color: var(--text);
@@ -168,21 +168,19 @@
   flex-direction: column;
   gap: var(--section-gap);
   
-  /* KUNCI 5: Padding atas dinaikkan menjadi 96px agar form pertama pas di bawah pudar gradasi */
+  /* PADDING: Padding atas dinaikkan menjadi 96px agar form pertama pas di bawah pudar gradasi */
   padding-top: 96px;
   padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 20px);
   box-sizing: border-box;
 
-  /* ==========================================================================
-     UPDATE KUNCI UNTUK PULL TO REFRESH GESTURE
-     ========================================================================== */
-  /* 1. Menambahkan 'transform 300ms...' agar animasi membal balik ke atas super mulus & elastis */
+  /* UPDATE KUNCI UNTUK PULL TO REFRESH GESTURE */
+  /* Animasi membal balik ke atas super mulus & elastis */
   transition: 
     opacity 150ms ease-out, 
     margin-top 150ms cubic-bezier(0.25, 0.8, 0.25, 1),
     transform 300ms cubic-bezier(0.25, 0.8, 0.25, 1); 
   
-  /* 2. Hardware Acceleration: Memaksa HP pakai tenaga GPU pas ditarik biar anti-lag/patah-patah */
+  /* Hardware Acceleration: Memaksa HP pakai tenaga GPU pas ditarik biar anti-lag/patah-patah */
   will-change: transform; 
   
   opacity: 1;
@@ -199,4 +197,50 @@
 .app-content.page-enter {
   opacity: 0;
   margin-top: 6px;
+}
+
+/* ==========================================================================
+   KALCER FIXED FLOATING ACTION BUTTON (FAB)
+   ========================================================================== */
+.fab-btn {
+  /* KUNCI UTAMA: Mengunci posisi mutlak di atas .app-layout, kebal terhadap scroll */
+  position: fixed; 
+  
+  /* POSISI: Otomatis presisi di atas bottom nav bar bawaan ERP-POS Anda */
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 24px); 
+  right: 24px; 
+  
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full, 50%);
+  background-color: #E67E22; /* Orange signature Alooka */
+  color: var(--white, #ffffff);
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  
+  /* LAYER STACK: Wajib di bawah Navbar (1000) tapi di atas App-Content yang nge-scroll */
+  z-index: 995; 
+  
+  /* SHADOW EFFECT: Efek bayangan tegas melayang kalcer-style */
+  box-shadow: 0 4px 16px rgba(230, 126, 34, 0.35), 
+              0 2px 6px rgba(0, 0, 0, 0.05);
+              
+  /* TRANSISI: Animasi membal mikro saat di-tap jari */
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fab-btn:active {
+  transform: scale(0.92); /* Efek feedback klik */
+}
+
+.fab-btn svg,
+.fab-btn i {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.5;
 }
