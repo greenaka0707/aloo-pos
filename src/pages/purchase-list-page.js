@@ -87,25 +87,29 @@ export function PurchaseListPage() {
 
           </div>
 
-          <div class="purchase-body">
+          <div class="purchase-summary">
 
-            <div class="purchase-product">
+            <div class="purchase-summary-item">
 
-              <div class="icon-box">
-                <i data-lucide="package"></i>
-              </div>
+              <span class="text-light text-sm">
+                Total Item
+              </span>
 
-              <div>
+              <strong>
+                3 Produk
+              </strong>
 
-                <strong class="font-bold text-lg">
-                  RB Robusta Grade A
-                </strong>
+            </div>
 
-                <p class="text-light text-sm">
-                  100kg
-                </p>
+            <div class="purchase-summary-item">
 
-              </div>
+              <span class="text-light text-sm">
+                Qty
+              </span>
+
+              <strong>
+                100kg
+              </strong>
 
             </div>
 
@@ -160,25 +164,29 @@ export function PurchaseListPage() {
 
           </div>
 
-          <div class="purchase-body">
+          <div class="purchase-summary">
 
-            <div class="purchase-product">
+            <div class="purchase-summary-item">
 
-              <div class="icon-box">
-                <i data-lucide="package-check"></i>
-              </div>
+              <span class="text-light text-sm">
+                Total Item
+              </span>
 
-              <div>
+              <strong>
+                2 Produk
+              </strong>
 
-                <strong class="font-bold text-lg">
-                  Jagung
-                </strong>
+            </div>
 
-                <p class="text-light text-sm">
-                  200kg
-                </p>
+            <div class="purchase-summary-item">
 
-              </div>
+              <span class="text-light text-sm">
+                Qty
+              </span>
+
+              <strong>
+                200kg
+              </strong>
 
             </div>
 
