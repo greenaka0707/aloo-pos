@@ -239,7 +239,7 @@ export default function CreateOrderPage() {
     }
 
     // ==========================================================================
-    // 4. CORE ENGINE PERBAIKAN: MANIPULASI DOM INPUT INTERAKTIF (ANTI-KEYBOARD MENTAL)
+    // 4. MANIPULASI DOM INPUT INTERAKTIF
     // ==========================================================================
     function renderCartStructure() {
       if (cart.length === 0) {
@@ -310,91 +310,81 @@ export default function CreateOrderPage() {
     }
 
     // ==========================================================================
-    // AMBIL DATA RESEP DINAMIS DARI DATABASE (TIDAK HARDCODED LAGI)
+    // SEARCH PRODUK BAHAN BAKU LANGSUNG KE TABEL PRODUCTS (DINAMIS 100%)
     // ==========================================================================
     async function calculateTotalsOnly() {
       let needsProduction = false;
-      let bomItemsArr = [];
+      let totalRobustaNeeded = 0;
+      let totalJagungNeeded = 0;
 
-      try {
-        for (const item of cart) {
-          if (item.qty > item.stock) {
-            const shortage = item.qty - item.stock;
+      cart.forEach(item => {
+        if (item.qty > item.stock) {
+          const shortage = item.qty - item.stock;
+          if (item.name.toLowerCase().includes("giras") || item.name.toLowerCase().includes("blend")) {
             needsProduction = true;
-
-            // Tarik live komposisi resep berdasarkan produk jadi yang dipilih gais
-            const { data: recipes, error } = await supabase
-              .from("product_recipes")
-              .select(`
-                material_id,
-                qty_per_unit,
-                products!product_recipes_material_id_fkey ( name, unit )
-              `)
-              .eq("product_id", item.id);
-
-            if (!error && recipes && recipes.length > 0) {
-              recipes.forEach(rec => {
-                const totalMatQty = parseFloat(rec.qty_per_unit) * shortage;
-                const existingBom = bomItemsArr.find(b => b.material_id === rec.material_id);
-                
-                if (existingBom) {
-                  existingBom.total_needed += totalMatQty;
-                } else {
-                  bomItemsArr.push({
-                    material_id: rec.material_id,
-                    name: rec.products?.name || "Bahan Baku",
-                    unit: rec.products?.unit || "kg",
-                    total_needed: totalMatQty
-                  });
-                }
-              });
-            } else {
-              // Fallback default rasio lama lo jika master tabel resep lo belum lengkap di db gais
-              if (item.name.toLowerCase().includes("giras") || item.name.toLowerCase().includes("blend")) {
-                const fallbackMaterials = [
-                  { id: 4, name: "RB Robusta Base Material", unit: "kg" },
-                  { id: 5, name: "Jagung Roasted", unit: "kg" }
-                ];
-                fallbackMaterials.forEach(rm => {
-                  const totalMatQty = shortage * 0.5;
-                  const existingBom = bomItemsArr.find(b => b.material_id === rm.id);
-                  if (existingBom) {
-                    existingBom.total_needed += totalMatQty;
-                  } else {
-                    bomItemsArr.push({ material_id: rm.id, name: rm.name, unit: rm.unit, total_needed: totalMatQty });
-                  }
-                });
-              } else if (item.category === 'kopi_bubuk' || item.category === 'roastedbean') {
-                const totalMatQty = shortage;
-                const existingBom = bomItemsArr.find(b => b.material_id === 4);
-                if (existingBom) {
-                  existingBom.total_needed += totalMatQty;
-                } else {
-                  bomItemsArr.push({ material_id: 4, name: "RB Robusta Base Material", unit: "kg", total_needed: totalMatQty });
-                }
-              }
-            }
+            totalRobustaNeeded += (shortage * 0.5); 
+            totalJagungNeeded += (shortage * 0.5);  
+          } else if (item.category === 'kopi_bubuk' || item.category === 'roastedbean') {
+            needsProduction = true;
+            totalRobustaNeeded += shortage; 
           }
         }
+      });
 
-        // Ikat payload array objek bahan mentahnya ke element DOM card analisis gais
-        if (manufacturingCard) {
-          manufacturingCard.style.display = needsProduction ? "block" : "none";
-          manufacturingCard.dataset.bomPayload = JSON.stringify(bomItemsArr);
-        }
+      if (manufacturingCard) manufacturingCard.style.display = needsProduction ? "block" : "none";
+      
+      if (needsProduction && bomDetails) {
+        let bomHtml = "";
+        let bomPayloadArr = [];
 
-        // Render visual baris resep dinamis di aplikasi kasir
-        if (needsProduction && bomDetails) {
-          bomDetails.innerHTML = bomItemsArr.map(b => `
+        // 🔍 SEARCH DATA PRODUK BAHAN BAKU LANGSUNG KE DATABASE BIAR DAPET ID & UNIT ASLI GALS!
+        if (totalRobustaNeeded > 0) {
+          const { data: matData } = await supabase
+            .from("products")
+            .select("id, name, unit")
+            .ilike("name", "%Robusta Base Material%")
+            .limit(1)
+            .single();
+
+          const rName = matData?.name || "RB Robusta Base Material";
+          const rUnit = matData?.unit || "kg";
+          const rId = matData?.id || 4; // Fallback ke ID default lo gais
+
+          bomPayloadArr.push({ material_id: rId, total_needed: totalRobustaNeeded });
+          
+          bomHtml += `
             <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
-              <span class="text-light text-sm">${b.name}</span>
-              <strong style="font-size: var(--text-sm); color: var(--text);">${b.total_needed.toFixed(1)}${b.unit}</strong>
+              <span class="text-light text-sm">${rName}</span>
+              <strong style="font-size: var(--text-sm); color: var(--text);">${totalRobustaNeeded.toFixed(1)}${rUnit}</strong>
             </div>
-          `).join('');
+          `;
         }
 
-      } catch (err) {
-        console.error("Gagal melakukan kalkulasi analisis BOM harian: ", err);
+        if (totalJagungNeeded > 0) {
+          const { data: matData } = await supabase
+            .from("products")
+            .select("id, name, unit")
+            .ilike("name", "%Jagung Roasted%")
+            .limit(1)
+            .single();
+
+          const jName = matData?.name || "Jagung Roasted";
+          const jUnit = matData?.unit || "kg";
+          const jId = matData?.id || 5;
+
+          bomPayloadArr.push({ material_id: jId, total_needed: totalJagungNeeded });
+
+          bomHtml += `
+            <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
+              <span class="text-light text-sm">${jName}</span>
+              <strong style="font-size: var(--text-sm); color: var(--text);">${totalJagungNeeded.toFixed(1)}${jUnit}</strong>
+            </div>
+          `;
+        }
+
+        bomDetails.innerHTML = bomHtml;
+        // Simpan array payload ID produk bahan baku ke DOM dataset
+        manufacturingCard.dataset.bomPayload = JSON.stringify(bomPayloadArr);
       }
 
       const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
@@ -416,7 +406,7 @@ export default function CreateOrderPage() {
     renderCartStructure();
 
     // ==========================================================================
-    // 5. SUBMIT DATA KE SUPABASE (SUNTIK LOGIKA AUTO-INSERT PRODUKSI & INGREDIENTS)
+    // 5. SUBMIT DATA KE SUPABASE
     // ==========================================================================
     const actionsArea = container.querySelector(".detail-actions");
     if (actionsArea) {
@@ -492,16 +482,14 @@ export default function CreateOrderPage() {
             if (itemsError) throw itemsError;
 
             // ==========================================================================
-            // FIX TRIGGER: INSERT INDUK PRODUKSI + ANAK INGREDIENTS DINAMIS SECARA BERSAMAAN
+            // AUTO-INSERT PRODUCTIONS & DETAIL INGREDIENTS HASIL SEARCH PRODUK
             // ==========================================================================
             if (autoNeedsProduction && targetShortageProduct) {
               const generatedPrdNo = 'PRD-' + today.replace(/-/g, '') + '-' + Date.now().toString().slice(-4);
-              
-              // Ambil payload kancingan bahan baku yang ditangkap dari memori DOM gais
               const bomPayloadRaw = manufacturingCard.dataset.bomPayload;
               const parsedBomItems = bomPayloadRaw ? JSON.parse(bomPayloadRaw) : [];
 
-              // A. Daftarkan baris induk transaksi produksi harian
+              // A. Buat data induk produksi
               const { data: newProdData, error: newProdErr } = await supabase
                 .from('productions')
                 .insert([{
@@ -516,11 +504,11 @@ export default function CreateOrderPage() {
 
               if (newProdErr) throw newProdErr;
 
-              // B. Jika induk berhasil tersimpan, langsung suntik baris komposisi bahan baku mentahnya gais!
+              // B. Suntik data anak bahan baku berdasarkan hasil search dinamis di atas
               if (newProdData && newProdData.length > 0 && parsedBomItems.length > 0) {
                 const ingredientsPayload = parsedBomItems.map(b => ({
                   production_id: newProdData[0].id,
-                  material_id: b.material_id, // ID asli produk mentah dari database gais!
+                  material_id: b.material_id, // ID asli hasil search produk gais!
                   qty_used: b.total_needed
                 }));
 
@@ -604,7 +592,7 @@ export default function CreateOrderPage() {
           <span class="badge badge-warning">Diproses</span>
         </div>
         <div style="display: flex; align-items: center; gap: var(--space-sm); background: var(--warning-soft); color: #D97706; padding: var(--space-md); border-radius: var(--radius-md); margin-bottom: var(--space-md);">
-          <p style="font-size: var(--text-xs); font-weight: var(--font-medium); line-height: 1.4; margin: 0;">Stock produk gudang tidak mencukupi, sistem menjadwalkan produksi otomatis</p>
+          <p style="font-size: var(--text-xs); font-weight: var(--font-medium); line-height: 1.4; margin: 0;">Stock produk gudang tidak mencukupi, sistem menjadwalkan otomatis</p>
         </div>
         <div class="detail-info" id="bom-details-list" style="gap: var(--space-sm);"></div>
       </div>
@@ -636,7 +624,7 @@ export default function CreateOrderPage() {
       <div class="card create-card">
         <div class="form-group">
           <label class="form-label">Catatan Order</label>
-          <textarea id="order-note" class="textarea" placeholder="Tambahkan instruksi pengiriman / racikan khusus harian..."></textarea>
+          <textarea id="order-note" class="textarea" placeholder="Tambahkan instruksi..."></textarea>
         </div>
       </div>
 
