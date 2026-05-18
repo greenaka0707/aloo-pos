@@ -97,13 +97,34 @@
 }
 
 /* =========================
-   LIST CONTAINER & CARD
+   LIST CONTAINER & CARD (Ditambah Efek Geser Tab Horizontal)
 ========================= */
 
+.product-data-list,
 .data-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+
+  /* UPDATE TRANSIStI TAB: Efek meluncur halus saat ganti filter tab */
+  transition: opacity 180ms ease-out, transform 250ms cubic-bezier(0.215, 0.610, 0.355, 1);
+  will-change: transform, opacity;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Kondisi saat data lama keluar (Geser tipis ke kiri) */
+.product-data-list.page-leave,
+.data-list.page-leave {
+  opacity: 0;
+  transform: translateX(-16px);
+}
+
+/* Kondisi saat data baru masuk (Meluncur dari kanan) */
+.product-data-list.page-enter,
+.data-list.page-enter {
+  opacity: 0;
+  transform: translateX(16px);
 }
 
 .list-card {
