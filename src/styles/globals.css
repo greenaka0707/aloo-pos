@@ -3,13 +3,18 @@
 @import "./components.css";
 
 @import "./dashboard.css";
+
 @import "./order.css";
 @import "./order-detail.css";
 @import "./create-order.css";
+
 @import "./produksi.css";
 @import "./produksi-detail.css";
+
 @import "./stock.css";
 @import "./stock-detail.css";
+
+@import "./purchase.css";
 
 @import "./bottom-nav.css";
 
@@ -34,7 +39,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
