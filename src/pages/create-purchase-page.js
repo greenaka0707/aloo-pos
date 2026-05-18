@@ -25,10 +25,9 @@ export function CreatePurchasePage() {
     const bayarInput = container.querySelector(".card:nth-child(5) .form-group input");
     const catatanInput = container.querySelector(".textarea");
 
-    // Container dinamis untuk menyisipkan list belanjaan (kita sisipkan sebelum card subtotal)
+    // Container dinamis untuk menyisipkan list belanjaan
     const subtotalCard = container.querySelector(".detail-info").closest(".create-card");
     
-    // Buat element container untuk cart item jika belum ada
     let cartContainer = container.querySelector("#dynamic-cart-container");
     if (!cartContainer) {
       cartContainer = document.createElement("div");
@@ -160,8 +159,8 @@ export function CreatePurchasePage() {
 
         cart.push({
           ...temporarySelectedProduct,
-          qty: 100, // Default qty sesuai contoh template lo
-          price: 45000 // Default harga beli sesuai contoh template lo
+          qty: 100, 
+          price: 45000 
         });
 
         productInput.value = "";
@@ -212,7 +211,6 @@ export function CreatePurchasePage() {
         </div>
       `).join('');
 
-      // Event listener handling anti-keyboard mental
       cartContainer.querySelectorAll(".item-cart-row").forEach(row => {
         const idx = parseInt(row.dataset.idx);
         const qtyEl = row.querySelector(".input-qty");
@@ -243,7 +241,6 @@ export function CreatePurchasePage() {
       calculateTotalsOnly();
     }
 
-    // Perhitungan Ringkasan Sesuai DOM lo
     function calculateTotalsOnly() {
       const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
       
@@ -252,7 +249,7 @@ export function CreatePurchasePage() {
     }
 
     // ==========================================================================
-    // 4. SUBMIT KE DATABASE + TRANSAKSI MUTASI STOK MASUK (IN)
+    // 4. SUBMIT KE DATABASE (HANYA DOKUMEN NOTA PENDING, TANPA POTONG STOK/MUTASI)
     // ==========================================================================
     const actionsArea = container.querySelector(".detail-actions");
     if (actionsArea) {
@@ -281,7 +278,7 @@ export function CreatePurchasePage() {
             const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
             const payAmount = parseFloat(bayarInput?.value) || 0;
 
-            // A. Insert data ke tabel induk purchase_orders
+            // A. Insert data ke tabel induk dengan status 'ordered' (Pending)
             const { data: purchaseData, error: purchaseError } = await supabase
               .from('purchase_orders')
               .insert([{
@@ -291,7 +288,7 @@ export function CreatePurchasePage() {
                 total_amount: subtotalTotal,
                 net_amount: subtotalTotal,
                 payment_status: payAmount >= subtotalTotal ? 'lunas' : (payAmount > 0 ? 'sebagian' : 'belum'),
-                status: 'received', // Langsung masuk sebagai status diterima gudang harian
+                status: 'ordered', // ✔️ FIXED: Masuk antrean Pending dulu gais!
                 notes: catatanInput?.value || null
               }])
               .select();
@@ -300,7 +297,7 @@ export function CreatePurchasePage() {
 
             const purchaseOrderId = purchaseData[0].id;
 
-            // B. Loop item untuk proses input anak tabel dan mutasi masuk
+            // B. Murni hanya mencatat ke tabel item anak, TANPA update stok & TANPA mutasi masuk
             for (const item of cart) {
               const { error: itemErr } = await supabase
                 .from('purchase_order_items')
@@ -311,29 +308,12 @@ export function CreatePurchasePage() {
                   unit_price: item.price
                 }]);
               if (itemErr) throw itemErr;
-
-              // Update penambahan angka stok aktual di tabel products
-              const newStock = (item.stock || 0) + item.qty;
-              const { error: stockErr } = await supabase
-                .from('products')
-                .update({ stock: newStock })
-                .eq('id', item.id);
-              if (stockErr) throw stockErr;
-
-              // Masukkan mutasi masuk 'in' harian ke stock_mutations
-              const { error: mutationErr } = await supabase
-                .from('stock_mutations')
-                .insert([{
-                  product_id: item.id,
-                  type: 'in',
-                  qty: item.qty,
-                  reference_no: purchaseNo,
-                  description: `Pembelian Bahan Baku dari Supplier: ${selectedSupplier.name}`
-                }]);
-              if (mutationErr) throw mutationErr;
+              
+              // 📝 Catatan: Logika penambahan stok aktual gudang dan pencatatan stock_mutations 'in' 
+              // resmi dihapus dari sini. Eksekusinya dipindah penuh ke halaman PurchaseDetailPage!
             }
 
-            alert(`🎉 Transaksi Pembelian ${purchaseNo} Berhasil Disimpan & Stok Bertambah!`);
+            alert(`🎉 Transaksi Pembelian ${purchaseNo} Berhasil Disimpan ke Antrean Pending!`);
             if (window.navigate) window.navigate('purchase');
 
           } catch (err) {
