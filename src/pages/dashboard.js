@@ -35,6 +35,72 @@ export function DashboardPage() {
 
       </div>
 
+      <!-- HERO SUMMARY -->
+
+      <div class="dashboard-hero-card">
+
+        <div class="dashboard-hero-top">
+
+          <div class="hero-icon">
+            <i data-lucide="chart-column"></i>
+          </div>
+
+          <div>
+
+            <p class="hero-label">
+              Omzet Hari Ini
+            </p>
+
+            <h2 class="hero-value">
+              Rp 12.500.000
+            </h2>
+
+          </div>
+
+        </div>
+
+        <div class="dashboard-hero-stats">
+
+          <div class="hero-stat">
+
+            <strong>
+              18
+            </strong>
+
+            <span>
+              Order
+            </span>
+
+          </div>
+
+          <div class="hero-stat">
+
+            <strong>
+              5
+            </strong>
+
+            <span>
+              Produksi
+            </span>
+
+          </div>
+
+          <div class="hero-stat">
+
+            <strong>
+              2
+            </strong>
+
+            <span>
+              Pending
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
       <!-- QUICK MENU -->
 
       <div class="dashboard-section">
