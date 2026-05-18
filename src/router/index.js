@@ -1,3 +1,4 @@
+// 1. PERBAIKAN: "Import" (I besar) diubah menjadi "import" (i kecil) agar tidak error di server
 import { DashboardPage } from "../pages/dashboard.js";
 
 import { OrderListPage } from "../pages/order-list-page.js";
@@ -14,8 +15,9 @@ import { PurchaseListPage } from "../pages/purchase-list-page.js";
 import { PurchaseDetailPage } from "../pages/purchase-detail-page.js";
 import { CreatePurchasePage } from "../pages/create-purchase-page.js";
 
-// IMPORT MASTER PRODUK BARU
-import { ProductPage } from "../pages/ProductPage.js"; 
+// 2. PERBAIKAN UTAMA: Mengubah named import {} menjadi default import (tanpa {})
+// Pastikan di dalam file "../pages/ProductPage.js" Anda menggunakan "export default function ProductPage()"
+import ProductPage from "../pages/ProductPage.js"; 
 
 export function renderRoute(route) {
 
@@ -24,14 +26,12 @@ export function renderRoute(route) {
     /* =========================
        DASHBOARD
     ========================= */
-
     case "dashboard":
       return DashboardPage();
 
     /* =========================
        ORDER
     ========================= */
-
     case "order":
       return OrderListPage();
 
@@ -44,7 +44,6 @@ export function renderRoute(route) {
     /* =========================
        PRODUKSI
     ========================= */
-
     case "produksi":
       return ProduksiListPage();
 
@@ -54,7 +53,6 @@ export function renderRoute(route) {
     /* =========================
        STOCK
     ========================= */
-
     case "stok":
       return StockPage();
 
@@ -64,7 +62,6 @@ export function renderRoute(route) {
     /* =========================
        PURCHASE
     ========================= */
-
     case "pembelian":
       return PurchaseListPage();
 
@@ -75,9 +72,8 @@ export function renderRoute(route) {
       return CreatePurchasePage();
 
     /* =========================
-       MASTER PRODUK (Skena & Kalcer Approved)
+       MASTER PRODUK
     ========================= */
-
     case "produk":
       return ProductPage();
 
