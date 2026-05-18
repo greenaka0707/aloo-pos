@@ -1,4 +1,27 @@
 export function PurchaseListPage() {
+  setTimeout(() => {
+    const container = document.querySelector(".data-list");
+    const fab = document.querySelector(".fab-btn");
+    const appLayout = document.querySelector(".app-layout");
+
+    // ==========================================================================
+    // KUNCI FIXED STICKY FAB: Paksa pindahkan FAB ke komponen root .app-layout
+    // ==========================================================================
+    if (fab && appLayout) {
+      fab.style.display = "flex"; // ✔️ Paksa tampilkan jika dari page sebelumnya tersembunyi
+      if (fab.parentElement !== appLayout) {
+        appLayout.appendChild(fab);
+      }
+    }
+
+    if (!container) return;
+
+    // Render ulang icon Lucide setelah komponen masuk ke DOM
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  }, 50);
+
   return `
     <section class="list-page">
 
