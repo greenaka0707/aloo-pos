@@ -2,28 +2,12 @@ export function StockDetailPage() {
   return `
     <section class="detail-page">
 
-      <div class="detail-header">
-        <button
-          class="btn-back"
-          onclick="window.navigate('stok')"
-        >
-          <i data-lucide="arrow-left"></i>
-        </button>
-
-        <div class="detail-header-text">
-          <h2>RB Robusta Grade A</h2>
-          <p>Stock Detail</p>
-        </div>
-      </div>
-
       <div class="card detail-status-card">
         <div>
           <span class="detail-status-title">Stock Saat Ini</span>
           <h3 class="font-bold">80kg</h3>
         </div>
-        <span class="badge badge-success">
-          Aman
-        </span>
+        <span class="badge badge-success">Aman</span>
       </div>
 
       <div class="card detail-card">
@@ -71,7 +55,7 @@ export function StockDetailPage() {
               <strong class="title">Pembelian</strong>
               <span class="subtitle">PO-001 • 15 Mei 2026</span>
             </div>
-            <strong class="right-value" style="color: var(--green);">+100kg</strong>
+            <strong class="right-value" style="color: #22C55E;">+100kg</strong>
           </div>
 
           <div class="detail-row-item">
@@ -127,24 +111,24 @@ export function StockDetailPage() {
           <h3>Analytics</h3>
         </div>
 
-        <div class="dashboard-summary-grid" style="grid-template-columns: repeat(2, 1fr); gap: var(--space-md);">
+        <div class="dashboard-summary-row" style="grid-template-columns: repeat(2, 1fr);">
           
-          <div class="summary-card" style="border: 1px solid var(--border); border-radius: var(--radius-md);">
+          <div class="summary-inline-item">
             <strong>120kg</strong>
             <span>Stock Masuk</span>
           </div>
 
-          <div class="summary-card" style="border: 1px solid var(--border); border-radius: var(--radius-md);">
+          <div class="summary-inline-item">
             <strong>40kg</strong>
             <span>Stock Keluar</span>
           </div>
 
-          <div class="summary-card" style="border: 1px solid var(--border); border-radius: var(--radius-md);">
+          <div class="summary-inline-item">
             <strong>10kg</strong>
             <span>Avg Usage</span>
           </div>
 
-          <div class="summary-card" style="border: 1px solid var(--border); border-radius: var(--radius-md);">
+          <div class="summary-inline-item">
             <strong style="color: var(--orange);">8 Hari</strong>
             <span>Sisa Hari</span>
           </div>
@@ -153,15 +137,9 @@ export function StockDetailPage() {
       </div>
 
       <div class="detail-actions">
-        <button class="action-btn">
-          Adjustment
-        </button>
-        <button class="action-btn">
-          Transfer
-        </button>
-        <button class="action-btn primary-action">
-          Tambah Stock
-        </button>
+        <button class="action-btn">Adjustment</button>
+        <button class="action-btn">Transfer</button>
+        <button class="action-btn primary-action">Tambah Stock</button>
       </div>
 
     </section>
