@@ -1,414 +1,216 @@
 export function ProduksiDetailPage() {
   return `
-    <section class="produksi-detail-page">
-
-      <!-- HEADER -->
+    <section class="detail-page">
 
       <div class="detail-header">
-
         <button
-          class="btn-icon"
+          class="btn-back"
           onclick="window.navigate('produksi')"
         >
           <i data-lucide="arrow-left"></i>
         </button>
 
         <div class="detail-header-text">
-
-          <h2 class="text-3xl font-bold">
-            PRD-001
-          </h2>
-
-          <p class="text-light text-md">
-            Produksi Detail
-          </p>
-
+          <h2>PRD-001</h2>
+          <p>Produksi Detail</p>
         </div>
-
       </div>
 
-      <!-- STATUS -->
-
       <div class="card detail-status-card">
-
         <div>
-
-          <span class="text-light text-sm">
-            Status
-          </span>
-
-          <h3 class="text-2xl font-bold detail-status-title">
+          <span class="detail-status-title">Status</span>
+          <h3 class="font-bold">
             Produksi Berjalan
           </h3>
-
         </div>
-
         <span class="badge badge-info">
           Diproses
         </span>
-
       </div>
 
-      <!-- PRODUK -->
-
-      <div class="card produksi-detail-card">
-
+      <div class="card detail-card">
         <div class="card-title">
-
           <div class="icon-box">
             <i data-lucide="package"></i>
           </div>
-
-          <h3 class="text-xl font-bold">
-            Produk Produksi
-          </h3>
-
+          <h3>Produk Produksi</h3>
         </div>
 
-        <div class="produksi-product">
-
-          <div>
-
-            <strong class="text-xl font-bold">
-              Kopi Giras 1:1
-            </strong>
-
-            <p class="text-light text-md">
-              Qty Produksi 50kg
-            </p>
-
+        <div class="detail-row-item">
+          <div class="left-content">
+            <strong class="title">Kopi Giras 1:1</strong>
+            <span class="subtitle">Qty Produksi 50kg</span>
           </div>
-
           <span class="badge badge-primary">
             Manufacturing
           </span>
-
         </div>
-
       </div>
 
-      <!-- BAHAN -->
-
-      <div class="card produksi-detail-card">
-
+      <div class="card detail-card">
         <div class="card-title">
-
           <div class="icon-box">
             <i data-lucide="factory"></i>
           </div>
-
-          <h3 class="text-xl font-bold">
-            Bahan Produksi
-          </h3>
-
+          <h3>Bahan Produksi</h3>
         </div>
 
-        <div class="material-list">
-
-          <!-- ITEM -->
-
-          <div class="material-item">
-
-            <div>
-
-              <strong class="text-lg font-bold">
-                RB Robusta Grade A
-              </strong>
-
-              <p class="text-light text-sm">
-                Need 25kg
-              </p>
-
+        <div class="detail-info">
+          <div class="detail-row-item">
+            <div class="left-content">
+              <strong class="title">RB Robusta Grade A</strong>
+              <span class="subtitle">Need 25kg</span>
             </div>
-
-            <div class="material-right">
-
-              <span class="text-light text-sm">
-                Stock 80kg
-              </span>
-
-              <span class="badge badge-success">
-                Aman
-              </span>
-
+            <div class="detail-row-item" style="gap: var(--space-sm); padding: 0;">
+              <span class="text-light text-xs">Stock 80kg</span>
+              <span class="badge badge-success">Aman</span>
             </div>
-
           </div>
 
-          <!-- ITEM -->
-
-          <div class="material-item">
-
-            <div>
-
-              <strong class="text-lg font-bold">
-                Jagung
-              </strong>
-
-              <p class="text-light text-sm">
-                Need 25kg
-              </p>
-
+          <div class="detail-row-item">
+            <div class="left-content">
+              <strong class="title">Jagung</strong>
+              <span class="subtitle">Need 25kg</span>
             </div>
-
-            <div class="material-right">
-
-              <span class="text-light text-sm">
-                Stock 12kg
-              </span>
-
-              <span class="badge badge-danger">
-                Kurang
-              </span>
-
+            <div class="detail-row-item" style="gap: var(--space-sm); padding: 0;">
+              <span class="text-light text-xs">Stock 12kg</span>
+              <span class="badge badge-danger">Kurang</span>
             </div>
-
           </div>
-
         </div>
-
       </div>
 
-      <!-- PROGRESS -->
-
-      <div class="card produksi-detail-card">
-
+      <div class="card detail-card">
         <div class="card-title">
-
           <div class="icon-box">
             <i data-lucide="activity"></i>
           </div>
-
-          <h3 class="text-xl font-bold">
-            Progress Produksi
-          </h3>
-
-        </div>
-
-        <div class="progress-list">
-
-          <div class="progress-item active">
-
-            <div class="progress-dot"></div>
-
-            <span>
-              Persiapan Bahan
-            </span>
-
-          </div>
-
-          <div class="progress-item active">
-
-            <div class="progress-dot"></div>
-
-            <span>
-              Roasting
-            </span>
-
-          </div>
-
-          <div class="progress-item">
-
-            <div class="progress-dot"></div>
-
-            <span>
-              Mixing
-            </span>
-
-          </div>
-
-          <div class="progress-item">
-
-            <div class="progress-dot"></div>
-
-            <span>
-              Packing
-            </span>
-
-          </div>
-
-          <div class="progress-item">
-
-            <div class="progress-dot"></div>
-
-            <span>
-              Finished
-            </span>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- STOCK IMPACT -->
-
-      <div class="card produksi-detail-card">
-
-        <div class="card-title">
-
-          <div class="icon-box">
-            <i data-lucide="boxes"></i>
-          </div>
-
-          <h3 class="text-xl font-bold">
-            Stock Impact
-          </h3>
-
-        </div>
-
-        <div class="impact-list">
-
-          <div class="impact-item minus">
-
-            <span>
-              RB Robusta Grade A
-            </span>
-
-            <strong>
-              -25kg
-            </strong>
-
-          </div>
-
-          <div class="impact-item minus">
-
-            <span>
-              Jagung
-            </span>
-
-            <strong>
-              -25kg
-            </strong>
-
-          </div>
-
-          <div class="impact-item plus">
-
-            <span>
-              Kopi Giras 1:1
-            </span>
-
-            <strong>
-              +50kg
-            </strong>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- TIMELINE -->
-
-      <div class="card produksi-detail-card">
-
-        <div class="card-title">
-
-          <div class="icon-box">
-            <i data-lucide="clock-3"></i>
-          </div>
-
-          <h3 class="text-xl font-bold">
-            Timeline
-          </h3>
-
+          <h3>Progress Produksi</h3>
         </div>
 
         <div class="timeline">
-
           <div class="timeline-item active">
-
             <div class="timeline-dot"></div>
-
             <div>
-
-              <strong class="font-bold">
-                Produksi Dibuat
-              </strong>
-
-              <p class="text-light text-sm">
-                15 Mei 2026
-              </p>
-
+              <h4>Persiapan Bahan</h4>
             </div>
-
           </div>
 
           <div class="timeline-item active">
-
             <div class="timeline-dot"></div>
-
             <div>
-
-              <strong class="font-bold">
-                Produksi Dimulai
-              </strong>
-
-              <p class="text-light text-sm">
-                Diproses
-              </p>
-
+              <h4>Roasting</h4>
             </div>
-
           </div>
 
           <div class="timeline-item">
-
             <div class="timeline-dot"></div>
-
             <div>
-
-              <strong class="font-bold">
-                Packing
-              </strong>
-
-              <p class="text-light text-sm">
-                Menunggu
-              </p>
-
+              <h4>Mixing</h4>
             </div>
-
           </div>
 
           <div class="timeline-item">
-
             <div class="timeline-dot"></div>
-
             <div>
-
-              <strong class="font-bold">
-                Finished
-              </strong>
-
-              <p class="text-light text-sm">
-                Belum selesai
-              </p>
-
+              <h4>Packing</h4>
             </div>
-
           </div>
 
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div>
+              <h4>Finished</h4>
+            </div>
+          </div>
         </div>
-
       </div>
 
-      <!-- ACTION -->
+      <div class="card detail-card">
+        <div class="card-title">
+          <div class="icon-box">
+            <i data-lucide="boxes"></i>
+          </div>
+          <h3>Stock Impact</h3>
+        </div>
+
+        <div class="detail-info">
+          <div class="detail-row-item">
+            <div class="left-content">
+              <span class="title">RB Robusta Grade A</span>
+            </div>
+            <strong class="right-value" style="color: var(--danger);">-25kg</strong>
+          </div>
+
+          <div class="detail-row-item">
+            <div class="left-content">
+              <span class="title">Jagung</span>
+            </div>
+            <strong class="right-value" style="color: var(--danger);">-25kg</strong>
+          </div>
+
+          <div class="detail-row-item">
+            <div class="left-content">
+              <span class="title">Kopi Giras 1:1</span>
+            </div>
+            <strong class="right-value" style="color: var(--green);">+50kg</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="card detail-card">
+        <div class="card-title">
+          <div class="icon-box">
+            <i data-lucide="clock-3"></i>
+          </div>
+          <h3>Timeline</h3>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-item active">
+            <div class="timeline-dot"></div>
+            <div>
+              <h4>Produksi Dibuat</h4>
+              <p>15 Mei 2026</p>
+            </div>
+          </div>
+
+          <div class="timeline-item active">
+            <div class="timeline-dot"></div>
+            <div>
+              <h4>Produksi Dimulai</h4>
+              <p>Diproses</p>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div>
+              <h4>Packing</h4>
+              <p>Menunggu</p>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div>
+              <h4>Finished</h4>
+              <p>Belum selesai</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div class="detail-actions">
-
-        <button class="btn btn-secondary action-btn">
+        <button class="action-btn">
           Pause
         </button>
-
-        <button class="btn btn-secondary action-btn">
+        <button class="action-btn">
           Edit
         </button>
-
-        <button class="btn btn-primary action-btn primary-action">
+        <button class="action-btn primary-action">
           Finish
         </button>
-
       </div>
 
     </section>
