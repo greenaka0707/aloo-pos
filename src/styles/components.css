@@ -4,11 +4,9 @@
 
 .card {
   background: var(--card-bg);
-
   border: 1px solid var(--border);
-
-  border-radius: var(--radius-xl);
-
+  /* Diubah ke radius-lg (16px) agar lengkungan tidak terlalu memakan ruang konten */
+  border-radius: var(--radius-lg); 
   box-shadow: var(--shadow);
 }
 
@@ -17,86 +15,62 @@
 ========================= */
 
 .btn {
-  height: var(--button-height);
-
+  height: var(--button-height); /* Sekarang otomatis 46px */
   border: none;
-
-  border-radius: var(--radius-lg);
-
-  padding: 0 18px;
-
+  border-radius: var(--radius-md); /* Diubah ke md (12px) agar proporsional */
+  padding: 0 14px; /* Rapatkan padding horizontal dari 18px */
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
-  gap: 8px;
-
+  gap: 6px; /* Lebih rapat dari 8px */
   cursor: pointer;
-
   transition: var(--transition);
-
-  font-size: var(--text-sm);
-
+  font-size: var(--text-sm); /* Sekarang otomatis 13px */
   font-weight: var(--font-semibold);
-
   line-height: 1;
-
   outline: none;
 }
 
 .btn:active {
-  transform: scale(0.98);
+  transform: scale(0.97); /* Sedikit lebih responsif efek tekannya */
 }
 
 .btn-primary {
   background: var(--orange);
-
   color: white;
 }
 
 .btn-secondary {
   background: var(--white);
-
   color: var(--text);
-
   border: 1px solid var(--border);
 }
 
 .btn-soft {
   background: var(--orange-soft);
-
   color: var(--orange);
 }
 
 .btn-icon {
-  width: var(--icon-button-size);
-
-  height: var(--icon-button-size);
-
+  width: var(--icon-button-size); /* Sekarang otomatis 44px */
+  height: var(--icon-button-size); /* Sekarang otomatis 44px */
   display: flex;
-
   align-items: center;
   justify-content: center;
-
   border: none;
-
-  border-radius: var(--radius-lg);
-
+  border-radius: var(--radius-md); /* Diubah ke md (12px) */
   background: var(--white);
-
   box-shadow: var(--shadow-sm);
-
   transition: var(--transition);
 }
 
 .btn-icon:active {
-  transform: scale(0.96);
+  transform: scale(0.95);
 }
 
 .btn-icon svg {
-  width: 22px;
-  height: 22px;
+  width: 18px; /* Diperkecil dari 22px agar proporsional dengan frame 44px */
+  height: 18px;
 }
 
 /* =========================
@@ -107,36 +81,25 @@
 .select,
 .textarea {
   width: 100%;
-
   border: 1px solid var(--border);
-
-  border-radius: var(--radius-lg);
-
+  border-radius: var(--radius-md); /* Diubah ke md (12px) agar seragam dengan button */
   background: var(--input-bg);
-
   color: var(--text);
-
   outline: none;
-
   transition: var(--transition);
-
-  font-size: var(--text-base);
+  font-size: var(--text-sm); /* Diturunkan ke text-sm (13px) agar teks input di HP tidak terasa oversize */
 }
 
 .input,
 .select {
-  height: var(--input-height);
-
-  padding: 0 16px;
+  height: var(--input-height); /* Sekarang otomatis 44px */
+  padding: 0 12px; /* Diperapat dari 16px */
 }
 
 .textarea {
-  min-height: 120px;
-
-  padding: 16px;
-
+  min-height: 90px; /* Diturunkan dari 120px agar hemat ruang form */
+  padding: 12px;
   resize: none;
-
   line-height: var(--line-normal);
 }
 
@@ -149,9 +112,7 @@
 .select:focus,
 .textarea:focus {
   border-color: var(--orange);
-
-  box-shadow:
-    0 0 0 4px rgba(249,115,22,0.08);
+  box-shadow: 0 0 0 3px rgba(249,115,22,0.08); /* Ukuran ring focus diperhalus */
 }
 
 /* =========================
@@ -159,131 +120,59 @@
 ========================= */
 
 .badge {
-  min-height: 36px;
-
-  padding: 0 16px;
-
+  min-height: 26px; /* Diturunkan dari 36px (36px terlalu besar, mirip button) */
+  padding: 0 10px; /* Rapatkan padding dari 16px */
   border-radius: var(--radius-full);
-
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
-  font-size: var(--text-sm);
-
+  font-size: var(--text-xs); /* Diturunkan ke 11px agar fungsi badge sebagai penanda visual optimal */
   font-weight: var(--font-semibold);
-
   line-height: 1;
 }
 
-.badge-warning {
-  background: var(--yellow-soft);
-
-  color: var(--yellow);
-}
-
-.badge-primary {
-  background: var(--orange-soft);
-
-  color: var(--orange);
-}
-
-.badge-info {
-  background: var(--blue-soft);
-
-  color: var(--blue);
-}
-
-.badge-success {
-  background: var(--green-soft);
-
-  color: var(--green);
-}
-
-.badge-danger {
-  background: var(--danger-soft);
-
-  color: var(--danger);
-}
+.badge-warning { background: var(--yellow-soft); color: var(--yellow); }
+.badge-primary { background: var(--orange-soft); color: var(--orange); }
+.badge-info { background: var(--blue-soft); color: var(--blue); }
+.badge-success { background: var(--green-soft); color: var(--green); }
+.badge-danger { background: var(--danger-soft); color: var(--danger); }
 
 /* =========================
-   ICON WRAPPER
+   ICON WRAPPER (Biasa dipakai di list detail / ringkasan)
 ========================= */
 
 .icon-box {
-  width: 56px;
-  height: 56px;
-
+  width: 42px; /* Diperkecil dari 56px agar pas disandingkan dengan list teks */
+  height: 42px;
   display: flex;
-
   align-items: center;
   justify-content: center;
-
-  border-radius: var(--radius-lg);
-
+  border-radius: var(--radius-sm); /* Diubah ke sm (10px) agar serasi dengan ukurannya */
   background: var(--orange-soft);
-
   color: var(--orange);
-
   flex-shrink: 0;
 }
 
 .icon-box svg {
-  width: 22px;
-  height: 22px;
-
-  stroke-width: 2.2;
+  width: 18px; /* Diperkecil dari 22px */
+  height: 18px;
+  stroke-width: 2;
 }
 
 /* =========================
-   TYPOGRAPHY
+   TYPOGRAPHY (Utility helper tetap menggunakan variabel)
 ========================= */
+.text-xs { font-size: var(--text-xs); }
+.text-sm { font-size: var(--text-sm); }
+.text-md { font-size: var(--text-md); }
+.text-base { font-size: var(--text-base); }
+.text-lg { font-size: var(--text-lg); }
+.text-xl { font-size: var(--text-xl); }
+.text-2xl { font-size: var(--text-2xl); }
+.text-3xl { font-size: var(--text-3xl); }
 
-.text-xs {
-  font-size: var(--text-xs);
-}
+.font-medium { font-weight: var(--font-medium); }
+.font-semibold { font-weight: var(--font-semibold); }
+.font-bold { font-weight: var(--font-bold); }
 
-.text-sm {
-  font-size: var(--text-sm);
-}
-
-.text-md {
-  font-size: var(--text-md);
-}
-
-.text-base {
-  font-size: var(--text-base);
-}
-
-.text-lg {
-  font-size: var(--text-lg);
-}
-
-.text-xl {
-  font-size: var(--text-xl);
-}
-
-.text-2xl {
-  font-size: var(--text-2xl);
-}
-
-.text-3xl {
-  font-size: var(--text-3xl);
-}
-
-.font-medium {
-  font-weight: var(--font-medium);
-}
-
-.font-semibold {
-  font-weight: var(--font-semibold);
-}
-
-.font-bold {
-  font-weight: var(--font-bold);
-}
-
-.text-light {
-  color: var(--text-light);
-}
+.text-light { color: var(--text-light); }
