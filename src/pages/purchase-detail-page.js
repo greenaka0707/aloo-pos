@@ -2,323 +2,156 @@ export function PurchaseDetailPage() {
   return `
     <section class="detail-page">
 
-      <!-- HEADER -->
-
       <div class="detail-header">
-
         <button
-          class="btn-icon"
+          class="btn-back"
           onclick="window.navigate('pembelian')"
         >
           <i data-lucide="arrow-left"></i>
         </button>
 
         <div class="detail-header-text">
-
-          <h2 class="text-3xl font-bold">
-            PO-001
-          </h2>
-
-          <p class="text-light text-md">
-            Purchase Detail
-          </p>
-
+          <h2>PO-001</h2>
+          <p>Purchase Detail</p>
         </div>
-
       </div>
 
-      <!-- STATUS -->
-
       <div class="card detail-status-card">
-
         <div>
-
-          <span class="text-light text-sm">
-            Status
-          </span>
-
-          <h3 class="text-2xl font-bold detail-status-title">
+          <span class="detail-status-title">Status</span>
+          <h3 class="font-bold">
             Menunggu Penerimaan
           </h3>
-
         </div>
-
         <span class="badge badge-warning">
           Pending
         </span>
-
       </div>
 
-      <!-- SUPPLIER -->
-
       <div class="card detail-card">
-
         <div class="card-title">
-
           <div class="icon-box">
             <i data-lucide="building-2"></i>
           </div>
-
-          <h3 class="text-xl font-bold">
-            Supplier
-          </h3>
-
+          <h3>Supplier</h3>
         </div>
 
         <div class="detail-info">
-
           <div class="info-item">
-
-            <span class="text-light text-sm">
-              Nama
-            </span>
-
-            <strong class="text-lg font-bold">
-              PT Sumber Kopi Nusantara
-            </strong>
-
+            <span>Nama</span>
+            <strong>PT Sumber Kopi Nusantara</strong>
           </div>
 
           <div class="info-item">
-
-            <span class="text-light text-sm">
-              Telepon
-            </span>
-
-            <strong class="text-lg font-bold">
-              08123456789
-            </strong>
-
+            <span>Telepon</span>
+            <strong>08123456789</strong>
           </div>
 
           <div class="info-item">
-
-            <span class="text-light text-sm">
-              Alamat
-            </span>
-
-            <strong class="text-lg font-bold">
-              Surabaya
-            </strong>
-
+            <span>Alamat</span>
+            <strong>Surabaya</strong>
           </div>
-
         </div>
-
       </div>
 
-      <!-- ITEM -->
-
       <div class="card detail-card">
-
         <div class="card-title">
-
           <div class="icon-box">
             <i data-lucide="package"></i>
           </div>
-
-          <h3 class="text-xl font-bold">
-            Item Pembelian
-          </h3>
-
+          <h3>Item Pembelian</h3>
         </div>
 
-        <div class="bom-list">
-
-          <!-- ITEM -->
-
-          <div class="bom-item">
-
-            <div>
-
-              <strong class="text-base font-bold">
-                RB Robusta Grade A
-              </strong>
-
-              <p class="text-light text-sm">
-                100kg × Rp 45.000
-              </p>
-
+        <div class="detail-info">
+          <div class="detail-row-item">
+            <div class="left-content">
+              <strong class="title">RB Robusta Grade A</strong>
+              <span class="subtitle">100kg × Rp 45.000</span>
             </div>
-
-            <strong class="text-base font-bold">
-              Rp 4.500.000
-            </strong>
-
+            <strong class="right-value">Rp 4.500.000</strong>
           </div>
 
-          <!-- ITEM -->
-
-          <div class="bom-item">
-
-            <div>
-
-              <strong class="text-base font-bold">
-                Jagung
-              </strong>
-
-              <p class="text-light text-sm">
-                50kg × Rp 8.000
-              </p>
-
+          <div class="detail-row-item">
+            <div class="left-content">
+              <strong class="title">Jagung</strong>
+              <span class="subtitle">50kg × Rp 8.000</span>
             </div>
-
-            <strong class="text-base font-bold">
-              Rp 400.000
-            </strong>
-
+            <strong class="right-value">Rp 400.000</strong>
           </div>
-
         </div>
-
       </div>
 
-      <!-- SUMMARY -->
-
       <div class="card detail-card">
-
         <div class="card-title">
-
           <div class="icon-box">
             <i data-lucide="wallet"></i>
           </div>
-
-          <h3 class="text-xl font-bold">
-            Ringkasan
-          </h3>
-
+          <h3>Ringkasan</h3>
         </div>
 
-        <div class="summary-row">
+        <div class="detail-info" style="gap: var(--space-sm);">
+          <div class="detail-row-item">
+            <span class="text-light text-sm">Subtotal</span>
+            <strong class="text-sm font-semibold">Rp 4.900.000</strong>
+          </div>
 
-          <span class="text-light text-sm">
-            Subtotal
-          </span>
+          <div class="detail-row-item">
+            <span class="text-light text-sm">Ongkir</span>
+            <strong class="text-sm font-semibold">Rp 0</strong>
+          </div>
 
-          <strong>
-            Rp 4.900.000
-          </strong>
-
+          <div class="detail-row-item" style="border-top: 1px solid var(--border); padding-top: var(--space-sm); margin-top: 2px;">
+            <span class="font-semibold text-sm">Total</span>
+            <strong class="right-value" style="color: var(--orange); font-size: var(--text-md);">Rp 4.900.000</strong>
+          </div>
         </div>
-
-        <div class="summary-row">
-
-          <span class="text-light text-sm">
-            Ongkir
-          </span>
-
-          <strong>
-            Rp 0
-          </strong>
-
-        </div>
-
-        <div class="summary-row total-row">
-
-          <span class="font-semibold">
-            Total
-          </span>
-
-          <strong class="text-lg font-bold">
-            Rp 4.900.000
-          </strong>
-
-        </div>
-
       </div>
 
-      <!-- TIMELINE -->
-
       <div class="card detail-card">
-
         <div class="card-title">
-
           <div class="icon-box">
             <i data-lucide="clock-3"></i>
           </div>
-
-          <h3 class="text-xl font-bold">
-            Timeline
-          </h3>
-
+          <h3>Timeline</h3>
         </div>
 
         <div class="timeline">
-
           <div class="timeline-item active">
-
             <div class="timeline-dot"></div>
-
             <div>
-
-              <strong class="font-bold">
-                Purchase Dibuat
-              </strong>
-
-              <p class="text-light text-sm">
-                18 Mei 2026
-              </p>
-
+              <h4>Purchase Dibuat</h4>
+              <p>18 Mei 2026</p>
             </div>
-
           </div>
 
           <div class="timeline-item active">
-
             <div class="timeline-dot"></div>
-
             <div>
-
-              <strong class="font-bold">
-                Menunggu Barang
-              </strong>
-
-              <p class="text-light text-sm">
-                Pending supplier
-              </p>
-
+              <h4>Menunggu Barang</h4>
+              <p>Pending supplier</p>
             </div>
-
           </div>
 
           <div class="timeline-item">
-
             <div class="timeline-dot"></div>
-
             <div>
-
-              <strong class="font-bold">
-                Barang Diterima
-              </strong>
-
-              <p class="text-light text-sm">
-                Belum diterima
-              </p>
-
+              <h4>Barang Diterima</h4>
+              <p>Belum diterima</p>
             </div>
-
           </div>
-
         </div>
-
       </div>
 
-      <!-- ACTION -->
-
       <div class="detail-actions">
-
-        <button class="btn btn-secondary action-btn">
+        <button class="action-btn">
           Void
         </button>
-
-        <button class="btn btn-secondary action-btn">
+        <button class="action-btn">
           Edit
         </button>
-
-        <button class="btn btn-primary action-btn primary-action">
+        <button class="action-btn primary-action">
           Terima Barang
         </button>
-
       </div>
 
     </section>
