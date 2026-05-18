@@ -4,7 +4,46 @@
 
   gap: 12px;
 
-  padding-bottom: 40px;
+  padding-bottom: 100px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.produksi-detail-header {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+.produksi-detail-header-text h2 {
+  font-size: 22px;
+}
+
+.produksi-detail-header-text p {
+  margin-top: 2px;
+
+  font-size: 13px;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.produksi-status-card {
+  padding: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.produksi-status-title {
+  margin-top: 4px;
+
+  font-size: 13px;
 }
 
 /* =========================
@@ -13,6 +52,23 @@
 
 .produksi-detail-card {
   padding: 16px;
+}
+
+/* =========================
+   CARD TITLE
+========================= */
+
+.card-title {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 14px;
+}
+
+.card-title h3 {
+  font-size: 16px;
 }
 
 /* =========================
@@ -25,7 +81,21 @@
   align-items: center;
   justify-content: space-between;
 
-  gap: 12px;
+  gap: 14px;
+}
+
+.produksi-product strong {
+  display: block;
+
+  margin-bottom: 2px;
+
+  font-size: 15px;
+
+  line-height: 1.2;
+}
+
+.produksi-product p {
+  font-size: 12px;
 }
 
 /* =========================
@@ -48,13 +118,27 @@
   gap: 12px;
 }
 
+.material-item strong {
+  display: block;
+
+  margin-bottom: 2px;
+
+  font-size: 15px;
+
+  line-height: 1.2;
+}
+
+.material-item p {
+  font-size: 12px;
+}
+
 .material-right {
   display: flex;
   flex-direction: column;
 
   align-items: flex-end;
 
-  gap: 6px;
+  gap: 8px;
 }
 
 /* =========================
@@ -65,28 +149,26 @@
   display: flex;
   flex-direction: column;
 
-  gap: 14px;
+  gap: 16px;
 }
 
 .progress-item {
   display: flex;
 
-  align-items: center;
+  gap: 12px;
 
-  gap: 10px;
-
-  color: var(--text-light);
-
-  font-weight: 500;
+  opacity: 0.4;
 }
 
 .progress-item.active {
-  color: var(--text);
+  opacity: 1;
 }
 
 .progress-dot {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
+
+  margin-top: 5px;
 
   border-radius: 999px;
 
@@ -99,15 +181,25 @@
   background: var(--orange);
 }
 
+.progress-item strong {
+  font-size: 14px;
+}
+
+.progress-item p {
+  margin-top: 2px;
+
+  font-size: 12px;
+}
+
 /* =========================
-   IMPACT
+   STOCK IMPACT
 ========================= */
 
 .impact-list {
   display: flex;
   flex-direction: column;
 
-  gap: 12px;
+  gap: 10px;
 }
 
 .impact-item {
@@ -120,6 +212,7 @@
 
   border-radius: 14px;
 
+  font-size: 14px;
   font-weight: 600;
 }
 
@@ -133,4 +226,45 @@
   background: var(--green-soft);
 
   color: var(--green);
+}
+
+/* =========================
+   ACTIONS
+========================= */
+
+.produksi-detail-actions {
+  position: relative;
+
+  display: flex;
+
+  gap: 10px;
+
+  padding: 16px;
+
+  margin-top: 8px;
+
+  background: var(--white);
+
+  border-radius: var(--radius-xl);
+
+  border: 1px solid var(--border);
+
+  box-shadow: var(--shadow);
+}
+
+.action-btn {
+  height: 46px;
+
+  border-radius: 12px;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.action-btn:not(.primary-action) {
+  flex: 1;
+}
+
+.primary-action {
+  flex: 2;
 }
