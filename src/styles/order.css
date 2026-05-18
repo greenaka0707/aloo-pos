@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
 
-  /* REVISI: Mengurangi gap antar seksi utama (Header, Search, Filter, List) */
   gap: 14px;
 
   padding-bottom: 120px;
@@ -21,7 +20,8 @@
 
 .page-subtitle {
   margin-top: var(--space-xs);
-  font-size: 13px; /* Sedikit disesuaikan untuk skala mobile */
+
+  font-size: 13px;
 }
 
 /* =========================
@@ -29,7 +29,6 @@
 ========================= */
 
 .search-box {
-  /* REVISI: Dioptimalkan dari 50px ke 44px agar lebih sleek */
   height: 44px;
 
   padding: 0 14px;
@@ -38,6 +37,7 @@
   align-items: center;
 
   gap: 10px;
+
   box-sizing: border-box;
 }
 
@@ -56,7 +56,6 @@
 
   background: transparent;
 
-  /* REVISI: Ukuran font disesuaikan agar pas dengan height baru */
   font-size: 16px;
 
   color: var(--text);
@@ -87,7 +86,6 @@
 }
 
 .filter-chip {
-  /* REVISI: Dari 40px diturunkan ke 34px (standar ukuran chip mobile) */
   height: 34px;
 
   border: none;
@@ -102,7 +100,7 @@
 
   color: var(--text-light);
 
-  font-size: 12px; /* Dikecilkan dari text-sm agar chip terlihat proporsional */
+  font-size: 12px;
 
   font-weight: var(--font-medium);
 
@@ -113,7 +111,8 @@
   background: var(--orange-soft);
 
   color: var(--orange);
-  border-color: transparent; /* Menghilangkan border abu saat aktif agar clean */
+
+  border-color: transparent;
 }
 
 /* =========================
@@ -124,12 +123,10 @@
   display: flex;
   flex-direction: column;
 
-  /* REVISI: Merapatkan jarak antar kartu orderan */
   gap: 12px;
 }
 
 .order-card {
-  /* REVISI TOTAL: Komponen internal dipersempit dari padding/gap 22px ke 14px */
   padding: 14px;
 
   display: flex;
@@ -137,6 +134,10 @@
 
   gap: 14px;
 }
+
+/* =========================
+   TOP
+========================= */
 
 .order-top {
   display: flex;
@@ -146,39 +147,48 @@
 }
 
 .order-top h3 {
-  font-size: 16px; /* Memastikan ID Order (SO-001) terbaca tegas */
+  font-size: 16px;
 }
 
 .order-top p {
   margin-top: 4px;
+
   font-size: 13px;
 }
 
 /* =========================
-   PRODUCT
+   SUMMARY
 ========================= */
 
-.order-product {
+.order-summary {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 12px;
+
+  padding-top: 14px;
+
+  border-top: 1px solid var(--border);
+}
+
+.order-summary-item {
   display: flex;
-  align-items: center;
+  flex-direction: column;
 
-  gap: 12px; /* Dirapatkan sedikit */
+  gap: 4px;
 }
 
-/* Jika ada wrapper ikon cangkir kopi/produk di dalam list */
-.order-product .icon-wrapper,
-.order-product i {
-  width: 36px;
-  height: 36px;
-}
-
-.order-product h4 {
-  font-size: 14px;
-}
-
-.order-product p {
-  margin-top: 2px;
+.order-summary-item span {
   font-size: 12px;
+}
+
+.order-summary-item strong {
+  font-size: 15px;
+
+  font-weight: 700;
+
+  color: var(--text);
 }
 
 /* =========================
@@ -193,11 +203,10 @@
 }
 
 .order-footer span {
-  font-size: 13px; /* Ukuran tanggal di footer kiri */
+  font-size: 13px;
 }
 
 .detail-btn {
-  /* REVISI: Dari 38px dikompakkin ke 34px agar seimbang dengan chip filter */
   height: 34px;
 
   padding: 0 14px;
@@ -208,24 +217,21 @@
 }
 
 /* =========================
-   FAB (Floating Action Button)
+   FAB
 ========================= */
 
 .fab-btn {
   position: fixed;
 
-  /* REVISI: Digeser sedikit ke kanan dan posisinya dinaikkan (bottom: 100px) 
-     supaya tidak tabrakan atau menutupi navigasi bawah model floating */
   right: 16px;
   bottom: 100px;
 
-  /* REVISI: Dibuat sedikit lebih ringkas dari 58px ke 52px agar tidak terlalu masif */
   width: 52px;
   height: 52px;
 
   border: none;
 
-  border-radius: 16px; /* Menyesuaikan ukuran box baru */
+  border-radius: 16px;
 
   background: var(--orange);
 
@@ -236,7 +242,8 @@
   justify-content: center;
 
   box-shadow: 0 8px 24px rgba(249,115,22,0.3);
-  z-index: 99; /* Pastikan berada di bawah bottom-nav tapi di atas list */
+
+  z-index: 99;
 }
 
 .fab-btn svg {
