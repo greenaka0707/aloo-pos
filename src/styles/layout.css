@@ -17,36 +17,25 @@
 }
 
 /* ==========================================================================
-   STICKY NAVBAR TOP (Epic White to Transparent Gradient Blur)
+   STICKY NAVBAR TOP (Pure White to Transparent Gradient - No Glass Blur)
    ========================================================================== */
 .page-navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 72px; /* Dinaikkan sedikit ke 72px untuk ruang napas gradasi yang halus */
+  height: 72px; /* Ruang ideal untuk degradasi gradasi pudar yang halus */
   
-  /* KUNCI GRADASI KALCER: Atas putih solid, tengah memudar tipis, bawah 100% transparan */
+  /* REVISI: Efek glass blur dihapus total, murni linear gradient putih */
   background: linear-gradient(
     to bottom, 
-    rgba(255, 255, 255, 0.95) 0%, 
-    rgba(255, 255, 255, 0.75) 55%, 
+    rgba(255, 255, 255, 1) 0%, 
+    rgba(255, 255, 255, 0.8) 50%, 
     rgba(255, 255, 255, 0) 100%
   ); 
   
-  /* Memunculkan bayangan blur objek di belakang navbar saat digulung */
-  backdrop-filter: blur(10px); 
-  -webkit-backdrop-filter: blur(10px); /* Wajib untuk browser Safari iOS (iPhone) */
-  
   /* Hilangkan border kaku biar gradasi menyatu bersih dengan latar halaman */
   border-bottom: none; 
-  
-  /* Double shadow ultra-tipis hanya di area atas agar gradasi bawah tetap flawless */
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.01);
-              
-  display: flex;
-  align-items: center;
-  padding: 0 var(--page-padding);
   z-index: 1000; /* Mengunci posisi di atas kartu-kartu konten */
 
   /* TRICK PENTING: Menghilangkan interaksi sentuh di bagian bawah gradasi yang transparan 
@@ -125,7 +114,7 @@
   flex-direction: column;
   gap: var(--section-gap);
   
-  /* REVISI PADDING ATAS: Diubah ke 88px (72px tinggi navbar gradasi + 16px gap luarnya)
+  /* SINKRONISASI: Dikunci ke 88px (72px tinggi navbar gradasi + 16px gap luarnya)
      agar data kartu paling atas pas bersandar tepat di bawah area putih solid gradasi */
   padding-top: 88px;
   padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 20px);
