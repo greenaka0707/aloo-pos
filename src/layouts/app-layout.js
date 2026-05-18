@@ -1,10 +1,6 @@
 import { BottomNav } from "../components/bottom-nav.js";
 
-/**
- * METADATA NAVBAR UNIVERSAL
- * Tempat mengatur Judul, Subjudul, dan Target Mundur (backTo) tiap halaman.
- * Jika membuat halaman baru, Anda tinggal mendaftarkannya di objek ini.
- */
+// Objek Pemetaan Judul & Subjudul berdasarkan Route ID aplikasi Anda
 const navbarMeta = {
   'dashboard': { title: 'Dashboard', subtitle: 'Manufacturing overview', backTo: 'dashboard' },
   'order': { title: 'Sales Order', subtitle: 'Manufacturing sales workflow', backTo: 'dashboard' },
@@ -23,11 +19,12 @@ const navbarMeta = {
 };
 
 export function AppLayout({ content, route }) {
-  // Ambil meta data berdasarkan route saat ini, jika tidak terdaftar pakai fallback default
+  // Ambil meta data berdasarkan route saat ini
   const meta = navbarMeta[route] || { title: 'ERP POS', subtitle: 'PT Prabhaskoe', backTo: 'dashboard' };
 
-  // OTOMATISASI TOMBOL BACK BULAT: Jika halaman aktif BUKAN 'dashboard', buatkan tombol kembali
   const isDashboard = route === 'dashboard';
+
+  // 1. Tombol Back Bulat (Hanya muncul jika BUKAN di halaman dashboard)
   const backButtonHtml = !isDashboard 
     ? `<button class="btn-back" onclick="window.navigate('${meta.backTo}')">
          <i data-lucide="arrow-left"></i>
@@ -39,11 +36,24 @@ export function AppLayout({ content, route }) {
 
       <div class="page-navbar">
         <div class="navbar-container">
-          ${backButtonHtml}
-          <div class="navbar-title-wrapper">
-            <h2 class="navbar-title">${meta.title}</h2>
-            <p class="navbar-subtitle">${meta.subtitle}</p>
+          
+          <div class="navbar-left-content">
+            ${backButtonHtml}
+            <div class="navbar-title-wrapper">
+              <h2 class="navbar-title">${meta.title}</h2>
+              <p class="navbar-subtitle">${meta.subtitle}</p>
+            </div>
           </div>
+
+          <div class="navbar-actions">
+            <button class="btn-nav-action" onclick="window.navigate('akun')">
+              <i data-lucide="user"></i>
+            </button>
+            <button class="btn-nav-action">
+              <i data-lucide="bell"></i>
+            </button>
+          </div>
+
         </div>
       </div>
 
