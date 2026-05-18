@@ -1,4 +1,4 @@
-@import "./variables.css";
+@import "./variables.css"; /* REVISI: Ditambahkan tanda @ di depan import */
 @import "./layout.css";
 @import "./components.css";
 
