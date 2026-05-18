@@ -4,7 +4,7 @@ export function OrderDetailPage() {
   const orderId = localStorage.getItem("selected_order_id");
   let orderDataLocal = null;
   let orderItemsLocal = [];
-  let dbBomItemsLocal = []; // <--- 🌟 ARRAY BARU UNTUK MENAMPUNG LIVE BAHAN BAKU HASIL INPUT MANUAL KASIR
+  let dbBomItemsLocal = []; // <--- ARRAY UNTUK MENAMPUNG LIVE BAHAN BAKU HASIL INPUT MANUAL KASIR
 
   setTimeout(async () => {
     const container = document.querySelector(".detail-page");
@@ -55,7 +55,7 @@ export function OrderDetailPage() {
         if (itemsError) throw itemsError;
         orderItemsLocal = items || [];
 
-        // 🔍 AMBIL BAHAN BAKU YANG TADI DI-INPUT MANUAL PAS CREATE ORDER DARI DATABASE
+        // AMBIL BAHAN BAKU YANG TADI DI-INPUT MANUAL PAS CREATE ORDER DARI DATABASE
         dbBomItemsLocal = [];
         const { data: prodData, error: prodErr } = await supabase
           .from("productions")
@@ -90,20 +90,17 @@ export function OrderDetailPage() {
     function renderAllDetailDOM() {
       if (!orderDataLocal) return;
 
-      // 2.1 Render Kartu Status Utama harian (SUNTIKAN DUKUNGAN STATUS 'butuh produksi')
+      // 2.1 Render Kartu Status Utama harian
       let statusText = "Pending Produksi";
-      
-      // ==========================================================================
-      // FIX UPDATE WARNA BADGE DETAIL: READY JADI BIRU PRIMER, DIKIRIM JADI HIJAU SUKSES
-      // ==========================================================================
       let badgeClass = "badge-warning"; 
       
       const currentDbStatus = orderDataLocal.status ? orderDataLocal.status.toLowerCase() : 'pending';
 
       if (currentDbStatus === "butuh produksi") { statusText = "Butuh Produksi (MTO)"; badgeClass = "badge-warning"; }
       if (currentDbStatus === "diproses") { statusText = "Sedang Diproses"; badgeClass = "badge-info"; }
-      if (currentDbStatus === "ready") { statusText = "Siap Dikirim"; badgeClass = "badge-primary"; } // Menjadi Biru Tua / Cyan kontras gais
-      if (currentDbStatus === "dikirim") { statusText = "Selesai Dikirim"; badgeClass = "badge-success"; } // Menjadi Hijau Sukses harian
+      if (currentDbStatus === "ready") { statusText = "Siap Dikirim"; badgeClass = "badge-primary"; } 
+      if (currentDbStatus === "dikirim") { statusText = "Selesai Dikirim"; badgeClass = "badge-success"; } 
+      if (currentDbStatus === "void") { statusText = "Nota Dibatalkan (Void)"; badgeClass = "badge-danger"; }
 
       statusCardArea.innerHTML = `
         <div>
@@ -153,7 +150,7 @@ export function OrderDetailPage() {
 
       // 2.4 RENDERING KARTU BOM DINAMIS DARI HASIL INPUT KASIR YANG DISIMPAN DI DATABASE
       if (productionCardArea && bomListArea) {
-        if (dbBomItemsLocal && dbBomItemsLocal.length > 0 && currentDbStatus !== "dikirim" && currentDbStatus !== "ready") {
+        if (dbBomItemsLocal && dbBomItemsLocal.length > 0 && currentDbStatus !== "dikirim" && currentDbStatus !== "ready" && currentDbStatus !== "void") {
           productionCardArea.style.display = "block";
           
           bomListArea.innerHTML = dbBomItemsLocal.map(ing => {
@@ -179,7 +176,7 @@ export function OrderDetailPage() {
       if (timelineArea) {
         timelineArea.innerHTML = `
           <div class="timeline-item active"><div class="timeline-dot"></div><div><h4>Order Dibuat</h4><p>${orderDataLocal.order_date}</p></div></div>
-          <div class="timeline-item ${currentDbStatus !== 'pending' ? 'active' : ''}"><div class="timeline-dot"></div><div><h4>Antrean Masuk</h4><p>${currentDbStatus === 'pending' || currentDbStatus === 'butuh produksi' ? 'Menunggu Produksi' : 'Disetujui Admin'}</p></div></div>
+          <div class="timeline-item ${currentDbStatus !== 'pending' && currentDbStatus !== 'void' ? 'active' : ''}"><div class="timeline-dot"></div><div><h4>Antrean Masuk</h4><p>${currentDbStatus === 'void' ? 'Nota Dibatalkan / Retur' : (currentDbStatus === 'pending' || currentDbStatus === 'butuh produksi' ? 'Menunggu Produksi' : 'Disetujui Admin')}</p></div></div>
           <div class="timeline-item ${currentDbStatus === 'ready' || currentDbStatus === 'dikirim' ? 'active' : ''}"><div class="timeline-dot"></div><div><h4>Proses Produksi</h4><p>${currentDbStatus === 'diproses' ? 'Sedang Digiling/Roasting' : (currentDbStatus === 'ready' || currentDbStatus === 'dikirim' ? 'Selesai Sempurna' : 'Belum Dimulai')}</p></div></div>
           <div class="timeline-item ${currentDbStatus === 'dikirim' ? 'active' : ''}"><div class="timeline-dot"></div><div><h4>Pengiriman</h4><p>${currentDbStatus === 'dikirim' ? 'Barang Dibawa Sales' : 'Menunggu Siap'}</p></div></div>
         `;
@@ -280,7 +277,7 @@ export function OrderDetailPage() {
     }
 
     // ==========================================================================
-    // 4. CORE TRIGGER UPDATE STATUS & EKSEKUSI ARUS MUTASI STOK
+    // 4. CORE TRIGGER UPDATE STATUS & EKSEKUSI VOID / RETUR PRODUK JADI MATANG
     // ==========================================================================
     function renderActionButtonsDOM() {
       const currentDbStatus = orderDataLocal.status ? orderDataLocal.status.toLowerCase() : 'pending';
@@ -290,14 +287,93 @@ export function OrderDetailPage() {
         <button class="action-btn" id="btn-print-invoice" style="background:var(--orange-soft); color:var(--orange); border:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:4px;">Cetak WA</button>
       `;
 
+      // Jika statusnya sudah VOID, kunci permanen menu aksi operasionalnya gais
+      if (currentDbStatus === "void") {
+        actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn" style="background:var(--border); color:var(--text-light); border:none;" disabled>ORDER VOIDED</button>`;
+        const backBtn = actionsArea.querySelector("#btn-back-order");
+        if (backBtn) backBtn.addEventListener("click", () => { if(window.navigate) window.navigate("order"); });
+        return;
+      }
+
+      // Tombol Void Order selalu mejeng di bar bawah
+      let voidButtonHtml = `<button class="action-btn" id="btn-void-order" style="background:var(--danger-soft); color:var(--danger); border:none; font-weight:bold;">Void Order</button>`;
+
       if (currentDbStatus === "pending" || currentDbStatus === "butuh produksi") {
-        actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:var(--orange); border:none; color:white;">Mulai Produksi</button>`;
+        actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:var(--orange); border:none; color:white;">Mulai Produksi</button>`;
       } else if (currentDbStatus === "diproses") {
-        actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:var(--border); border:none; color:var(--text-light);" disabled>Proses Produksi Berjalan (Locked)</button>`;
+        actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:var(--border); border:none; color:var(--text-light);" disabled>Proses Produksi Berjalan (Locked)</button>`;
       } else if (currentDbStatus === "ready") {
-        actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:#06B6D4; border:none; color:white;">Kirim Barang</button>`;
+        actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:#06B6D4; border:none; color:white;">Kirim Barang</button>`;
       } else {
-        actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn" style="background:var(--border); border:none; color:var(--text-light);" disabled>Order Closed</button>`;
+        actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `<button class="action-btn" style="background:var(--border); border:none; color:var(--text-light);" disabled>Order Closed</button>`;
+      }
+
+      // ==========================================================================
+      // LOGIKA KUNCI DISKUSI: 2 KONDISI VOID (VOID ADMINISTRASI VS RETUR PRODUK JADI)
+      // ==========================================================================
+      const voidBtn = actionsArea.querySelector("#btn-void-order");
+      if (voidBtn) {
+        voidBtn.addEventListener("click", async () => {
+          const isAlreadyShipped = (currentDbStatus === "dikirim");
+          
+          let confirmationText = `⚠️ KONFIRMASI VOID NOTA!\n\nApakah lo yakin ingin membatalkan transaksi ${orderDataLocal.invoice_no}?\nStatus nota akan diubah menjadi VOID.`;
+          if (isAlreadyShipped) {
+            confirmationText = `⚠️ SEBAGAI PENGGANTI RETUR!\n\nNota ${orderDataLocal.invoice_no} sudah berstatus DIKIRIM.\n\nJika lo melakukan Void di tahap ini, seluruh produk kopi matang jadi terbeli otomatis ditarik balik (RETUR) masuk mengisi stok gudang kembali gais!`;
+          }
+
+          if (!confirm(confirmationText)) return;
+
+          try {
+            voidBtn.disabled = true;
+            voidBtn.textContent = "Processing...";
+
+            // 🔥 SKENARIO 2: KONDISI BARANG SUDAH DIKIRIM (BERFUNGSI SEBAGAI RETUR PRODUK JADI)
+            if (isAlreadyShipped) {
+              for (const item of orderItemsLocal) {
+                const p = item.products || {};
+                const currentStock = parseFloat(p.stock) || 0;
+                const orderQty = parseFloat(item.qty) || 0;
+                const restoredStock = currentStock + orderQty; // Tambah balik ke rak produk matang jadi gudang (+)
+
+                // A. Kembalikan nominal stok kopi matang jadi ke tabel products utama
+                await supabase
+                  .from("products")
+                  .update({ stock: restoredStock })
+                  .eq("id", p.id);
+
+                // B. Catat mutasi berkategori IN sebagai rekaman audit retur penjualan lapangan yang sah gais
+                await supabase
+                  .from("stock_mutations")
+                  .insert([{
+                    product_id: p.id,
+                    type: "in",
+                    qty: orderQty,
+                    reference_no: orderDataLocal.invoice_no,
+                    description: `🔄 RETUR PRODUK JADI (VOID): Pengembalian barang retur akibat pembatalan nota invoice ${orderDataLocal.invoice_no}`
+                  }]);
+              }
+            }
+            
+            // 🔥 SKENARIO 1: KONDISI NOTA BELUM DIKIRIM ('pending' / 'butuh produksi' / 'diproses' / 'ready')
+            // Stok fisik di tabel products emang belum kepotong murni gais, jadi STOK TETEP DIAM DI SITU.
+            // Sistem langsung bypass lompat ke update ubah status transaksi induknya menjadi 'void' selesai secara administrasi.
+
+            const { error: voidErr } = await supabase
+              .from("sales_orders")
+              .update({ status: "void" })
+              .eq("id", orderId);
+
+            if (voidErr) throw voidErr;
+
+            alert(`🎉 Sukses! Status Nota ${orderDataLocal.invoice_no} resmi diubah menjadi VOID.${isAlreadyShipped ? " Arus barang jadi berhasil di-RETUR masuk aman ke rak gudang gais!" : " Stok produk aman tidak mengalami pergerakan."}`);
+            fetchOrderDetail(); // Reload view halaman detail biar status ter-update gais
+
+          } catch (err) {
+            alert("❌ Gagal merubah status void retur: " + err.message);
+            voidBtn.disabled = false;
+            voidBtn.textContent = "Void Order";
+          }
+        });
       }
 
       const printBtn = actionsArea.querySelector("#btn-print-invoice");
