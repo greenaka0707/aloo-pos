@@ -1,6 +1,8 @@
 export function ProduksiListPage() {
   return `
-    <section class="order-page"> <div class="page-header">
+    <section class="list-page"> 
+
+      <div class="page-header">
         <div>
           <h2 class="font-bold">
             Produksi
@@ -27,10 +29,11 @@ export function ProduksiListPage() {
         <button class="filter-chip">Selesai</button>
       </div>
 
-      <div class="order-list">
+      <div class="data-list">
 
-        <div class="card order-card">
-          <div class="order-top">
+        <div class="card list-card">
+          
+          <div class="list-card-top">
             <div>
               <h3 class="font-bold">PRD-001</h3>
               <p class="text-light text-sm">Ref: SO-001</p>
@@ -41,7 +44,8 @@ export function ProduksiListPage() {
           <div style="display: flex; flex-direction: column; gap: var(--space-md); padding: var(--space-xs) 0;">
             
             <div style="display: flex; align-items: center; gap: var(--space-md);">
-              <div class="icon-box" style="width: 38px; height: 38px;"> <i data-lucide="factory" style="width: 16px; height: 16px;"></i>
+              <div class="icon-box" style="width: 38px; height: 38px;"> 
+                <i data-lucide="factory" style="width: 16px; height: 16px;"></i>
               </div>
               <div>
                 <strong class="font-semibold" style="font-size: var(--text-sm); display: block; color: var(--text);">
@@ -62,10 +66,10 @@ export function ProduksiListPage() {
 
           </div>
 
-          <div class="order-footer">
+          <div class="list-card-footer">
             <span>15 Mei 2026</span>
             <button
-              class="detail-btn"
+              class="btn btn-soft detail-btn"
               onclick="window.navigate('produksi-detail')"
             >
               Detail
