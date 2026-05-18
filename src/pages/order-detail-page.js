@@ -4,6 +4,7 @@ export function OrderDetailPage() {
   const orderId = localStorage.getItem("selected_order_id");
   let orderDataLocal = null;
   let orderItemsLocal = [];
+  let dbBomItemsLocal = []; // <--- 🌟 ARRAY BARU UNTUK MENAMPUNG LIVE BAHAN BAKU HASIL INPUT MANUAL KASIR
 
   setTimeout(async () => {
     const container = document.querySelector(".detail-page");
@@ -54,6 +55,28 @@ export function OrderDetailPage() {
         if (itemsError) throw itemsError;
         orderItemsLocal = items || [];
 
+        // 🔍 AMBIL BAHAN BAKU YANG TADI DI-INPUT MANUAL PAS CREATE ORDER DARI DATABASE
+        dbBomItemsLocal = [];
+        const { data: prodData, error: prodErr } = await supabase
+          .from("productions")
+          .select("id")
+          .eq("sales_order_id", orderId)
+          .limit(1);
+
+        if (!prodErr && prodData && prodData.length > 0) {
+          const { data: ingData, error: ingErr } = await supabase
+            .from("production_ingredients")
+            .select(`
+              qty_used,
+              products ( name, unit )
+            `)
+            .eq("production_id", prodData[0].id);
+
+          if (!ingErr && ingData) {
+            dbBomItemsLocal = ingData;
+          }
+        }
+
         renderAllDetailDOM();
 
       } catch (err) {
@@ -100,26 +123,10 @@ export function OrderDetailPage() {
       }
 
       // 2.3 Render Baris Belanjaan Item Produk
-      let needsBomAnalysis = false;
-      let totalRobustaNeeded = 0;
-      let totalJagungNeeded = 0;
-
       if (productCardArea) {
         productCardArea.innerHTML = orderItemsLocal.map(item => {
           const p = item.products || {};
           const isShortage = item.qty > (p.stock || 0);
-          
-          if (isShortage) {
-            const gap = item.qty - (p.stock || 0);
-            if (p.name.toLowerCase().includes("giras") || p.name.toLowerCase().includes("blend")) {
-              needsBomAnalysis = true;
-              totalRobustaNeeded += (gap * 0.5);
-              totalJagungNeeded += (gap * 0.5);
-            } else if (p.category === 'kopi_bubuk' || p.category === 'roastedbean') {
-              needsBomAnalysis = true;
-              totalRobustaNeeded += gap;
-            }
-          }
 
           return `
             <div class="detail-row-item" style="border-bottom: 1px solid var(--border); padding-bottom: var(--space-sm); margin-bottom: var(--space-sm);">
@@ -140,22 +147,25 @@ export function OrderDetailPage() {
         `;
       }
 
-      // 2.4 Render Kartu Kebutuhan Manufaktur Racikan Komposisi (BOM)
+      // 2.4 RENDERING KARTU BOM DINAMIS DARI HASIL INPUT KASIR YANG DISIMPAN DI DATABASE
       if (productionCardArea && bomListArea) {
-        if (needsBomAnalysis && currentDbStatus !== "dikirim" && currentDbStatus !== "ready") {
+        if (dbBomItemsLocal && dbBomItemsLocal.length > 0 && currentDbStatus !== "dikirim" && currentDbStatus !== "ready") {
           productionCardArea.style.display = "block";
-          let bomHtml = "";
-          if (totalRobustaNeeded > 0) {
-            bomHtml += `
-              <div class="detail-row-item"><div class="left-content"><span class="title">RB Robusta Base Material</span></div><strong class="right-value">${totalRobustaNeeded.toFixed(1)}kg</strong></div>
+          
+          bomListArea.innerHTML = dbBomItemsLocal.map(ing => {
+            const matName = ing.products?.name || "Bahan Baku";
+            const matUnit = ing.products?.unit || "kg";
+            const matQty = parseFloat(ing.qty_used || 0);
+
+            return `
+              <div class="detail-row-item" style="margin-bottom: 4px;">
+                <div class="left-content">
+                  <span class="title" style="color: var(--text); font-weight:var(--font-medium);">${matName}</span>
+                </div>
+                <strong class="right-value" style="font-size: var(--text-sm); color: var(--text);">${matQty.toFixed(1)}${matUnit}</strong>
+              </div>
             `;
-          }
-          if (totalJagungNeeded > 0) {
-            bomHtml += `
-              <div class="detail-row-item"><div class="left-content"><span class="title">Jagung Campuran</span></div><strong class="right-value">${totalJagungNeeded.toFixed(1)}kg</strong></div>
-            `;
-          }
-          bomListArea.innerHTML = bomHtml;
+          }).join('');
         } else {
           productionCardArea.style.display = "none";
         }
@@ -183,10 +193,9 @@ export function OrderDetailPage() {
 
       const cust = orderDataLocal.customers || {};
       
-      // Susun elemen HTML Invoice dengan format layout cetak A5 bersih nan minimalis
       const element = document.createElement("div");
       element.style.padding = "30px";
-      element.style.width = "148mm";  // Presisi Lebar kertas A5 standard
+      element.style.width = "148mm";  
       element.style.fontFamily = "sans-serif";
       element.style.color = "#1F2937";
       element.style.backgroundColor = "#FFFFFF";
@@ -255,7 +264,6 @@ export function OrderDetailPage() {
         </div>
       `;
 
-      // Konfigurasi parameter render html2pdf engine khusus ukuran kertas setengah A4 (A5 Portrait)
       const opt = {
         margin:       0,
         filename:     `Invoice_${orderDataLocal.invoice_no}.pdf`,
@@ -264,7 +272,6 @@ export function OrderDetailPage() {
         jsPDF:        { unit: 'mm', format: 'a5', orientation: 'portrait' }
       };
 
-      // Eksekusi generator file PDF
       window.html2pdf().set(opt).from(element).save();
     }
 
@@ -279,11 +286,11 @@ export function OrderDetailPage() {
         <button class="action-btn" id="btn-print-invoice" style="background:var(--orange-soft); color:var(--orange); border:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:4px;">Cetak WA</button>
       `;
 
-      // Menambahkan penanganan tombol operasional jika berstatus pending ataupun butuh produksi gais
       if (currentDbStatus === "pending" || currentDbStatus === "butuh produksi") {
         actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:var(--orange); border:none; color:white;">Mulai Produksi</button>`;
       } else if (currentDbStatus === "diproses") {
-        actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:#14B8A6; border:none; color:white;">Set Siap Kirim</button>`;
+        // 🔒 KUNCi SISTEM (LOCK DETAIL ORDER): Selama tim gudang masih giling produksi, tombol dikunci mati gais!
+        actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:var(--border); border:none; color:var(--text-light);" disabled>Proses Produksi Berjalan (Locked)</button>`;
       } else if (currentDbStatus === "ready") {
         actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:#06B6D4; border:none; color:white;">Kirim Barang</button>`;
       } else {
@@ -298,7 +305,7 @@ export function OrderDetailPage() {
       if (backBtn) backBtn.addEventListener("click", () => { if(window.navigate) window.navigate("order"); });
 
       const nextBtn = actionsArea.querySelector("#btn-next-status");
-      if (nextBtn) {
+      if (nextBtn && !nextBtn.disabled) {
         nextBtn.addEventListener("click", async () => {
           let nextStatus = "diproses";
           if (currentDbStatus === "pending" || currentDbStatus === "butuh produksi") nextStatus = "diproses";
@@ -309,7 +316,7 @@ export function OrderDetailPage() {
             nextBtn.disabled = true;
             nextBtn.textContent = "Updating...";
 
-            // CRITICAL ENGINE: HANYA MEMOTONG STOK KOPI MATANG JADI SAAT BARANG DIKIRIM (BAWA KELILING/NOT CLOSED)
+            // HANYA MEMOTONG STOK KOPI MATANG JADI SAAT BARANG DIKIRIM BAWA KELILING SALES
             if (nextStatus === "dikirim") {
               for (const item of orderItemsLocal) {
                 const p = item.products || {};
@@ -329,7 +336,7 @@ export function OrderDetailPage() {
                   .from("stock_mutations")
                   .insert([{
                     product_id: p.id,
-                    type: "out", // <--- Resmi keluar dipotong dari gudang menuju warung customer
+                    type: "out", 
                     qty: orderQty,
                     reference_no: orderDataLocal.invoice_no,
                     description: `Penjualan Lapangan Berhasil: ${orderDataLocal.invoice_no} (${orderDataLocal.customers?.name || 'Warung'})`
@@ -397,7 +404,7 @@ export function OrderDetailPage() {
           <div class="icon-box"><i data-lucide="factory"></i></div>
           <h3>Kebutuhan Analisis Manufaktur (BOM)</h3>
         </div>
-        <div class="bom-list" id="detail-bom-list-render" style="margin-top: var(--space-md);">
+        <div class="bom-list" id="detail-bom-list-render" style="margin-top: var(--space-md); display:flex; flex-direction:column; gap:6px;">
         </div>
       </div>
 
