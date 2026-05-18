@@ -2,17 +2,6 @@ export function StockPage() {
   return `
     <section class="list-page"> 
 
-      <div class="page-header">
-        <div>
-          <h2 class="font-bold">
-            Stock
-          </h2>
-          <p class="page-subtitle">
-            Inventory management
-          </p>
-        </div>
-      </div>
-
       <div class="card search-box"> 
         <i data-lucide="search"></i>
         <input
