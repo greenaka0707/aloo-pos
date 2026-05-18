@@ -14,6 +14,9 @@ import { PurchaseListPage } from "../pages/purchase-list-page.js";
 import { PurchaseDetailPage } from "../pages/purchase-detail-page.js";
 import { CreatePurchasePage } from "../pages/create-purchase-page.js";
 
+// IMPORT MASTER PRODUK BARU
+import { ProductPage } from "../pages/ProductPage.js"; 
+
 export function renderRoute(route) {
 
   switch (route) {
@@ -70,6 +73,13 @@ export function renderRoute(route) {
 
     case "create-purchase":
       return CreatePurchasePage();
+
+    /* =========================
+       MASTER PRODUK (Skena & Kalcer Approved)
+    ========================= */
+
+    case "produk":
+      return ProductPage();
 
     default:
       return DashboardPage();
