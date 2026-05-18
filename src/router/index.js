@@ -11,17 +11,22 @@ import { StockPage } from "../pages/stock-page.js";
 import { StockDetailPage } from "../pages/stock-detail-page.js";
 
 import { PurchaseListPage } from "../pages/purchase-list-page.js";
+import { PurchaseDetailPage } from "../pages/purchase-detail-page.js";
 import { CreatePurchasePage } from "../pages/create-purchase-page.js";
 
 export function renderRoute(route) {
 
   switch (route) {
 
+    /* =========================
+       DASHBOARD
+    ========================= */
+
     case "dashboard":
       return DashboardPage();
 
     /* =========================
-       SALES ORDER
+       ORDER
     ========================= */
 
     case "order":
@@ -54,12 +59,15 @@ export function renderRoute(route) {
       return StockDetailPage();
 
     /* =========================
-       PEMBELIAN
+       PURCHASE
     ========================= */
 
     case "pembelian":
       return PurchaseListPage();
-      
+
+    case "purchase-detail":
+      return PurchaseDetailPage();
+
     case "create-purchase":
       return CreatePurchasePage();
 
