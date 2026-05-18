@@ -106,11 +106,19 @@ export function OrderListPage() {
           formattedDate = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
         }
 
-        // Tentukan warna lencana status transaksi orderan
-        let badgeClass = "badge-warning"; // Default pending harian
-        if (order.status === "diproses") badgeClass = "badge-info";
-        if (order.status === "ready") badgeClass = "badge-success";
-        if (order.status === "dikirim") badgeClass = "badge-primary";
+        // ==========================================================================
+        // FIX UPDATE WARNA STATUS: DIKIRIM JADI HIJAU SUKSES, READY JADI BIRU PRIMER
+        // ==========================================================================
+        let badgeClass = "badge-warning"; // Default pending / butuh produksi harian
+        const currentDbStatus = order.status ? order.status.toLowerCase() : "pending";
+
+        if (currentDbStatus === "diproses") {
+          badgeClass = "badge-info"; // Biru info proses
+        } else if (currentDbStatus === "ready") {
+          badgeClass = "badge-primary"; // Biru tua / cyan siap kirim
+        } else if (currentDbStatus === "dikirim") {
+          badgeClass = "badge-success"; // Hijau sukses tuntas kelar gais!
+        }
 
         return `
           <div class="card list-card" style="margin-bottom: var(--space-sm);">
