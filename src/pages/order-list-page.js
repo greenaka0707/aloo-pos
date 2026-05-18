@@ -1,6 +1,6 @@
 export function OrderListPage() {
   return `
-    <section class="order-page">
+    <section class="list-page">
 
       <div class="page-header">
         <div>
@@ -29,10 +29,11 @@ export function OrderListPage() {
         <button class="filter-chip">Dikirim</button>
       </div>
 
-      <div class="order-list">
+      <div class="data-list">
 
-        <div class="card order-card">
-          <div class="order-top">
+        <div class="card list-card">
+          
+          <div class="list-card-top">
             <div>
               <h3 class="font-bold">SO-001</h3>
               <p class="text-light text-sm">PT Kopi Nusantara</p>
@@ -40,21 +41,21 @@ export function OrderListPage() {
             <span class="badge badge-warning">Pending</span>
           </div>
 
-          <div class="order-summary">
-            <div class="order-summary-item">
+          <div class="list-card-summary">
+            <div class="list-card-summary-item">
               <span>Total Item</span>
               <strong>3 Produk</strong>
             </div>
-            <div class="order-summary-item">
+            <div class="list-card-summary-item">
               <span>Qty</span>
               <strong>50kg</strong>
             </div>
           </div>
 
-          <div class="order-footer">
+          <div class="list-card-footer">
             <span>15 Mei 2026</span>
             <button
-              class="detail-btn" 
+              class="btn btn-soft detail-btn" 
               onclick="window.navigate('order-detail')"
             >
               Detail
@@ -62,8 +63,9 @@ export function OrderListPage() {
           </div>
         </div>
 
-        <div class="card order-card">
-          <div class="order-top">
+        <div class="card list-card">
+          
+          <div class="list-card-top">
             <div>
               <h3 class="font-bold">SO-002</h3>
               <p class="text-light text-sm">CV Barokah Kopi</p>
@@ -71,21 +73,21 @@ export function OrderListPage() {
             <span class="badge badge-info">Diproses</span>
           </div>
 
-          <div class="order-summary">
-            <div class="order-summary-item">
+          <div class="list-card-summary">
+            <div class="list-card-summary-item">
               <span>Total Item</span>
               <strong>2 Produk</strong>
             </div>
-            <div class="order-summary-item">
+            <div class="list-card-summary-item">
               <span>Qty</span>
               <strong>20kg</strong>
             </div>
           </div>
 
-          <div class="order-footer">
+          <div class="list-card-footer">
             <span>15 Mei 2026</span>
             <button
-              class="detail-btn"
+              class="btn btn-soft detail-btn"
               onclick="window.navigate('order-detail')"
             >
               Detail
