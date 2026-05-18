@@ -2,22 +2,6 @@ export function CreatePurchasePage() {
   return `
     <section class="create-page">
 
-      <div class="detail-header">
-        
-        <button
-          class="btn-back"
-          onclick="window.navigate('pembelian')"
-        >
-          <i data-lucide="arrow-left"></i>
-        </button>
-
-        <div class="detail-header-text">
-          <h2>Create Purchase</h2>
-          <p>Supplier purchasing workflow</p>
-        </div>
-
-      </div>
-
       <div class="card create-card">
         <div class="form-group">
           <label class="form-label">Tanggal</label>
