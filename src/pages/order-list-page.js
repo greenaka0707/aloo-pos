@@ -4,21 +4,14 @@ export function OrderListPage() {
 
       <div class="page-header">
         <div>
-          <h2 class="font-bold">
-            Sales Order
-          </h2>
-          <p class="page-subtitle">
-            Manufacturing sales workflow
-          </p>
+          <h2 class="font-bold">Sales Order</h2>
+          <p class="page-subtitle">Manufacturing sales workflow</p>
         </div>
       </div>
 
       <div class="card search-box">
         <i data-lucide="search"></i>
-        <input
-          type="text"
-          placeholder="Cari sales order..."
-        />
+        <input type="text" placeholder="Cari sales order..." />
       </div>
 
       <div class="filter-scroll">
@@ -32,7 +25,6 @@ export function OrderListPage() {
       <div class="data-list">
 
         <div class="card list-card">
-          
           <div class="list-card-top">
             <div>
               <h3 class="font-bold">SO-001</h3>
@@ -64,7 +56,6 @@ export function OrderListPage() {
         </div>
 
         <div class="card list-card">
-          
           <div class="list-card-top">
             <div>
               <h3 class="font-bold">SO-002</h3>
