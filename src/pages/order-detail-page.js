@@ -277,7 +277,7 @@ export function OrderDetailPage() {
     }
 
     // ==========================================================================
-    // 4. CORE TRIGGER UPDATE STATUS & EKSEKUSI VOID / RETUR PRODUK JADI MATANG
+    // 4. CORE TRIGGER UPDATE STATUS & UPDATE LOGIK RETUR MODAL QTY
     // ==========================================================================
     function renderActionButtonsDOM() {
       const currentDbStatus = orderDataLocal.status ? orderDataLocal.status.toLowerCase() : 'pending';
@@ -295,8 +295,13 @@ export function OrderDetailPage() {
         return;
       }
 
-      // Tombol Void Order selalu mejeng di bar bawah
-      let voidButtonHtml = `<button class="action-btn" id="btn-void-order" style="background:var(--danger-soft); color:var(--danger); border:none; font-weight:bold;">Void Order</button>`;
+      // Sesuai diskusi gais, teks tombol otomatis berubah jadi konfirmasi terima retur jika status dikirim
+      let voidButtonText = "Void Order";
+      if (currentDbStatus === "dikirim") {
+        voidButtonText = "Konfirmasi Terima Retur";
+      }
+
+      let voidButtonHtml = `<button class="action-btn" id="btn-void-order" style="background:var(--danger-soft); color:var(--danger); border:none; font-weight:bold;">${voidButtonText}</button>`;
 
       if (currentDbStatus === "pending" || currentDbStatus === "butuh produksi") {
         actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:var(--orange); border:none; color:white;">Mulai Produksi</button>`;
@@ -309,16 +314,16 @@ export function OrderDetailPage() {
       }
 
       // ==========================================================================
-      // LOGIKA KUNCI DISKUSI: 2 KONDISI VOID (VOID ADMINISTRASI VS RETUR PRODUK JADI)
+      // DISKUSI IMPLEMENTASI: LOGIK RETUR DENGAN POP-UP PROMPT MODAL QUANTITY LIVE
       // ==========================================================================
       const voidBtn = actionsArea.querySelector("#btn-void-order");
       if (voidBtn) {
         voidBtn.addEventListener("click", async () => {
           const isAlreadyShipped = (currentDbStatus === "dikirim");
           
-          let confirmationText = `⚠️ KONFIRMASI VOID NOTA!\n\nApakah lo yakin ingin membatalkan transaksi ${orderDataLocal.invoice_no}?\nStatus nota akan diubah menjadi VOID.`;
+          let confirmationText = `⚠️ KONFIRMASI VOID NOTA!\n\nApakah lo yakin ingin membatalkan transaksi ${orderDataLocal.invoice_no}?\n\nStatus nota akan diubah menjadi VOID. Stok kopi matang aman tidak mengalami pergerakan gais.`;
           if (isAlreadyShipped) {
-            confirmationText = `⚠️ SEBAGAI PENGGANTI RETUR!\n\nNota ${orderDataLocal.invoice_no} sudah berstatus DIKIRIM.\n\nJika lo melakukan Void di tahap ini, seluruh produk kopi matang jadi terbeli otomatis ditarik balik (RETUR) masuk mengisi stok gudang kembali gais!`;
+            confirmationText = `⚠️ KONFIRMASI SERAH TERIMA RETUR!\n\nApakah lo yakin ingin memproses retur barang dari nota ${orderDataLocal.invoice_no} ke rak gudang?`;
           }
 
           if (!confirm(confirmationText)) return;
@@ -327,36 +332,63 @@ export function OrderDetailPage() {
             voidBtn.disabled = true;
             voidBtn.textContent = "Processing...";
 
-            // 🔥 SKENARIO 2: KONDISI BARANG SUDAH DIKIRIM (BERFUNGSI SEBAGAI RETUR PRODUK JADI)
+            // 🔥 SKENARIO 2: JIKA STATUSNYA SUDAH 'DIKIRIM' (RETUR DENGAN INPUT MODAL QUANTITY YANG KEMBALI)
             if (isAlreadyShipped) {
               for (const item of orderItemsLocal) {
                 const p = item.products || {};
-                const currentStock = parseFloat(p.stock) || 0;
-                const orderQty = parseFloat(item.qty) || 0;
-                const restoredStock = currentStock + orderQty; // Tambah balik ke rak produk matang jadi gudang (+)
+                const maxQty = parseFloat(item.qty || 0);
+                const pName = p.name || "Kopi Matang";
 
-                // A. Kembalikan nominal stok kopi matang jadi ke tabel products utama
-                await supabase
-                  .from("products")
-                  .update({ stock: restoredStock })
-                  .eq("id", p.id);
+                // Pemicu prompt modal quantity input live untuk kasir lo gais
+                let inputQty = prompt(
+                  `📥 INPUT FISIK RETUR GUDANG\n\nProduk: ${pName}\nKuantitas di Nota Asal: ${maxQty} kg\n\nMasukkan total berat (kg) yang beneran sukses balik masuk rak:`, 
+                  maxQty
+                );
 
-                // B. Catat mutasi berkategori IN sebagai rekaman audit retur penjualan lapangan yang sah gais
-                await supabase
-                  .from("stock_mutations")
-                  .insert([{
-                    product_id: p.id,
-                    type: "in",
-                    qty: orderQty,
-                    reference_no: orderDataLocal.invoice_no,
-                    description: `🔄 RETUR PRODUK JADI (VOID): Pengembalian barang retur akibat pembatalan nota invoice ${orderDataLocal.invoice_no}`
-                  }]);
+                // Jika kasir membatalkan prompt tengah jalan gais
+                if (inputQty === null) {
+                  alert("❌ Void retur dibatalkan oleh user.");
+                  fetchOrderDetail();
+                  return;
+                }
+
+                let returnedQty = parseFloat(inputQty);
+
+                // Validasi data input ketat biar isi tidak minus atau melebihi nota asal
+                if (isNaN(returnedQty) || returnedQty < 0 || returnedQty > maxQty) {
+                  alert(`⚠️ INPUT DATA INVALID GAIS!\nJumlah retur produk ${pName} wajib angka positif dan tidak boleh melebihi ${maxQty} kg!`);
+                  fetchOrderDetail();
+                  return;
+                }
+
+                // Jalankan query update penambahan stok jika jumlah retur rill > 0
+                if (returnedQty > 0) {
+                  const currentStock = parseFloat(p.stock) || 0;
+                  const restoredStock = currentStock + returnedQty; // Ditambahkan balik murni dari input kasir (+)
+
+                  // A. Naikkan stok produk kopi jadi matang di gudang utama harian
+                  await supabase
+                    .from("products")
+                    .update({ stock: restoredStock })
+                    .eq("id", p.id);
+
+                  // B. Simpan rekam jejak formal ke tabel kartu stock_mutations
+                  await supabase
+                    .from("stock_mutations")
+                    .insert([{
+                      product_id: p.id,
+                      type: "in",
+                      qty: returnedQty,
+                      reference_no: orderDataLocal.invoice_no,
+                      description: `🔄 RETUR PRODUK JADI (VOID): Sukses serah terima fisik sebanyak ${returnedQty} kg dari nota ${orderDataLocal.invoice_no}`
+                    }]);
+                }
               }
             }
             
             // 🔥 SKENARIO 1: KONDISI NOTA BELUM DIKIRIM ('pending' / 'butuh produksi' / 'diproses' / 'ready')
-            // Stok fisik di tabel products emang belum kepotong murni gais, jadi STOK TETEP DIAM DI SITU.
-            // Sistem langsung bypass lompat ke update ubah status transaksi induknya menjadi 'void' selesai secara administrasi.
+            // Sesuai kuncian diskusi: STOK TETEP DIAM DI SITU tanpa ada mutasi/gerakan barang apa pun.
+            // Langsung update ubah status utamanya di sales_orders menjadi 'void' selesai secara administrasi.
 
             const { error: voidErr } = await supabase
               .from("sales_orders")
@@ -365,13 +397,13 @@ export function OrderDetailPage() {
 
             if (voidErr) throw voidErr;
 
-            alert(`🎉 Sukses! Status Nota ${orderDataLocal.invoice_no} resmi diubah menjadi VOID.${isAlreadyShipped ? " Arus barang jadi berhasil di-RETUR masuk aman ke rak gudang gais!" : " Stok produk aman tidak mengalami pergerakan."}`);
-            fetchOrderDetail(); // Reload view halaman detail biar status ter-update gais
+            alert(`🎉 Sukses! Status Nota ${orderDataLocal.invoice_no} resmi diubah menjadi VOID.${isAlreadyShipped ? " Kuantitas retur rill berhasil tercatat masuk kembali ke rak gudang!" : " Stok produk aman tidak mengalami pergerakan."}`);
+            fetchOrderDetail(); 
 
           } catch (err) {
             alert("❌ Gagal merubah status void retur: " + err.message);
             voidBtn.disabled = false;
-            voidBtn.textContent = "Void Order";
+            voidBtn.textContent = isAlreadyShipped ? "Konfirmasi Terima Retur" : "Void Order";
           }
         });
       }
@@ -420,7 +452,7 @@ export function OrderDetailPage() {
               }
             }
 
-            const { error: updateErr } = await supabase
+            const { error: updateErr = "void" } = await supabase
               .from("sales_orders")
               .update({ status: nextStatus })
               .eq("id", orderId);
