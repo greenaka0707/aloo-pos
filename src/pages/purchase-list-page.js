@@ -72,12 +72,13 @@ export function PurchaseListPage() {
     function renderFilteredList() {
       let filtered = allPurchases;
 
-      // Filter berdasarkan Tab Chip operasional harian
+      // Filter berdasarkan Tab Chip operasional harian (FIXED LOGIC)
       if (currentTab !== "Semua") {
         filtered = filtered.filter(p => {
           let dbStatus = p.status?.toLowerCase();
           if (currentTab === "Pending") return dbStatus === "ordered";
           if (currentTab === "Diterima") return dbStatus === "received";
+          if (currentTab === "Partial") return dbStatus === "partial";
           if (currentTab === "Void") return dbStatus === "void";
           return false;
         });
@@ -113,11 +114,20 @@ export function PurchaseListPage() {
           formattedDate = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
         }
 
-        // Tentukan lencana badge status visual
+        // FIXED BADGE: Pemetaan lencana status visual presisi sesuai foto bukti lo
         let badgeClass = "badge-warning"; 
         let statusText = "Pending";
-        if (po.status === "received") { badgeClass = "badge-success"; statusText = "Diterima"; }
-        if (po.status === "void") { badgeClass = "badge-danger"; statusText = "Void"; }
+        
+        if (po.status === "received") { 
+          badgeClass = "badge-success"; 
+          statusText = "Diterima"; 
+        } else if (po.status === "partial") {
+          badgeClass = "badge-info";
+          statusText = "Partial";
+        } else if (po.status === "void") { 
+          badgeClass = "badge-danger"; 
+          statusText = "Void"; 
+        }
 
         return `
           <div class="card list-card" style="margin-bottom: var(--space-sm);">
