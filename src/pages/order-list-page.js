@@ -107,9 +107,10 @@ export function OrderListPage() {
         }
 
         // ==========================================================================
-        // FIX UPDATE WARNA STATUS: DIKIRIM JADI HIJAU SUKSES, READY JADI BIRU PRIMER
+        // FIX UPDATE WARNA STATUS: DIKIRIM HIJAU, READY BIRU, VOID KUNCI ABU-ABU STATIS
         // ==========================================================================
         let badgeClass = "badge-warning"; // Default pending / butuh produksi harian
+        let inlineStyle = ""; // Custom style pelapis untuk warna abu-abu
         const currentDbStatus = order.status ? order.status.toLowerCase() : "pending";
 
         if (currentDbStatus === "diproses") {
@@ -117,17 +118,20 @@ export function OrderListPage() {
         } else if (currentDbStatus === "ready") {
           badgeClass = "badge-primary"; // Biru tua / cyan siap kirim
         } else if (currentDbStatus === "dikirim") {
-          badgeClass = "badge-success"; // Hijau sukses tuntas kelar gais!
+          badgeClass = "badge-success"; // Hijau sukses tuntas
+        } else if (currentDbStatus === "void") {
+          badgeClass = "badge-muted"; // Menggunakan class muted bawaan framework CSS lo gais
+          inlineStyle = "background: #9CA3AF; color: #FFFFFF;"; // Garansi abu-abu statis estetik
         }
 
         return `
-          <div class="card list-card" style="margin-bottom: var(--space-sm);">
+          <div class="card list-card" style="margin-bottom: var(--space-sm); ${currentDbStatus === 'void' ? 'opacity: 0.85;' : ''}">
             <div class="list-card-top">
               <div>
                 <h3 class="font-bold" style="color: var(--text);">${order.invoice_no}</h3>
                 <p class="text-light text-sm">${order.customers?.name || "Tanpa Nama Customer"}</p>
               </div>
-              <span class="badge ${badgeClass}" style="text-transform: capitalize;">${order.status || 'Pending'}</span>
+              <span class="badge ${badgeClass}" style="text-transform: capitalize; ${inlineStyle}">${order.status || 'Pending'}</span>
             </div>
 
             <div class="list-card-summary">
@@ -204,6 +208,7 @@ export function OrderListPage() {
         <button class="filter-chip">Diproses</button>
         <button class="filter-chip">Ready</button>
         <button class="filter-chip">Dikirim</button>
+        <button class="filter-chip">Void</button>
       </div>
 
       <div class="data-list"></div>
