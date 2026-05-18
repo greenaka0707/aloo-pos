@@ -1,88 +1,75 @@
 import { supabase } from "../supabaseClient.js";
 
-// Fungsi untuk menarik data dari tabel 'products' di Supabase
-async function getSupabaseProducts() {
+// Fungsi untuk menarik data dari tabel 'raw_material' (tanpa S)
+async function getSupabaseStock() {
   try {
     const { data, error } = await supabase
-      .from('products')
+      .from('raw_material')
       .select('*')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error("❌ Gagal mengambil data Supabase:", error.message);
+    console.error("❌ Gagal mengambil data stok:", error.message);
     return [];
   }
 }
 
-export function ProductPage() {
-  // Jalankan penarikan data sesaat setelah HTML utama terpasang di layar
+export function StockPage() {
+  // Jalankan penarikan data setelah komponen terpasang di DOM
   setTimeout(async () => {
-    const dataListContainer = document.querySelector(".product-data-list");
-    if (!dataListContainer) return;
+    const stockContainer = document.querySelector(".stock-data-list");
+    if (!stockContainer) return;
 
-    const products = await getSupabaseProducts();
+    const materials = await getSupabaseStock();
 
-    // Jika data kosong
-    if (products.length === 0) {
-      dataListContainer.innerHTML = `
+    if (materials.length === 0) {
+      stockContainer.innerHTML = `
         <div class="card" style="padding: 24px; text-align: center; color: var(--text-light);">
-          Belum ada data produk di database Supabase Anda.
+          Belum ada data bahan baku di database Supabase.
         </div>
       `;
       return;
     }
 
-    // Tampilkan data ke dalam susunan kartu (list-card)
-    dataListContainer.innerHTML = products.map(product => `
+    // Render list bahan baku dari Supabase
+    stockContainer.innerHTML = materials.map(mat => `
       <div class="card list-card">
         <div class="list-card-top">
           <div>
-            <span class="badge badge-primary">${product.category || 'Coffee'}</span>
+            <span class="badge badge-success">Gudang Utama</span>
           </div>
-          <strong class="text-sm font-semibold" style="color: var(--text-light);">SKU: ${product.sku || 'N/A'}</strong>
+          <span class="text-xs text-light">Min. Stok: ${mat.min_stock} ${mat.unit}</span>
         </div>
 
         <div style="display: flex; align-items: flex-start; gap: var(--space-md); padding: var(--space-xs) 0;">
-          <div class="icon-box" style="width: 44px; height: 44px; background: rgba(214, 90, 49, 0.1); color: var(--orange);">
-            <i data-lucide="coffee" style="width: 20px; height: 20px;"></i>
+          <div class="icon-box" style="width: 42px; height: 42px; background: rgba(16, 185, 129, 0.1); color: #10B981;">
+            <i data-lucide="package" style="width: 18px; height: 18px;"></i>
           </div>
           
-          <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-            <h3 class="font-bold" style="font-size: var(--text-md); color: var(--text);">
-              ${product.name}
-            </h3>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+            <strong style="font-size: var(--text-sm); color: var(--text); font-weight: var(--font-bold);">
+              ${mat.name}
+            </strong>
             <p class="text-light text-xs">
-              ${product.description || 'Tidak ada deskripsi produk.'}
+              ${mat.description || 'Tidak ada deskripsi.'}
             </p>
             
-            <div style="display: flex; align-items: center; gap: var(--space-sm); margin-top: 4px;">
-              <span class="badge" style="background: var(--bg); color: var(--text); height: 22px;">
-                Rp ${Number(product.price).toLocaleString('id-ID')} / ${product.unit || 'kg'}
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-xs);">
+              <span class="text-xs font-semibold" style="color: ${mat.stock <= mat.min_stock ? '#EF4444' : 'var(--text-light)'}">
+                Stok Saat Ini:
               </span>
-              <span class="text-light text-xs" style="display: flex; align-items: center; gap: 4px;">
-                <i data-lucide="layers" style="width: 12px; height: 12px;"></i> BOM: ${product.bom_count || 0} Bahan
-              </span>
+              <strong style="font-size: var(--text-md); color: ${mat.stock <= mat.min_stock ? '#EF4444' : '#10B981'}">
+                ${mat.stock} ${mat.unit}
+              </strong>
             </div>
-          </div>
-        </div>
-
-        <div class="list-card-footer" style="border-top: 1px solid var(--border); padding-top: var(--space-sm); margin-top: var(--space-xs);">
-          <span class="text-light text-xs">Active Master</span>
-          <div style="display: flex; gap: var(--space-xs);">
-            <button class="btn btn-soft" style="padding: var(--space-xs) var(--space-sm); font-size: var(--text-xs);">
-              BOM
-            </button>
-            <button class="btn btn-soft detail-btn">
-              Edit
-            </button>
           </div>
         </div>
       </div>
     `).join('');
 
-    // Render ulang icon Lucide agar muncul di kartu yang baru dibuat
+    // Render ulang icon Lucide
     if (window.lucide) {
       window.lucide.createIcons();
     }
@@ -92,22 +79,22 @@ export function ProductPage() {
     <section class="list-page">
       <div class="card search-box">
         <i data-lucide="search"></i>
-        <input type="text" placeholder="Cari produk..." />
+        <input type="text" placeholder="Cari bahan baku..." />
       </div>
 
       <div class="filter-scroll">
         <button class="filter-chip active">Semua</button>
-        <button class="filter-chip">Coffee Blend</button>
-        <button class="filter-chip">RTD Beverages</button>
+        <button class="filter-chip">Bahan Baku</button>
+        <button class="filter-chip">Kemasan</button>
       </div>
 
-      <div class="data-list product-data-list">
+      <div class="data-list stock-data-list">
         <div style="display: flex; justify-content: center; padding: 40px; color: var(--text-light);">
-          <p>Memuat data master produk dari Supabase...</p>
+          <p>Memuat data stok dari Supabase...</p>
         </div>
       </div>
 
-      <button class="fab-btn" onclick="window.navigate('create-product')">
+      <button class="fab-btn" onclick="window.navigate('create-stock')">
         <i data-lucide="plus"></i>
       </button>
     </section>
