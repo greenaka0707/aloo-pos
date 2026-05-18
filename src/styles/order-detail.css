@@ -2,11 +2,12 @@
   display: flex;
   flex-direction: column;
 
-  /* REVISI: Mengurangi gap antar seksi utama agar informasi lebih cepat terbaca */
+  /* Jarak antar seksi utama */
   gap: 12px;
 
-  /* Jarak bawah ditambah sedikit karena ada tombol aksi melayang di atas nav */
-  padding-bottom: 160px;
+  /* REVISI: Disesuaikan menjadi 100px agar ketika discroll sampai mentok bawah, 
+     tombol tidak tertutup oleh bottom-nav kamu yang setinggi 78px */
+  padding-bottom: 100px;
 }
 
 /* =========================
@@ -17,11 +18,11 @@
   display: flex;
   align-items: center;
 
-  gap: 12px; /* Dirapatkan sedikit */
+  gap: 12px; 
 }
 
 .detail-header-text h2 {
-  font-size: 22px; /* Menjaga ID Order (SO-001) tetap tegas tapi proporsional */
+  font-size: 22px; 
 }
 
 .detail-header-text p {
@@ -34,7 +35,6 @@
 ========================= */
 
 .detail-status-card {
-  /* REVISI: Pangkas padding dari 22px ke 14px */
   padding: 14px;
 
   display: flex;
@@ -52,7 +52,6 @@
 ========================= */
 
 .detail-card {
-  /* REVISI: Samakan standar padding card mobile menjadi 14px - 16px */
   padding: 16px;
 }
 
@@ -62,12 +61,11 @@
 
   gap: 12px;
 
-  /* REVISI: Jarak judul card ke konten di bawahnya dikompakkin */
   margin-bottom: 14px;
 }
 
 .card-title h3 {
-  font-size: 16px; /* Ukuran ideal judul seksi di dalam card */
+  font-size: 16px; 
 }
 
 /* =========================
@@ -78,19 +76,18 @@
   display: flex;
   flex-direction: column;
 
-  /* REVISI: Jarak antar baris informasi (Nama, Telepon, Alamat) */
   gap: 12px;
 }
 
 .info-item span {
-  font-size: 12px; /* Label informasi (ex: Alamat) */
+  font-size: 12px; 
 }
 
 .info-item strong {
   display: block;
 
   margin-top: 2px;
-  font-size: 14px; /* Value informasi (ex: Surabaya) */
+  font-size: 14px; 
 }
 
 /* =========================
@@ -116,7 +113,7 @@
 }
 
 .product-item > strong {
-  font-size: 15px; /* Sizing berat/total harga di sebelah kanan */
+  font-size: 15px; 
 }
 
 /* =========================
@@ -127,7 +124,7 @@
   display: flex;
   flex-direction: column;
 
-  gap: 10px; /* Dirapatkan dari 18px agar list bahan baku rapi */
+  gap: 10px; 
 }
 
 .bom-item {
@@ -146,7 +143,6 @@
   display: flex;
   flex-direction: column;
 
-  /* REVISI: Merapatkan jarak antar status pelacakan timeline */
   gap: 16px; 
 }
 
@@ -163,7 +159,7 @@
 }
 
 .timeline-dot {
-  width: 10px; /* Sedikit dikecilkan agar sleek */
+  width: 10px; 
   height: 10px;
 
   margin-top: 5px;
@@ -191,34 +187,30 @@
 ========================= */
 
 .detail-actions {
-  position: fixed;
-
-  /* REVISI: Mengikuti pola melayang melengkung agar serasi dengan bottom nav */
-  left: 16px;
-  right: 16px;
-  
-  /* REVISI UTAMA: Ditempatkan pas di atas bottom nav melayang (68px height + 16px bottom) */
-  bottom: 92px; 
+  /* REVISI UTAMA: Mengubah dari melayang (fixed) menjadi bagian dari aliran halaman normal (static) */
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto; 
 
   display: flex;
-
   gap: 10px;
 
-  /* Padding box diperkecil agar tidak terlalu tebal memakan area konten */
-  padding: 12px;
+  /* REVISI: Mengubah padding agar menyatu sebagai card horizontal biasa */
+  padding: 16px;
 
-  background: rgba(255, 255, 255, 0.95);
-
-  backdrop-filter: blur(20px);
-  
-  border-radius: 16px;
+  /* REVISI: Mengikuti styling dasar .card bawaan agar senada dengan komponen di atasnya */
+  background: var(--white);
+  border-radius: var(--radius-xl);
   border: 1px solid var(--border);
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.03);
-  z-index: 990;
+  box-shadow: var(--shadow);
+  
+  /* Jarak atas dari card sebelumnya (Timeline) */
+  margin-top: 8px;
+  z-index: 10;
 }
 
 .action-btn {
-  /* REVISI: Tinggi tombol disesuaikan dari 52px ke 46px agar jempol nyaman mengetuk */
   height: 46px;
 
   font-size: 14px;
