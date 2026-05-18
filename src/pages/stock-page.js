@@ -61,7 +61,10 @@ export function StockPage() {
 
         <!-- ITEM -->
 
-        <div class="card stock-card">
+        <div
+          class="card stock-card"
+          onclick="window.navigate('stock-detail')"
+        >
 
           <div class="stock-top">
 
@@ -117,7 +120,10 @@ export function StockPage() {
               Updated 15 Mei 2026
             </span>
 
-            <button class="btn btn-soft detail-btn">
+            <button
+              class="btn btn-soft detail-btn"
+              onclick="event.stopPropagation(); window.navigate('stock-detail')"
+            >
               Detail
             </button>
 
@@ -127,7 +133,10 @@ export function StockPage() {
 
         <!-- ITEM -->
 
-        <div class="card stock-card stock-warning">
+        <div
+          class="card stock-card stock-warning"
+          onclick="window.navigate('stock-detail')"
+        >
 
           <div class="stock-top">
 
@@ -183,7 +192,10 @@ export function StockPage() {
               Restock dibutuhkan
             </span>
 
-            <button class="btn btn-soft detail-btn">
+            <button
+              class="btn btn-soft detail-btn"
+              onclick="event.stopPropagation(); window.navigate('stock-detail')"
+            >
               Detail
             </button>
 
