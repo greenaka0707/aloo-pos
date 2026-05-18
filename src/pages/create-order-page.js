@@ -15,10 +15,19 @@ export default function CreateOrderPage() {
     const container = document.querySelector(".create-page");
     if (!container) return;
 
-    // Fix Posisi Tombol Aksi: Dorong ke luar container paling bawah biar lengket di layar HP
+    // Fix Posisi Tombol Aksi: Dorong ke luar container paling bawah biar lengket melayang di layar HP
     const actionsArea = container.querySelector(".detail-actions");
     if (actionsArea && appLayout && actionsArea.parentElement !== appLayout) {
       appLayout.appendChild(actionsArea);
+      // Tambahkan inline style super kuat agar tombol melayang tebal di atas keyboard/elemen lain
+      actionsArea.style.position = "fixed";
+      actionsArea.style.bottom = "0";
+      actionsArea.style.left = "0";
+      actionsArea.style.right = "0";
+      actionsArea.style.zIndex = "3000";
+      actionsArea.style.background = "var(--white)";
+      actionsArea.style.padding = "var(--space-md) var(--space-lg)";
+      actionsArea.style.boxShadow = "0 -4px 16px rgba(0, 0, 0, 0.08)";
     }
 
     // Capture semua elemen input kontrol DOM
@@ -92,7 +101,6 @@ export default function CreateOrderPage() {
 
         if (!error && customers) {
           if (customers.length === 0) {
-            // Jika customer tidak ada, tawarkan modal buat baru di tempat
             customerFloat.innerHTML = `
               <div class="float-item-action" style="padding: var(--space-sm); text-align: center; color: var(--orange); font-weight: bold; cursor: pointer;">
                 <i data-lucide="plus-circle" style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-right:4px;"></i>
@@ -134,7 +142,6 @@ export default function CreateOrderPage() {
         if (window.lucide) window.lucide.createIcons();
       });
 
-      // Tutup floating card pas ngeklik area luar skrin
       document.addEventListener("click", (e) => {
         if (!customerInput.contains(e.target) && !customerFloat.contains(e.target)) {
           customerFloat.style.display = "none";
@@ -142,7 +149,6 @@ export default function CreateOrderPage() {
       });
     }
 
-    // Logika Simpan Customer Baru via Modal
     if (saveNewCustomerBtn && customerModal) {
       saveNewCustomerBtn.addEventListener("click", async () => {
         const nameVal = newCustName.value.trim();
@@ -159,7 +165,6 @@ export default function CreateOrderPage() {
           selectedCustomer = { id: data[0].id, name: data[0].name };
           if (customerInput) customerInput.value = data[0].name;
           customerModal.style.display = "none";
-          // Reset kolom input form modal
           if (newCustPhone) newCustPhone.value = "";
           if (newCustAddress) newCustAddress.value = "";
         } else {
@@ -210,14 +215,12 @@ export default function CreateOrderPage() {
               const target = evt.currentTarget;
               const pId = parseInt(target.dataset.id);
               
-              // Validasi agar satu produk tidak masuk berkali-kali ke dalam daftar keranjang
               if (cart.some(item => item.id === pId)) {
                 productFloat.style.display = "none";
                 productInput.value = "";
                 return;
               }
 
-              // Masukkan barang ke array keranjang dinamis
               cart.push({
                 id: pId,
                 name: target.dataset.name,
@@ -225,7 +228,7 @@ export default function CreateOrderPage() {
                 unit: target.dataset.unit,
                 category: target.dataset.category,
                 qty: 1,
-                price: 25000 // Harga baseline default awal
+                price: 25000 
               });
 
               productFloat.style.display = "none";
@@ -247,14 +250,14 @@ export default function CreateOrderPage() {
     // 4. CORE ENGINE DATA: HITUNG & RENDER UTAMA (CART, BOM, & KEUANGAN)
     // ==========================================================================
     function calculateAndRender() {
-      // Render Baris Item Keranjang Belanja
       if (cart.length === 0) {
         cartContainer.innerHTML = `
-          <p class="text-light text-xs" style="text-align: center; padding: var(--space-md);">
+          <p class="text-light text-xs" style="text-align: center; padding: var(--space-md); background: var(--white); border-radius: var(--radius-md); margin-bottom: var(--space-md); border: 1px dashed var(--border);">
             Belum ada produk terpilih harian.
           </p>
         `;
       } else {
+        // PERBAIKAN UTAMA: Mengembalikan input qty dan harga ke type="text" inputmode="numeric"
         cartContainer.innerHTML = cart.map((item, idx) => `
           <div class="card create-card" style="margin-bottom: var(--space-sm); border: 1px solid var(--border);">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-sm); padding-bottom: 4px; border-bottom: 1px solid var(--border);">
@@ -269,12 +272,12 @@ export default function CreateOrderPage() {
             <div class="form-grid-2">
               <div class="form-group">
                 <label class="form-label">Qty (${item.unit})</label>
-                <input type="number" class="input cart-qty" data-idx="${idx}" value="${item.qty}" min="1" step="any" />
+                <input type="text" inputmode="numeric" class="input cart-qty" data-idx="${idx}" value="${item.qty}" />
               </div>
 
               <div class="form-group">
                 <label class="form-label">Harga (Rp)</label>
-                <input type="number" class="input cart-price" data-idx="${idx}" value="${item.price}" min="0" />
+                <input type="text" inputmode="numeric" class="input cart-price" data-idx="${idx}" value="${item.price}" />
               </div>
             </div>
 
@@ -287,7 +290,6 @@ export default function CreateOrderPage() {
           </div>
         `).join('');
 
-        // Pasang Event Listener Interaktif untuk baris Qty & Harga di dalam cart
         cartContainer.querySelectorAll(".cart-qty").forEach(input => {
           input.addEventListener("input", (e) => {
             const idx = parseInt(e.target.dataset.idx);
@@ -319,17 +321,13 @@ export default function CreateOrderPage() {
       let totalJagungNeeded = 0;
 
       cart.forEach(item => {
-        // Analisis dipicu jika kuantitas pesanan melebihi stok fisik gudang
         if (item.qty > item.stock) {
           const shortage = item.qty - item.stock;
-
-          // Simulasi racikan khusus Kopi Giras atau Blend dengan rasio komposisi 1:1
           if (item.name.toLowerCase().includes("giras") || item.name.toLowerCase().includes("blend")) {
             needsProduction = true;
-            totalRobustaNeeded += (shortage * 0.5); // 50% Robusta
-            totalJagungNeeded += (shortage * 0.5);  // 50% Jagung Penolong
+            totalRobustaNeeded += (shortage * 0.5); 
+            totalJagungNeeded += (shortage * 0.5);  
           } else if (item.category === 'kopi_bubuk' || item.category === 'roastedbean') {
-            // Asumsi varian single origin murni tanpa racikan campuran
             needsProduction = true;
             totalRobustaNeeded += shortage; 
           }
@@ -379,11 +377,10 @@ export default function CreateOrderPage() {
       bayarInput.addEventListener("input", calculateAndRender);
     }
 
-    // Initialize render awal
     calculateAndRender();
 
     // ==========================================================================
-    // 5. SUBMIT DATA KE SUPABASE (DATABASE CORE EXECUTION)
+    // 5. SUBMIT DATA KE SUPABASE
     // ==========================================================================
     if (actionsArea) {
       const submitBtn = actionsArea.querySelector(".primary-action");
@@ -412,16 +409,6 @@ export default function CreateOrderPage() {
             const payAmount = parseFloat(bayarInput?.value) || 0;
             const netAmount = subtotalTotal;
 
-            // 5.1 PENENTUAN STATUS PEMBAYARAN OTOMATIS SESUAI LOGIKA BISNIS
-            let paymentStatus = 'pending'; // Default antrean masuk pending
-            if (payAmount === 0) {
-              paymentStatus = 'pending'; // Belum lunas
-            } else if (payAmount > 0 && payAmount < netAmount) {
-              paymentStatus = 'pending'; // Masuk hitungan DP (Status SO tetap pending produksi)
-            } else if (payAmount >= netAmount) {
-              // Jika lunas dan barang tidak butuh produksi (ready), bisa langsung diset lunas
-            }
-
             // A. Kirim Data ke Nota Induk (sales_orders)
             const { data: orderData, error: orderError } = await supabase
               .from('sales_orders')
@@ -434,7 +421,7 @@ export default function CreateOrderPage() {
                 discount: 0,
                 net_amount: netAmount,
                 payment_method: payAmount >= netAmount ? 'QRIS' : 'Cash',
-                status: 'pending' // Sesuai perintah: Otomatis masuk status pending
+                status: 'pending' 
               }])
               .select();
 
@@ -458,7 +445,6 @@ export default function CreateOrderPage() {
 
             alert(`🎉 Sales Order ${invoiceNo} Berhasil Disimpan ke Antrean Pending!`);
             
-            // Bersihkan tombol di luar scope layout, lalu kembali ke list utama
             if (actionsArea && actionsArea.parentElement === appLayout) {
               appLayout.removeChild(actionsArea);
             }
@@ -474,7 +460,6 @@ export default function CreateOrderPage() {
         });
       }
 
-      // Tombol Cancel / Kembali
       if (draftBtn) {
         draftBtn.innerHTML = "Kembali";
         draftBtn.addEventListener("click", () => {
@@ -489,7 +474,7 @@ export default function CreateOrderPage() {
   }, 50);
 
   return `
-    <section class="create-page" style="padding-bottom: 120px;">
+    <section class="create-page" style="padding-bottom: 140px;">
 
       <div class="card create-card">
         <div class="form-group">
@@ -525,8 +510,7 @@ export default function CreateOrderPage() {
         </div>
       </div>
 
-      <div id="cart-items-container">
-        </div>
+      <div id="cart-items-container"></div>
 
       <div class="card create-card" id="manufacturing-analysis-card" style="display: none;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md);">
@@ -546,8 +530,7 @@ export default function CreateOrderPage() {
           </p>
         </div>
 
-        <div class="detail-info" id="bom-details-list" style="gap: var(--space-sm);">
-          </div>
+        <div class="detail-info" id="bom-details-list" style="gap: var(--space-sm);"></div>
       </div>
 
       <div class="card create-card">
@@ -572,7 +555,7 @@ export default function CreateOrderPage() {
       <div class="card create-card">
         <div class="form-group">
           <label class="form-label">Nominal Pembayaran Saat Ini (Rp)</label>
-          <input type="number" id="pay-amount" inputmode="numeric" class="input" placeholder="0" min="0" />
+          <input type="text" id="pay-amount" inputmode="numeric" class="input" placeholder="0" />
         </div>
       </div>
 
