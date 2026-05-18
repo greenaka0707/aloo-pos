@@ -369,7 +369,7 @@ export default function CreateOrderPage() {
     renderCartStructure();
 
     // ==========================================================================
-    // 5. SUBMIT DATA KE SUPABASE
+    // 5. SUBMIT DATA KE SUPABASE (SUNTIK LOGIKA AUTO-INSERT PRODUKSI)
     // ==========================================================================
     const actionsArea = container.querySelector(".detail-actions");
     if (actionsArea) {
@@ -398,6 +398,25 @@ export default function CreateOrderPage() {
             const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
             const payAmount = parseFloat(bayarInput?.value) || 0;
 
+            // A. Deteksi dini apakah ada item yang kurang stok dan butuh giling harian
+            let autoNeedsProduction = false;
+            let targetShortageProduct = null;
+            let calculatedShortageQty = 0;
+
+            cart.forEach(item => {
+              if (item.qty > item.stock) {
+                autoNeedsProduction = true;
+                // Kita kunci info produk pertama yang memicu kekurangan untuk antrean awal
+                if (!targetShortageProduct) {
+                  targetShortageProduct = item;
+                  calculatedShortageQty = item.qty - item.stock;
+                }
+              }
+            });
+
+            // Tentukan status order: jika kurang stok set ke 'butuh produksi', jika aman tetap 'pending'
+            const finalOrderStatus = autoNeedsProduction ? 'butuh produksi' : 'pending';
+
             const { data: orderData, error: orderError } = await supabase
               .from('sales_orders')
               .insert([{
@@ -409,7 +428,7 @@ export default function CreateOrderPage() {
                 discount: 0,
                 net_amount: subtotalTotal,
                 payment_method: payAmount >= subtotalTotal ? 'QRIS' : 'Cash',
-                status: 'pending' 
+                status: finalOrderStatus 
               }])
               .select();
 
@@ -428,7 +447,25 @@ export default function CreateOrderPage() {
 
             if (itemsError) throw itemsError;
 
-            alert(`🎉 Sales Order ${invoiceNo} Berhasil Disimpan ke Antrean Pending!`);
+            // ==========================================================================
+            // LOGIKA TAMBAHAN: AUTO-INSERT DATA KE LIST PRODUKSI SAAT SIMPAN ORDER
+            // ==========================================================================
+            if (autoNeedsProduction && targetShortageProduct) {
+              const generatedPrdNo = 'PRD-' + today.replace(/-/g, '') + '-' + Date.now().toString().slice(-4);
+              
+              await supabase
+                .from('productions')
+                .insert([{
+                  production_no: generatedPrdNo,
+                  production_date: dateInput?.value || today,
+                  product_id: targetShortageProduct.id,
+                  qty_produced: calculatedShortageQty,
+                  sales_order_id: orderData[0].id,
+                  notes: `Auto-generated dari transaksi penjualan kasir ${invoiceNo}`
+                }]);
+            }
+
+            alert(`🎉 Sales Order ${invoiceNo} Berhasil Disimpan ke Antrean ${finalOrderStatus.toUpperCase()}!`);
             if (window.navigate) window.navigate('order');
 
           } catch (err) {
