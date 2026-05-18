@@ -173,14 +173,108 @@ export function OrderDetailPage() {
     }
 
     // ==========================================================================
-    // 3. CORE TRIGGER UPDATE STATUS & EKSEKUSI ARUS MUTASI STOK
+    // 3. GENERATOR PDF INVOICE A5 (SHAREABLE VIA WHATSAPP)
+    // ==========================================================================
+    function downloadInvoiceA5() {
+      if (!orderDataLocal) return;
+
+      const cust = orderDataLocal.customers || {};
+      
+      // Susun elemen HTML Invoice dengan format layout cetak A5 bersih nan minimalis
+      const element = document.createElement("div");
+      element.style.padding = "30px";
+      element.style.width = "148mm";  // Presisi Lebar kertas A5 standard
+      element.style.fontFamily = "sans-serif";
+      element.style.color = "#1F2937";
+      element.style.backgroundColor = "#FFFFFF";
+
+      element.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #E5E7EB; padding-bottom:15px; margin-bottom:20px;">
+          <div>
+            <h1 style="margin:0; font-size:22px; color:#F97316; font-weight:800; letter-spacing:-0.5px;">ALOO COFFEE</h1>
+            <p style="margin:2px 0 0 0; font-size:10px; color:#6B7280;">Surabaya, Indonesia</p>
+          </div>
+          <div style="text-align:right;">
+            <h2 style="margin:0; font-size:14px; color:#1F2937; font-weight:700;">SALES INVOICE</h2>
+            <p style="margin:2px 0 0 0; font-size:11px; font-weight:600; color:#4B5563;">${orderDataLocal.invoice_no}</p>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-bottom:25px; font-size:11px; line-height:1.5;">
+          <div>
+            <span style="color:#9CA3AF; display:block; text-transform:uppercase; font-size:9px; font-weight:700; margin-bottom:4px;">Tujuan Pengiriman:</span>
+            <strong style="font-size:12px; color:#111827; display:block;">${cust.name || "Tanpa Nama"}</strong>
+            <span style="display:block; color:#4B5563; max-width:180px;">${cust.address || "-"}</span>
+            <span style="display:block; color:#4B5563;">Telp: ${cust.phone || "-"}</span>
+          </div>
+          <div style="text-align:right;">
+            <span style="color:#9CA3AF; display:block; text-transform:uppercase; font-size:9px; font-weight:700; margin-bottom:4px;">Detail Nota:</span>
+            <span>Tanggal: <strong>${orderDataLocal.order_date}</strong></span><br/>
+            <span>Salesman: <strong>${orderDataLocal.salesmen?.name || "-"}</strong></span><br/>
+            <span>Status: <strong style="color:#F97316;">${orderDataLocal.status?.toUpperCase()}</strong></span>
+          </div>
+        </div>
+
+        <table style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:25px;">
+          <thead>
+            <tr style="background-color:#F9FAFB; border-bottom:1px solid #E5E7EB;">
+              <th style="text-align:left; padding:8px; color:#4B5563; font-weight:700;">Nama Item Produk Kopi</th>
+              <th style="text-align:center; padding:8px; color:#4B5563; font-weight:700; width:50px;">Qty</th>
+              <th style="text-align:right; padding:8px; color:#4B5563; font-weight:700; width:80px;">Harga</th>
+              <th style="text-align:right; padding:8px; color:#4B5563; font-weight:700; width:90px;">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${orderItemsLocal.map(item => {
+              const p = item.products || {};
+              return `
+                <tr style="border-bottom:1px solid #F3F4F6;">
+                  <td style="padding:10px 8px; font-weight:600; color:#111827;">${p.name || "Item"}</td>
+                  <td style="text-align:center; padding:10px 8px; color:#4B5563;">${item.qty} ${p.unit || 'kg'}</td>
+                  <td style="text-align:right; padding:10px 8px; color:#4B5563;">Rp ${(item.unit_price || 0).toLocaleString('id-ID')}</td>
+                  <td style="text-align:right; padding:10px 8px; font-weight:700; color:#111827;">Rp ${(item.qty * item.unit_price).toLocaleString('id-ID')}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; border-top:1px solid #E5E7EB; padding-top:15px; font-size:11px;">
+          <div style="color:#9CA3AF; font-style:italic; font-size:10px; max-width:200px; line-height:1.4;">
+            * Dokumen ini sah dikeluarkan oleh sistem ALOO POS sebagai tanda bukti transaksi pemesanan lapangan.
+          </div>
+          <div style="width:200px; text-align:right;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px;">
+              <span style="color:#4B5563; font-weight:600;">Total Netto:</span>
+              <strong style="color:#111827; font-size:13px;">Rp ${(orderDataLocal.total_amount || 0).toLocaleString('id-ID')}</strong>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Konfigurasi parameter render html2pdf engine khusus ukuran kertas setengah A4 (A5 Portrait)
+      const opt = {
+        margin:       0,
+        filename:     `Invoice_${orderDataLocal.invoice_no}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a5', orientation: 'portrait' }
+      };
+
+      // Eksekusi generator file PDF
+      window.html2pdf().set(opt).from(element).save();
+    }
+
+    // ==========================================================================
+    // 4. CORE TRIGGER UPDATE STATUS & EKSEKUSI ARUS MUTASI STOK
     // ==========================================================================
     function renderActionButtonsDOM() {
       const st = orderDataLocal.status;
       
-      // Tombol standar bawaan template lo
+      // Tambahkan tombol sakti "Cetak WA" di sebelah tombol Kembali agar sales gampang akses harian
       let leftButtonsHtml = `
         <button class="action-btn" id="btn-back-order" style="background:var(--border); color:var(--text); border:none;">Kembali</button>
+        <button class="action-btn" id="btn-print-invoice" style="background:var(--orange-soft); color:var(--orange); border:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:4px;">Cetak WA</button>
       `;
 
       if (st === "pending") {
@@ -190,15 +284,16 @@ export function OrderDetailPage() {
       } else if (st === "ready") {
         actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:#06B6D4; border:none; color:white;">Kirim Barang</button>`;
       } else {
-        // Status dikirim / selesai
         actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn" style="background:var(--border); border:none; color:var(--text-light);" disabled>Order Closed</button>`;
       }
 
-      // Handler klik kembali ke daftar antrean
+      // Pasang Event Klik Listener untuk trigger download PDF A5 instan
+      const printBtn = actionsArea.querySelector("#btn-print-invoice");
+      if (printBtn) printBtn.addEventListener("click", downloadInvoiceA5);
+
       const backBtn = actionsArea.querySelector("#btn-back-order");
       if (backBtn) backBtn.addEventListener("click", () => { if(window.navigate) window.navigate("order"); });
 
-      // Handler eksekusi perubahan status operasional
       const nextBtn = actionsArea.querySelector("#btn-next-status");
       if (nextBtn) {
         nextBtn.addEventListener("click", async () => {
@@ -210,11 +305,12 @@ export function OrderDetailPage() {
             nextBtn.disabled = true;
             nextBtn.textContent = "Updating...";
 
-            // LOGIKA UTAMA: JIKA STATUS BERUBAH MENJADI DIKIRIM -> POTONG STOK SEKALIGUS CATAT MUTASINYA
             if (nextStatus === "dikirim") {
               for (const item of orderItemsLocal) {
                 const p = item.products || {};
-                const newStock = (p.stock || 0) - item.qty;
+                const currentStock = parseFloat(p.stock) || 0;
+                const orderQty = parseFloat(item.qty) || 0;
+                const newStock = currentStock - orderQty;
 
                 // A. Kurangi kolom stok di tabel products
                 const { error: stockErr } = await supabase
@@ -229,15 +325,14 @@ export function OrderDetailPage() {
                   .insert([{
                     product_id: p.id,
                     type: "out",
-                    qty: item.qty,
+                    qty: orderQty,
                     reference_no: orderDataLocal.invoice_no,
-                    description: `Penjualan Nota Lapangan ke Customer Terpilih`
+                    description: `Penjualan Lapangan: ${orderDataLocal.invoice_no} (${orderDataLocal.customers?.name || 'Warung'})`
                   }]);
                 if (mutationErr) throw mutationErr;
               }
             }
 
-            // Eksekusi update status di data induk orderan
             const { error: updateErr } = await supabase
               .from("sales_orders")
               .update({ status: nextStatus })
@@ -245,8 +340,8 @@ export function OrderDetailPage() {
 
             if (updateErr) throw updateErr;
 
-            alert(`🎉 Status Order Resmi Naik Ke Tahap: ${nextStatus.toUpperCase()}!`);
-            fetchOrderDetail(); // Muat ulang visual komponen
+            alert(`🎉 Status Order Resmi Naik Ke Tahap: ${nextStatus.toUpperCase()}! Arus stok tercatat.`);
+            fetchOrderDetail(); 
 
           } catch (err) {
             alert("❌ Gagal merubah status operational: " + err.message);
