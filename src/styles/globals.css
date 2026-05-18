@@ -6,6 +6,8 @@
 @import "./order.css";
 @import "./order-detail.css";
 @import "./create-order.css";
+@import "./produksi.css";
+@import "./stock.css";
 
 @import "./bottom-nav.css";
 
@@ -25,8 +27,7 @@ body {
 
   color: var(--text);
 
-  /* LANGKAH 3: Mematikan auto-zoom akibat ketukan cepat/double-tap pada layar mobile */
-  touch-action: manipulation; 
+  touch-action: manipulation;
 }
 
 button,
@@ -35,8 +36,6 @@ select {
   font: inherit;
 }
 
-/* LANGKAH 2 UPDATE: Dikunci pakai !important agar semua halaman aman 
-   dari bug auto-zoom browser mobile saat keyboard aktif */
 input,
 select,
 textarea {
