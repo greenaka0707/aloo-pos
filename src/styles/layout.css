@@ -17,4 +17,26 @@
   flex-direction: column;
 
   gap: var(--section-gap);
+
+  /* PAGE TRANSITION */
+
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+
+  opacity: 1;
+
+  transform: translateY(0);
+}
+
+.app-content.page-leave {
+  opacity: 0;
+
+  transform: translateY(8px);
+}
+
+.app-content.page-enter {
+  opacity: 0;
+
+  transform: translateY(8px);
 }
