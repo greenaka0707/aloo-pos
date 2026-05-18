@@ -17,30 +17,34 @@
 }
 
 /* ==========================================================================
-   STICKY NAVBAR TOP (Pure White to Transparent Gradient - No Glass Blur)
+   STICKY NAVBAR TOP (Epic Frosted Glass & Shadow Back Button)
    ========================================================================== */
 .page-navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 72px; /* Ruang ideal untuk degradasi gradasi pudar yang halus */
   
-  /* REVISI: Efek glass blur dihapus total, murni linear gradient putih */
-  background: linear-gradient(
-    to bottom, 
-    rgba(255, 255, 255, 1) 0%, 
-    rgba(255, 255, 255, 0.8) 50%, 
-    rgba(255, 255, 255, 0) 100%
-  ); 
+  /* REVISI: Ukuran bar atas ditinggikan (dari 60px ke 72px) agar gak kekecilan */
+  height: 72px; 
   
-  /* Hilangkan border kaku biar gradasi menyatu bersih dengan latar halaman */
-  border-bottom: none; 
+  /* Efek semi-transparan putih bersih */
+  background: rgba(255, 255, 255, 0.75); 
+  
+  /* Memunculkan bayangan blur objek di belakang navbar saat digulung */
+  backdrop-filter: blur(12px); 
+  -webkit-backdrop-filter: blur(12px); /* Wajib untuk browser Safari iOS (iPhone) */
+  
+  /* Eliminasi border kaku, ganti dengan shadow transparan yang super halus */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02), 
+              0 1px 0px rgba(0, 0, 0, 0.04); 
+              
+  display: flex;
+  align-items: center;
+  
+  /* REVISI: Padding samping dinaikkan biar tulisan gak mepet (dari MD ke LG) */
+  padding: 0 var(--space-lg);
   z-index: 1000; /* Mengunci posisi di atas kartu-kartu konten */
-
-  /* TRICK PENTING: Menghilangkan interaksi sentuh di bagian bawah gradasi yang transparan 
-     supaya kartu di bawahnya tetap bisa di-klik jika pas berada di area pudar */
-  pointer-events: none; 
 }
 
 /* Struktur tata letak internal navbar */
@@ -49,10 +53,6 @@
   align-items: center;
   gap: var(--space-md);
   width: 100%;
-  
-  /* Mengaktifkan kembali deteksi sentuhan khusus untuk area tombol dan judul */
-  pointer-events: auto; 
-  padding-bottom: 12px; /* Dorong layout ke atas menjauhi area pudar transparan */
 }
 
 .navbar-title-wrapper {
@@ -61,23 +61,30 @@
 }
 
 .navbar-title {
-  font-size: var(--text-md); /* 14px tebal */
+  /* REVISI: Ukuran teks judul dinaikkan biar makin tebal & kebaca (MD ke Base) */
+  font-size: var(--text-base); /* 15px tebal */
   font-weight: var(--font-bold);
   color: var(--text);
   line-height: 1.2;
 }
 
 .navbar-subtitle {
-  font-size: 10px; /* Sangat kecil dan tipis agar hemat ruang vertikal */
+  font-size: 11px; /* Mini dan tipis agar hemat ruang vertikal */
   color: var(--text-light);
   margin-top: 1px;
 }
 
-/* Tombol Kembali (Back) Bulat Mini Khusus di Dalam Navbar */
+/* =========================
+   TOMBOL BACK BULAT BARU
+========================= */
 .page-navbar .btn-back {
-  width: 36px;
-  height: 36px;
-  background: rgba(0, 0, 0, 0.04); /* Background lingkaran abu transparan tipis */
+  /* REVISI: Ukuran tombol dinaikkan jadi 44px (ukuran standard Apple) biar gampang di-klik */
+  width: 44px;
+  height: 44px;
+  
+  /* REVISI: Warna background jadi putih solid (gabukan lagi transparan tipis) */
+  background: var(--white); 
+  
   border: none;
   border-radius: var(--radius-full);
   display: flex;
@@ -86,21 +93,27 @@
   color: var(--text);
   transition: var(--transition);
   padding: 0;
+  
+  /* REVISI: Tambahkan bayangan (shadow) tegas biar tombolnya melayang */
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08),
+              0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .page-navbar .btn-back:active {
-  background: rgba(0, 0, 0, 0.1);
+  transform: scale(0.96); /* Efek membal saat ditekan */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); /* Shadow berkurang saat ditekan */
 }
 
 .page-navbar .btn-back svg,
 .page-navbar .btn-back i {
-  width: 16px;
-  height: 16px;
-  stroke-width: 2.5; /* Ikon sedikit ditebalkan agar makin kontras */
+  /* REVISI: Ukuran ikon panah dinaikkan biar seimbang (16px ke 18px) */
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.5; /* Ikon panah makin tegas */
 }
 
 /* ==========================================================================
-   MAIN CONTENT AREA (SINKRONISASI PADDING NAVBAR GRADASI)
+   MAIN CONTENT AREA (SINKRONISASI PADDING NAVBAR)
    ========================================================================== */
 .app-content {
   /* Jadikan konten utama sebagai satu-satunya area yang boleh digulung */
@@ -114,8 +127,8 @@
   flex-direction: column;
   gap: var(--section-gap);
   
-  /* SINKRONISASI: Dikunci ke 88px (72px tinggi navbar gradasi + 16px gap luarnya)
-     agar data kartu paling atas pas bersandar tepat di bawah area putih solid gradasi */
+  /* REVISI: Padding atas konten disinkronkan biar kartu gak slips di bawah bar atas.
+     Padding sekarang 88px (72px tinggi bar + 16px gap luarnya) */
   padding-top: 88px;
   padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 20px);
   box-sizing: border-box;
