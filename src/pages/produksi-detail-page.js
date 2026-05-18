@@ -2,30 +2,12 @@ export function ProduksiDetailPage() {
   return `
     <section class="detail-page">
 
-      <div class="detail-header">
-        <button
-          class="btn-back"
-          onclick="window.navigate('produksi')"
-        >
-          <i data-lucide="arrow-left"></i>
-        </button>
-
-        <div class="detail-header-text">
-          <h2>PRD-001</h2>
-          <p>Produksi Detail</p>
-        </div>
-      </div>
-
       <div class="card detail-status-card">
         <div>
           <span class="detail-status-title">Status</span>
-          <h3 class="font-bold">
-            Produksi Berjalan
-          </h3>
+          <h3 class="font-bold">Produksi Berjalan</h3>
         </div>
-        <span class="badge badge-info">
-          Diproses
-        </span>
+        <span class="badge badge-info">Diproses</span>
       </div>
 
       <div class="card detail-card">
@@ -41,9 +23,7 @@ export function ProduksiDetailPage() {
             <strong class="title">Kopi Giras 1:1</strong>
             <span class="subtitle">Qty Produksi 50kg</span>
           </div>
-          <span class="badge badge-primary">
-            Manufacturing
-          </span>
+          <span class="badge badge-primary">Manufacturing</span>
         </div>
       </div>
 
@@ -52,7 +32,7 @@ export function ProduksiDetailPage() {
           <div class="icon-box">
             <i data-lucide="factory"></i>
           </div>
-          <h3>Bahan Produksi</h3>
+          <h3>Bahan Meracik</h3>
         </div>
 
         <div class="detail-info">
@@ -61,7 +41,7 @@ export function ProduksiDetailPage() {
               <strong class="title">RB Robusta Grade A</strong>
               <span class="subtitle">Need 25kg</span>
             </div>
-            <div class="detail-row-item" style="gap: var(--space-sm); padding: 0;">
+            <div class="detail-row-item" style="gap: var(--space-sm); padding: 0; align-items: center;">
               <span class="text-light text-xs">Stock 80kg</span>
               <span class="badge badge-success">Aman</span>
             </div>
@@ -72,7 +52,7 @@ export function ProduksiDetailPage() {
               <strong class="title">Jagung</strong>
               <span class="subtitle">Need 25kg</span>
             </div>
-            <div class="detail-row-item" style="gap: var(--space-sm); padding: 0;">
+            <div class="detail-row-item" style="gap: var(--space-sm); padding: 0; align-items: center;">
               <span class="text-light text-xs">Stock 12kg</span>
               <span class="badge badge-danger">Kurang</span>
             </div>
@@ -153,7 +133,7 @@ export function ProduksiDetailPage() {
             <div class="left-content">
               <span class="title">Kopi Giras 1:1</span>
             </div>
-            <strong class="right-value" style="color: var(--green);">+50kg</strong>
+            <strong class="right-value" style="color: #22C55E;">+50kg</strong>
           </div>
         </div>
       </div>
@@ -202,15 +182,9 @@ export function ProduksiDetailPage() {
       </div>
 
       <div class="detail-actions">
-        <button class="action-btn">
-          Pause
-        </button>
-        <button class="action-btn">
-          Edit
-        </button>
-        <button class="action-btn primary-action">
-          Finish
-        </button>
+        <button class="action-btn">Pause</button>
+        <button class="action-btn">Edit</button>
+        <button class="action-btn primary-action">Finish</button>
       </div>
 
     </section>
