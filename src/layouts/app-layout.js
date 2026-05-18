@@ -1,23 +1,34 @@
 import { BottomNav } from "../components/bottom-nav.js";
 
-// Objek Pemetaan Judul, Subjudul, dan Aturan Tombol Back berdasarkan Route ID
+/**
+ * METADATA NAVBAR UNIVERSAL
+ * Tempat mengatur Judul, Subjudul, dan Target Mundur (backTo) tiap halaman.
+ * Jika membuat halaman baru, Anda tinggal mendaftarkannya di objek ini.
+ */
 const navbarMeta = {
-  'dashboard': { title: 'Dashboard', subtitle: 'Manufacturing overview', showBack: false },
-  'order': { title: 'Sales Order', subtitle: 'Manufacturing sales workflow', showBack: false },
-  'create-order': { title: 'Create Order', subtitle: 'Sales order manufacturing', showBack: true, backTo: 'order' },
-  'pembelian': { title: 'Pembelian', subtitle: 'Supplier purchasing workflow', showBack: false },
-  'create-purchase': { title: 'Create Purchase', subtitle: 'Supplier purchasing workflow', showBack: true, backTo: 'pembelian' },
-  'produksi': { title: 'Produksi', subtitle: 'Manufacturing production workflow', showBack: false },
-  'stok': { title: 'Stock', subtitle: 'Inventory management', showBack: false },
-  'stock-detail': { title: 'Stock Detail', subtitle: 'Inventory item tracking', showBack: true, backTo: 'stok' }
+  'dashboard': { title: 'Dashboard', subtitle: 'Manufacturing overview', backTo: 'dashboard' },
+  'order': { title: 'Sales Order', subtitle: 'Manufacturing sales workflow', backTo: 'dashboard' },
+  'create-order': { title: 'Create Order', subtitle: 'Sales order manufacturing', backTo: 'order' },
+  'order-detail': { title: 'SO-001', subtitle: 'Sales Order Detail', backTo: 'order' },
+  'pembelian': { title: 'Pembelian', subtitle: 'Supplier purchasing workflow', backTo: 'dashboard' },
+  'create-purchase': { title: 'Create Purchase', subtitle: 'Supplier purchasing workflow', backTo: 'pembelian' },
+  'purchase-detail': { title: 'PO-001', subtitle: 'Purchase Detail', backTo: 'pembelian' },
+  'produksi': { title: 'Produksi', subtitle: 'Manufacturing production workflow', backTo: 'dashboard' },
+  'produksi-detail': { title: 'PRD-001', subtitle: 'Produksi Detail', backTo: 'produksi' },
+  'stok': { title: 'Stock', subtitle: 'Inventory management', backTo: 'dashboard' },
+  'stock-detail': { title: 'RB Robusta Grade A', subtitle: 'Stock Detail', backTo: 'stok' },
+  'laporan': { title: 'Laporan', subtitle: 'Operational analytics reporting', backTo: 'dashboard' },
+  'produk': { title: 'Produk', subtitle: 'Product master data list', backTo: 'dashboard' },
+  'akun': { title: 'Akun Saya', subtitle: 'User profile settings', backTo: 'dashboard' }
 };
 
 export function AppLayout({ content, route }) {
   // Ambil meta data berdasarkan route saat ini, jika tidak terdaftar pakai fallback default
-  const meta = navbarMeta[route] || { title: 'ERP POS', subtitle: 'PT Prabhaskoe', showBack: false };
+  const meta = navbarMeta[route] || { title: 'ERP POS', subtitle: 'PT Prabhaskoe', backTo: 'dashboard' };
 
-  // Buat HTML Tombol Back bulat jika nilai showBack bernilai true
-  const backButtonHtml = meta.showBack 
+  // OTOMATISASI TOMBOL BACK BULAT: Jika halaman aktif BUKAN 'dashboard', buatkan tombol kembali
+  const isDashboard = route === 'dashboard';
+  const backButtonHtml = !isDashboard 
     ? `<button class="btn-back" onclick="window.navigate('${meta.backTo}')">
          <i data-lucide="arrow-left"></i>
        </button>`
