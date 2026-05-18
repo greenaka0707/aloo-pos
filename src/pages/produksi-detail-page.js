@@ -180,13 +180,14 @@ export function ProduksiDetailPage() {
             `;
           }).join('');
 
-          // Append efek plus bertambahnya nominal barang kopi jadi matang
+          // Pas selesai produksi, murni hanya hasil roasting kopi matang bertambah masuk gudang (+ / IN)
           impactHtml += `
             <div class="detail-row-item" style="border-top:1px dashed var(--border); padding-top:var(--space-xs); margin-top:4px;">
-              <div class="left-content"><span class="title">${pName}</span></div>
+              <div class="left-content"><span class="title">${pName} (Hasil Roasting)</span></div>
               <strong class="right-value" style="color: #22C55E;">+${prod.qty_produced} ${pUnit}</strong>
             </div>
           `;
+
           stockImpactCard.innerHTML = impactHtml;
         }
 
@@ -215,11 +216,11 @@ export function ProduksiDetailPage() {
             </div>
             <div class="timeline-item ${isKelar ? 'active' : ''}">
               <div class="timeline-dot"></div>
-              <div><h4>Packing</h4><p>${isKelar ? 'Selesai Dikemas' : 'Menunggu'}</p></div>
+              <div><h4>Packing</h4><p>${isKelar ? 'Selesai Dikemas & Masuk Rak' : 'Menunggu'}</p></div>
             </div>
             <div class="timeline-item ${isKelar ? 'active' : ''}">
               <div class="timeline-dot"></div>
-              <div><h4>Finished</h4><p>${isKelar ? 'Barang Siap Keliling' : 'Belum selesai'}</p></div>
+              <div><h4>Finished</h4><p>${isKelar ? 'Stok Kopi Bertambah' : 'Belum selesai'}</p></div>
             </div>
           `;
         }
@@ -229,15 +230,13 @@ export function ProduksiDetailPage() {
         // ==========================================================================
         if (actionsArea) {
           if (currentStatus === "Ready" || currentStatus === "Selesai") {
-            // Jika sudah matang dikemas, kunci tombol & tampilkan tombol kembali murni
             if (finishBtn) finishBtn.style.display = "none";
             if (editBtn) editBtn.style.display = "none";
             if (pauseBtn) pauseBtn.style.display = "none";
             actionsArea.style.justifyContent = "center";
             actionsArea.innerHTML = `<button class="action-btn" style="flex:1;" onclick="window.navigate('produksi-list')">Kembali ke List</button>`;
           } else {
-            // Pasang event klik Finish jika statusnya masih berjalan (MTO)
-            setupFinishAction(prod);
+            setupFinishAction(prod, ingredients);
             if (pauseBtn) pauseBtn.onclick = () => alert("Aktivitas mesin berhasil di-pause sementara gais!");
             if (editBtn) editBtn.onclick = () => alert("Fitur penyesuaian batch resep dalam pengembangan gais!");
           }
@@ -251,9 +250,9 @@ export function ProduksiDetailPage() {
     }
 
     // ==========================================================================
-    // H. ACTION SUBMIT FINISH: KUNCI NOTA JUALAN JADI 'READY'
+    // H. ACTION SUBMIT FINISH: POTONG MENTAH (OUT) & TAMBAH MATANG (IN)
     // ==========================================================================
-    function setupFinishAction(prod) {
+    function setupFinishAction(prod, ingredients) {
       if (!finishBtn) return;
 
       const newFinishBtn = finishBtn.cloneNode(true);
@@ -261,15 +260,77 @@ export function ProduksiDetailPage() {
 
       newFinishBtn.addEventListener("click", async () => {
         if (isProcessing) return;
-        if (!confirm(`Konfirmasi batch ${prod.production_no}! Sah seluruh proses roasting selesai dan kopi siap dipacking?`)) return;
+        if (!confirm(`Konfirmasi batch ${prod.production_no}! Sah seluruh proses roasting selesai? Bahan mentah dipotong dan kopi matang masuk rak harian gais?`)) return;
 
         isProcessing = true;
         newFinishBtn.disabled = true;
         newFinishBtn.textContent = "Processing...";
 
         try {
+          // 1. POTONG STOK BAHAN BAKU MENTAH & MUTASI OUT
+          if (ingredients && ingredients.length > 0) {
+            for (const ing of ingredients) {
+              if (ing.products?.id && ing.qty_used > 0) {
+                const { data: currentMat } = await supabase
+                  .from("products")
+                  .select("stock")
+                  .eq("id", ing.products.id)
+                  .single();
+
+                const currentStockMat = parseFloat(currentMat?.stock || 0);
+                const usedQty = parseFloat(ing.qty_used);
+                const newStockMat = currentStockMat - usedQty;
+
+                await supabase
+                  .from("products")
+                  .update({ stock: newStockMat })
+                  .eq("id", ing.products.id);
+
+                await supabase
+                  .from("stock_mutations")
+                  .insert([{
+                    product_id: ing.products.id,
+                    type: "out",
+                    qty: usedQty,
+                    reference_no: prod.production_no,
+                    description: `Bahan baku dikonsumsi otomatis untuk roasting batch nomor ${prod.production_no}`
+                  }]);
+              }
+            }
+          }
+
+          // 2. TAMBAH STOK KOPI MATANG JADI & MUTASI IN (TETAP DIAM DI GUDANG)
+          if (prod.products?.id && prod.qty_produced > 0) {
+            const { data: currentProd } = await supabase
+              .from("products")
+              .select("stock")
+              .eq("id", prod.products.id)
+              .single();
+
+            const currentStockProd = parseFloat(currentProd?.stock || 0);
+            const producedQty = parseFloat(prod.qty_produced);
+            const newStockProd = currentStockProd + producedQty;
+
+            // Update stock bertambah di tabel products gudang utama
+            await supabase
+              .from("products")
+              .update({ stock: newStockProd })
+              .eq("id", prod.products.id);
+
+            // Masukkan log rekaman IN murni
+            await supabase
+              .from("stock_mutations")
+              .insert([{
+                product_id: prod.products.id,
+                type: "in",
+                qty: producedQty,
+                reference_no: prod.production_no,
+                description: `Hasil matang roasting bertambah dari batch produksi nomor ${prod.production_no}`
+              }]);
+          }
+
+          // 3. JIKA BERSUMBER DARI SALES ORDER, NAIKKAN STATUSNYA JADI READY
           if (prod.sales_order_id) {
-            // Naikkan status sales order penampung di database menjadi 'ready' (Siap bawa keliling)
             const { error: soErr } = await supabase
               .from("sales_orders")
               .update({ status: "ready" })
@@ -278,11 +339,11 @@ export function ProduksiDetailPage() {
             if (soErr) throw soErr;
           }
 
-          alert(`🎉 Sukses! Batch ${prod.production_no} dinyatakan matang sempurna gais.`);
-          loadProductionDetail(); // Reload UI biar semua baris berubah warna hijau sukses
+          alert(`🎉 Sesi produksi selesai! Bahan mentah berhasil dipotong (OUT) dan kopi matang bertambah masuk rak (IN) gais!`);
+          loadProductionDetail();
 
         } catch (err) {
-          alert("❌ Gagal menutup sesi produksi: " + err.message);
+          alert("❌ Gagal memproses mutasi stok produksi: " + err.message);
         } finally {
           isProcessing = false;
           newFinishBtn.disabled = false;
@@ -310,7 +371,7 @@ export function ProduksiDetailPage() {
       <div class="card detail-card">
         <div class="card-title">
           <div class="icon-box"><i data-lucide="package"></i></div>
-          <h3>Produk Produksi</h3>
+          <h3>Produk ...</h3>
         </div>
         <div class="detail-info"><p class="text-xs text-light">Memuat nama item...</p></div>
       </div>
@@ -326,7 +387,7 @@ export function ProduksiDetailPage() {
       <div class="card detail-card">
         <div class="card-title">
           <div class="icon-box"><i data-lucide="activity"></i></div>
-          <h3>Progress Produksi</h3>
+          <h3>Progress ...</h3>
         </div>
         <div class="timeline"></div>
       </div>
