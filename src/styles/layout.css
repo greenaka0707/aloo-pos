@@ -1,5 +1,5 @@
 /* ==========================================================================
-   APP CONTAINER LAYOUT (Fixing Viewport & Sticky FAB Bug Resolved)
+   APP CONTAINER LAYOUT (With Epic Sticky Top Navbar & Sticky FAB)
    ========================================================================== */
 
 .app-layout {
@@ -16,6 +16,88 @@
   flex-direction: column;
 }
 
+/* ==========================================================================
+   STICKY NAVBAR TOP (Epic Frosted Glass - Skena & Kalcer Approved)
+   ========================================================================== */
+.page-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px; /* Tinggi ideal bar atas mobile */
+  
+  /* Efek semi-transparan putih bersih */
+  background: rgba(255, 255, 255, 0.75); 
+  
+  /* Memunculkan bayangan blur objek di belakang navbar saat digulung */
+  backdrop-filter: blur(12px); 
+  -webkit-backdrop-filter: blur(12px); /* Wajib untuk browser Safari iOS (iPhone) */
+  
+  /* Eliminasi border kaku, ganti dengan double shadow super tipis ke bawah */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02), 
+              0 1px 0px rgba(0, 0, 0, 0.04); 
+              
+  display: flex;
+  align-items: center;
+  padding: 0 var(--page-padding);
+  z-index: 1000; /* Mengunci posisi di atas kartu-kartu konten */
+}
+
+/* Struktur tata letak internal navbar */
+.navbar-container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
+}
+
+.navbar-title-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar-title {
+  font-size: var(--text-md); /* 14px tebal */
+  font-weight: var(--font-bold);
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.navbar-subtitle {
+  font-size: 10px; /* Sangat kecil dan tipis agar hemat ruang vertikal */
+  color: var(--text-light);
+  margin-top: 1px;
+}
+
+/* Tombol Kembali (Back) Bulat Mini Khusus di Dalam Navbar */
+.page-navbar .btn-back {
+  width: 36px;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.04); /* Background lingkaran abu transparan tipis */
+  border: none;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  transition: var(--transition);
+  padding: 0;
+}
+
+.page-navbar .btn-back:active {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.page-navbar .btn-back svg,
+.page-navbar .btn-back i {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.5; /* Ikon sedikit ditebalkan agar makin kontras */
+}
+
+/* ==========================================================================
+   MAIN CONTENT AREA (SINKRONISASI PADDING NAVBAR)
+   ========================================================================== */
 .app-content {
   /* Jadikan konten utama sebagai satu-satunya area yang boleh digulung */
   flex: 1;
@@ -28,12 +110,13 @@
   flex-direction: column;
   gap: var(--section-gap);
   
-  /* Bantalan bawah wajib di sini agar kartu terakhir berhenti persis di atas menu bawah */
+  /* REVISI PADDING ATAS: Dikunci ke 76px (60px tinggi navbar + 16px gap luarnya)
+     agar data paling atas tidak tertutup atau slip di bawah kaca navbar */
+  padding-top: 76px;
   padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 20px);
   box-sizing: border-box;
 
-  /* REVISI ANIMASI TRANSISI MOBILE:
-     Menggunakan opacity & margin agar tidak merusak konteks jangkaran position: fixed pada FAB */
+  /* TRANSISI ANIMASI MOBILE (Tetap aman pakai margin agar FAB sticky) */
   transition: 
     opacity 150ms ease-out, 
     margin-top 150ms cubic-bezier(0.25, 0.8, 0.25, 1);
