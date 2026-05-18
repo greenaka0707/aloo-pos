@@ -1,0 +1,23 @@
+.produksi-card .order-body {
+  gap: 14px;
+}
+
+.produksi-bom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bom-chip {
+  padding: 6px 10px;
+
+  border-radius: var(--radius-full);
+
+  background: var(--orange-soft);
+
+  color: var(--orange);
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
