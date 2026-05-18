@@ -8,6 +8,7 @@ import { ProduksiListPage } from "../pages/produksi-list-page.js";
 import { ProduksiDetailPage } from "../pages/produksi-detail-page.js";
 
 import { StockPage } from "../pages/stock-page.js";
+import { StockDetailPage } from "../pages/stock-detail-page.js";
 
 export function renderRoute(route) {
 
@@ -33,6 +34,9 @@ export function renderRoute(route) {
 
     case "stok":
       return StockPage();
+
+    case "stock-detail":
+      return StockDetailPage();
 
     default:
       return DashboardPage();
