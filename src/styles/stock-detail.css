@@ -1,0 +1,230 @@
+.stock-detail-page {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+
+  padding-bottom: 100px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.stock-detail-header {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+.stock-detail-header-text h2 {
+  font-size: 22px;
+}
+
+.stock-detail-header-text p {
+  margin-top: 2px;
+
+  font-size: 13px;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.stock-status-card {
+  padding: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stock-status-title {
+  margin-top: 4px;
+
+  font-size: 13px;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.stock-detail-card {
+  padding: 16px;
+}
+
+/* =========================
+   CARD TITLE
+========================= */
+
+.card-title {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 14px;
+}
+
+.card-title h3 {
+  font-size: 16px;
+}
+
+/* =========================
+   INFO
+========================= */
+
+.stock-info-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.stock-info-item span {
+  font-size: 12px;
+}
+
+.stock-info-item strong {
+  display: block;
+
+  margin-top: 2px;
+
+  font-size: 14px;
+}
+
+/* =========================
+   MOVEMENT
+========================= */
+
+.movement-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+.movement-item {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+.movement-item strong {
+  line-height: 1.2;
+}
+
+.movement-plus {
+  color: var(--green);
+
+  font-size: 15px;
+  font-weight: 700;
+
+  flex-shrink: 0;
+}
+
+.movement-minus {
+  color: var(--danger);
+
+  font-size: 15px;
+  font-weight: 700;
+
+  flex-shrink: 0;
+}
+
+/* =========================
+   RELATED PRODUCTION
+========================= */
+
+.related-production-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.related-production-item {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+/* =========================
+   ANALYTICS
+========================= */
+
+.analytics-grid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 12px;
+}
+
+.analytics-card {
+  padding: 14px;
+
+  border-radius: 14px;
+
+  background: #F8FAFC;
+
+  border: 1px solid var(--border);
+}
+
+.analytics-card span {
+  display: block;
+
+  margin-bottom: 6px;
+}
+
+.analytics-card strong {
+  line-height: 1.1;
+}
+
+/* =========================
+   ACTIONS
+========================= */
+
+.stock-detail-actions {
+  position: relative;
+
+  display: flex;
+
+  gap: 10px;
+
+  padding: 16px;
+
+  margin-top: 8px;
+
+  background: var(--white);
+
+  border-radius: var(--radius-xl);
+
+  border: 1px solid var(--border);
+
+  box-shadow: var(--shadow);
+}
+
+.action-btn {
+  height: 46px;
+
+  border-radius: 12px;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.action-btn:not(.primary-action) {
+  flex: 1;
+}
+
+.primary-action {
+  flex: 2;
+}
