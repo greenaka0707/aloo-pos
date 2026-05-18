@@ -2,6 +2,8 @@ export function BottomNav(active = "dashboard") {
   return `
     <nav class="bottom-nav">
 
+      <!-- DASHBOARD -->
+
       <button
         class="nav-item ${
           active === "dashboard"
@@ -18,6 +20,8 @@ export function BottomNav(active = "dashboard") {
         </span>
 
       </button>
+
+      <!-- ORDER -->
 
       <button
         class="nav-item ${
@@ -36,7 +40,16 @@ export function BottomNav(active = "dashboard") {
 
       </button>
 
-      <button class="nav-item">
+      <!-- PRODUKSI -->
+
+      <button
+        class="nav-item ${
+          active === "produksi"
+            ? "active"
+            : ""
+        }"
+        onclick="window.navigate('produksi')"
+      >
 
         <i data-lucide="factory"></i>
 
@@ -46,7 +59,16 @@ export function BottomNav(active = "dashboard") {
 
       </button>
 
-      <button class="nav-item">
+      <!-- STOK -->
+
+      <button
+        class="nav-item ${
+          active === "stok"
+            ? "active"
+            : ""
+        }"
+        onclick="window.navigate('stok')"
+      >
 
         <i data-lucide="package"></i>
 
@@ -56,7 +78,6 @@ export function BottomNav(active = "dashboard") {
 
       </button>
 
-      
     </nav>
   `;
 }
