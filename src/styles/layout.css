@@ -1,9 +1,9 @@
 /* ==========================================================================
-   APP CONTAINER LAYOUT (Fixing Viewport & Floating Action Button Bug)
+   APP CONTAINER LAYOUT (Fixing Viewport & Sticky FAB Bug Resolved)
    ========================================================================== */
 
 .app-layout {
-  /* REVISI TOTAL: Mengunci tinggi pas seukuran layar HP asli */
+  /* Mengunci tinggi pas seukuran layar HP asli */
   height: 100vh;
   height: -webkit-fill-available; /* Supaya pas di browser Safari iOS */
   width: 100%;
@@ -17,7 +17,7 @@
 }
 
 .app-content {
-  /* REVISI TOTAL: Jadikan konten utama sebagai satu-satunya area yang boleh digulung */
+  /* Jadikan konten utama sebagai satu-satunya area yang boleh digulung */
   flex: 1;
   width: 100%;
   overflow-y: auto;
@@ -32,24 +32,24 @@
   padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 20px);
   box-sizing: border-box;
 
-  /* TRANSISI ANIMASI MOBILE */
+  /* REVISI ANIMASI TRANSISI MOBILE:
+     Menggunakan opacity & margin agar tidak merusak konteks jangkaran position: fixed pada FAB */
   transition: 
-    transform 150ms cubic-bezier(0.25, 0.8, 0.25, 1), 
-    opacity 150ms ease-out;
+    opacity 150ms ease-out, 
+    margin-top 150ms cubic-bezier(0.25, 0.8, 0.25, 1);
   
-  transform: translate3d(0, 0, 0);
   opacity: 1;
-  will-change: transform, opacity;
+  margin-top: 0;
 }
 
-/* PAGE OUT (Saat halaman keluar, geser sedikit saja agar tidak terlalu agresif) */
+/* PAGE OUT (Saat halaman keluar, geser naik tipis menggunakan margin) */
 .app-content.page-leave {
-  transform: translate3d(-8px, 0, 0);
   opacity: 0;
+  margin-top: -6px; 
 }
 
-/* PAGE IN (Saat halaman masuk) */
+/* PAGE IN (Saat halaman masuk, muncul dari bawah tipis menggunakan margin) */
 .app-content.page-enter {
-  transform: translate3d(8px, 0, 0);
   opacity: 0;
+  margin-top: 6px;
 }
