@@ -18,25 +18,37 @@
 
   --orange-soft: #FFF4EB;
 
-  --blue-soft: #EAF2FF;
-
   --blue: #2563EB;
 
-  --yellow-soft: #FEF3C7;
+  --blue-soft: #EAF2FF;
 
   --yellow: #D97706;
 
-  --green-soft: #DCFCE7;
+  --yellow-soft: #FEF3C7;
 
   --green: #16A34A;
 
-  --danger-soft: #FEE2E2;
+  --green-soft: #DCFCE7;
 
   --danger: #DC2626;
+
+  --danger-soft: #FEE2E2;
+
+  /* =========================
+     SURFACE
+  ========================= */
+
+  --card-bg: var(--white);
+
+  --input-bg: var(--white);
+
+  --button-bg: var(--white);
 
   /* =========================
      RADIUS
   ========================= */
+
+  --radius-xs: 10px;
 
   --radius-sm: 12px;
 
@@ -49,15 +61,10 @@
   --radius-full: 999px;
 
   /* =========================
-     SHADOW
-  ========================= */
-
-  --shadow:
-    0 4px 20px rgba(15, 23, 42, 0.04);
-
-  /* =========================
      SPACING
   ========================= */
+
+  --space-2xs: 4px;
 
   --space-xs: 6px;
 
@@ -69,40 +76,77 @@
 
   --space-xl: 28px;
 
+  --space-2xl: 36px;
+
+  /* =========================
+     TYPOGRAPHY
+  ========================= */
+
+  --text-xs: 12px;
+
+  --text-sm: 14px;
+
+  --text-md: 15px;
+
+  --text-base: 16px;
+
+  --text-lg: 18px;
+
+  --text-xl: 20px;
+
+  --text-2xl: 24px;
+
+  --text-3xl: 32px;
+
+  --font-medium: 500;
+
+  --font-semibold: 600;
+
+  --font-bold: 700;
+
+  --line-tight: 1.1;
+
+  --line-normal: 1.5;
+
+  /* =========================
+     COMPONENT SIZE
+  ========================= */
+
+  --input-height: 52px;
+
+  --button-height: 54px;
+
+  --icon-button-size: 60px;
+
+  --bottom-nav-height: 92px;
+
+  /* =========================
+     LAYOUT
+  ========================= */
+
+  --page-padding: 20px;
+
+  --card-padding: 20px;
+
+  --section-gap: 16px;
+
+  /* =========================
+     SHADOW
+  ========================= */
+
+  --shadow-sm:
+    0 2px 10px rgba(15, 23, 42, 0.03);
+
+  --shadow:
+    0 4px 20px rgba(15, 23, 42, 0.04);
+
+  --shadow-lg:
+    0 10px 30px rgba(15, 23, 42, 0.06);
+
   /* =========================
      TRANSITION
   ========================= */
 
-  --transition: 0.2s ease;
-  
-  /* =========================
-   TYPOGRAPHY
-========================= */
-
---text-xs: 12px;
-
---text-sm: 14px;
-
---text-md: 15px;
-
---text-base: 16px;
-
---text-lg: 18px;
-
---text-xl: 20px;
-
---text-2xl: 24px;
-
---text-3xl: 32px;
-
---font-medium: 500;
-
---font-semibold: 600;
-
---font-bold: 700;
-
---line-tight: 1.1;
-
---line-normal: 1.5;
-
+  --transition:
+    0.2s ease;
 }
