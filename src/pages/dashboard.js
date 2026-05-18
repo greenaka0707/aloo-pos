@@ -2,22 +2,6 @@ export function DashboardPage() {
   return `
     <section class="dashboard-page">
 
-      <div class="dashboard-top">
-        <div>
-          <h2 class="dashboard-title">Dashboard</h2>
-          <p class="dashboard-subtitle">Manufacturing overview</p>
-        </div>
-
-        <div class="dashboard-actions">
-          <button class="btn-icon" onclick="window.navigate('akun')">
-            <i data-lucide="user"></i>
-          </button>
-          <button class="btn-icon">
-            <i data-lucide="bell"></i>
-          </button>
-        </div>
-      </div>
-
       <div class="dashboard-hero-card">
         <div class="dashboard-hero-top">
           <div class="hero-icon">
