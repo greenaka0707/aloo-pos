@@ -1,4 +1,23 @@
 export function ProduksiListPage() {
+  setTimeout(() => {
+    const container = document.querySelector(".data-list");
+    
+    // ==========================================================================
+    // KUNCI AMAN: Sembunyikan FAB secara paksa agar tidak bocor dari page lain
+    // ==========================================================================
+    const fab = document.querySelector(".fab-btn");
+    if (fab) {
+      fab.style.display = "none";
+    }
+
+    if (!container) return;
+
+    // Render ulang icon Lucide setelah komponen masuk ke DOM
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  }, 50);
+
   return `
     <section class="list-page"> 
 
