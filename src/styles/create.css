@@ -1,0 +1,135 @@
+/* ==========================================================================
+   CREATE & FORM LAYOUT (Universal Master untuk Semua Halaman Input Data)
+   ========================================================================== */
+
+.create-page,
+.create-order-page,
+.create-purchase-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+  /* Bantalan bawah dikunci aman agar inputan terbawah tidak tertutup tombol submit */
+  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 32px);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   FORM CONTROLS (Label, Input, Textarea)
+   ========================================================================== */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+/* Jarak antar form-group vertikal otomatis konsisten tanpa selector sibling (+) liar */
+.form-group + .form-group {
+  margin-top: 2px;
+}
+
+.form-label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--text-light);
+  padding-left: 2px;
+}
+
+/* INPUT MASTER COMPACT */
+.input {
+  height: 40px; /* Diturunkan dari 46px agar pas dengan konsep Compact UI */
+  width: 100%;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm); /* Konsisten dengan kelengkukan radius-sm global */
+  padding: 0 var(--space-md);
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  transition: var(--transition);
+  display: block;
+  line-height: normal;
+
+  /* FIX AUTO-ZOOM iOS SAFARI: Dikunci di 16px agar gawai tidak otomatis zoom saat fokus */
+  font-size: 16px !important; 
+}
+
+/* TEXTAREA MASTER COMPACT */
+.textarea {
+  min-height: 76px;
+  max-height: 120px;
+  width: 100%;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  resize: none;
+  transition: var(--transition);
+
+  /* FIX AUTO-ZOOM iOS SAFARI */
+  font-size: 16px !important; 
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(249,115,22,0.08);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: #9CA3AF;
+  font-size: var(--text-xs); /* Placeholder mini agar input tidak terlihat penuh */
+}
+
+/* ==========================================================================
+   FORM CARDS & GRIDS
+   ========================================================================== */
+
+.create-card {
+  padding: var(--card-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Grid 2 Kolom Samping untuk Qty & Harga (Aman dari margin tumpuk) */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  width: 100%;
+}
+
+/* Mengamankan elemen di dalam grid agar tidak sengaja menarik margin-top vertikal */
+.form-grid-2 .form-group {
+  margin-top: 0 !important;
+}
+
+/* ==========================================================================
+   NATIVE MOBILE PLATFORM FIXES
+   ========================================================================== */
+
+input[type="date"] {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* Bersihkan panah naik/turun bawaan browser pada input bertipe numerik */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
