@@ -11,30 +11,18 @@ export default function CreateOrderPage() {
   const today = new Date().toISOString().split('T')[0];
 
   setTimeout(async () => {
-    const appLayout = document.querySelector(".app-layout");
     const container = document.querySelector(".create-page");
     if (!container) return;
-
-    // Fix Posisi Tombol Aksi: Dorong ke luar container paling bawah biar lengket melayang di layar HP
-    const actionsArea = container.querySelector(".detail-actions");
-    if (actionsArea && appLayout && actionsArea.parentElement !== appLayout) {
-      appLayout.appendChild(actionsArea);
-      // Tambahkan inline style super kuat agar tombol melayang tebal di atas keyboard/elemen lain
-      actionsArea.style.position = "fixed";
-      actionsArea.style.bottom = "0";
-      actionsArea.style.left = "0";
-      actionsArea.style.right = "0";
-      actionsArea.style.zIndex = "3000";
-      actionsArea.style.background = "var(--white)";
-      actionsArea.style.padding = "var(--space-md) var(--space-lg)";
-      actionsArea.style.boxShadow = "0 -4px 16px rgba(0, 0, 0, 0.08)";
-    }
 
     // Capture semua elemen input kontrol DOM
     const dateInput = container.querySelector("#order-date");
     const customerInput = container.querySelector("#customer-search");
     const customerFloat = container.querySelector("#customer-floating-list");
-    const salesmanSelect = container.querySelector("#salesman-select");
+    
+    // Salesman Live Search Elements
+    const salesmanInput = container.querySelector("#salesman-search");
+    const salesmanFloat = container.querySelector("#salesman-floating-list");
+    
     const productInput = container.querySelector("#product-search");
     const productFloat = container.querySelector("#product-floating-list");
     const cartContainer = container.querySelector("#cart-items-container");
@@ -60,30 +48,52 @@ export default function CreateOrderPage() {
     if (dateInput) dateInput.value = today;
 
     // ==========================================================================
-    // 1. POPULASI DATA DROPDOWN SALESMAN
+    // 1. LIVE SEARCH SALESMAN
     // ==========================================================================
-    try {
-      const { data: salesmen, error } = await supabase
-        .from('salesmen')
-        .select('id, name')
-        .eq('status', 'aktif');
-      
-      if (!error && salesmen && salesmanSelect) {
-        salesmanSelect.innerHTML = '<option value="">-- Pilih Salesman Lapangan --</option>' + 
-          salesmen.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-      }
-    } catch (err) {
-      console.error("Gagal memuat list salesmen:", err);
-    }
+    if (salesmanInput && salesmanFloat) {
+      salesmanInput.addEventListener("input", async (e) => {
+        const val = e.target.value.trim();
+        if (val.length < 1) {
+          salesmanFloat.style.display = "none";
+          return;
+        }
 
-    if (salesmanSelect) {
-      salesmanSelect.addEventListener("change", (e) => {
-        selectedSalesman = e.target.value ? parseInt(e.target.value) : null;
+        const { data: salesmen, error } = await supabase
+          .from('salesmen')
+          .select('id, name, area_tugas')
+          .eq('status', 'aktif')
+          .ilike('name', `%${val}%`)
+          .limit(5);
+
+        if (!error && salesmen) {
+          salesmanFloat.innerHTML = salesmen.map(s => `
+            <div class="salesman-row-item" data-id="${s.id}" data-name="${s.name}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer;">
+              <strong style="font-size: var(--text-sm); display: block; color: var(--text);">${s.name}</strong>
+              <span class="text-xs text-light">${s.area_tugas || 'Semua Area'}</span>
+            </div>
+          `).join('');
+          salesmanFloat.style.display = "block";
+
+          salesmanFloat.querySelectorAll(".salesman-row-item").forEach(row => {
+            row.addEventListener("click", (evt) => {
+              const target = evt.currentTarget;
+              selectedSalesman = parseInt(target.dataset.id);
+              salesmanInput.value = target.dataset.name;
+              salesmanFloat.style.display = "none";
+            });
+          });
+        }
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!salesmanInput.contains(e.target) && !salesmanFloat.contains(e.target)) {
+          salesmanFloat.style.display = "none";
+        }
       });
     }
 
     // ==========================================================================
-    // 2. LIVE SEARCH CUSTOMER + TRIGGER MODAL QUICK ADD
+    // 2. LIVE SEARCH CUSTOMER + MODAL QUICK ADD
     // ==========================================================================
     if (customerInput && customerFloat) {
       customerInput.addEventListener("input", async (e) => {
@@ -103,7 +113,6 @@ export default function CreateOrderPage() {
           if (customers.length === 0) {
             customerFloat.innerHTML = `
               <div class="float-item-action" style="padding: var(--space-sm); text-align: center; color: var(--orange); font-weight: bold; cursor: pointer;">
-                <i data-lucide="plus-circle" style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-right:4px;"></i>
                 "${val}" Belum terdaftar. Tambah Baru?
               </div>
             `;
@@ -139,7 +148,6 @@ export default function CreateOrderPage() {
             });
           }
         }
-        if (window.lucide) window.lucide.createIcons();
       });
 
       document.addEventListener("click", (e) => {
@@ -180,7 +188,7 @@ export default function CreateOrderPage() {
     }
 
     // ==========================================================================
-    // 3. LIVE SEARCH PRODUK + STOK INDIKATOR
+    // 3. LIVE SEARCH PRODUK
     // ==========================================================================
     if (productInput && productFloat) {
       productInput.addEventListener("input", async (e) => {
@@ -247,7 +255,7 @@ export default function CreateOrderPage() {
     }
 
     // ==========================================================================
-    // 4. CORE ENGINE DATA: HITUNG & RENDER UTAMA (CART, BOM, & KEUANGAN)
+    // 4. CORE ENGINE DATA: HITUNG & RENDER UTAMA
     // ==========================================================================
     function calculateAndRender() {
       if (cart.length === 0) {
@@ -257,7 +265,7 @@ export default function CreateOrderPage() {
           </p>
         `;
       } else {
-        // PERBAIKAN UTAMA: Mengembalikan input qty dan harga ke type="text" inputmode="numeric"
+        // FIX KEYBOARD: Memakai type="number" pattern="[0-9]*" inputmode="numeric" secara bersamaan sesuai screenshot
         cartContainer.innerHTML = cart.map((item, idx) => `
           <div class="card create-card" style="margin-bottom: var(--space-sm); border: 1px solid var(--border);">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-sm); padding-bottom: 4px; border-bottom: 1px solid var(--border);">
@@ -272,12 +280,12 @@ export default function CreateOrderPage() {
             <div class="form-grid-2">
               <div class="form-group">
                 <label class="form-label">Qty (${item.unit})</label>
-                <input type="text" inputmode="numeric" class="input cart-qty" data-idx="${idx}" value="${item.qty}" />
+                <input type="number" pattern="[0-9]*" inputmode="numeric" class="input cart-qty" data-idx="${idx}" value="${item.qty}" />
               </div>
 
               <div class="form-group">
                 <label class="form-label">Harga (Rp)</label>
-                <input type="text" inputmode="numeric" class="input cart-price" data-idx="${idx}" value="${item.price}" />
+                <input type="number" pattern="[0-9]*" inputmode="numeric" class="input cart-price" data-idx="${idx}" value="${item.price}" />
               </div>
             </div>
 
@@ -315,7 +323,7 @@ export default function CreateOrderPage() {
         });
       }
 
-      // 4.1 LOGIKA OTOMATIS MANUFACTURING ANALYSIS (BOM ENGINE)
+      // 4.1 LOGIKA AUTOMATED MANUFACTURING ANALYSIS
       let needsProduction = false;
       let totalRobustaNeeded = 0;
       let totalJagungNeeded = 0;
@@ -360,7 +368,7 @@ export default function CreateOrderPage() {
         if (manufacturingCard) manufacturingCard.style.display = "none";
       }
 
-      // 4.2 LOGIKA INTEGRASI KEUANGAN (SUBTOTAL, BAYAR, STATUS SISA)
+      // 4.2 LOGIKA INTEGRASI KEUANGAN
       const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
       const payVal = parseFloat(bayarInput?.value) || 0;
       const sisaTotal = subtotalTotal - payVal;
@@ -382,6 +390,7 @@ export default function CreateOrderPage() {
     // ==========================================================================
     // 5. SUBMIT DATA KE SUPABASE
     // ==========================================================================
+    const actionsArea = container.querySelector(".detail-actions");
     if (actionsArea) {
       const submitBtn = actionsArea.querySelector(".primary-action");
       const draftBtn = actionsArea.querySelector(".action-btn:not(.primary-action)");
@@ -444,10 +453,6 @@ export default function CreateOrderPage() {
             if (itemsError) throw itemsError;
 
             alert(`🎉 Sales Order ${invoiceNo} Berhasil Disimpan ke Antrean Pending!`);
-            
-            if (actionsArea && actionsArea.parentElement === appLayout) {
-              appLayout.removeChild(actionsArea);
-            }
             if (window.navigate) window.navigate('order');
 
           } catch (err) {
@@ -461,11 +466,7 @@ export default function CreateOrderPage() {
       }
 
       if (draftBtn) {
-        draftBtn.innerHTML = "Kembali";
         draftBtn.addEventListener("click", () => {
-          if (actionsArea && actionsArea.parentElement === appLayout) {
-            appLayout.removeChild(actionsArea);
-          }
           if (window.navigate) window.navigate('order');
         });
       }
@@ -473,8 +474,9 @@ export default function CreateOrderPage() {
 
   }, 50);
 
+  // FIX STYLING & KEYBOARD: Seluruh elemen input angka memakai perpaduan type, pattern, & inputmode angka murni. Tombol aksi diberi tumpukan layer teratas.
   return `
-    <section class="create-page" style="padding-bottom: 140px;">
+    <section class="create-page" style="padding-bottom: 160px; position: relative;">
 
       <div class="card create-card">
         <div class="form-group">
@@ -488,11 +490,10 @@ export default function CreateOrderPage() {
           <div id="customer-floating-list" class="card" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 1010; display: none; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0;"></div>
         </div>
 
-        <div class="form-group" style="margin-top: var(--space-md);">
+        <div class="form-group" style="margin-top: var(--space-md); position: relative;">
           <label class="form-label">Salesman Lapangan</label>
-          <select id="salesman-select" class="input" style="width: 100%; height: var(--input-height); background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 var(--space-md);">
-            <option value="">Memuat list salesman...</option>
-          </select>
+          <input type="text" id="salesman-search" class="input" placeholder="Ketik nama tim / cari salesman..." autocomplete="off" />
+          <div id="salesman-floating-list" class="card" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 1010; display: none; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0;"></div>
         </div>
       </div>
 
@@ -524,7 +525,6 @@ export default function CreateOrderPage() {
         </div>
 
         <div style="display: flex; align-items: center; gap: var(--space-sm); background: var(--warning-soft); color: #D97706; padding: var(--space-md); border-radius: var(--radius-md); margin-bottom: var(--space-md);">
-          <i data-lucide="factory" style="width: 16px; height: 16px; flex-shrink: 0;"></i>
           <p style="font-size: var(--text-xs); font-weight: var(--font-medium); line-height: 1.4; margin: 0;">
             Stock produk gudang tidak mencukupi, sistem menjadwalkan produksi otomatis
           </p>
@@ -555,7 +555,7 @@ export default function CreateOrderPage() {
       <div class="card create-card">
         <div class="form-group">
           <label class="form-label">Nominal Pembayaran Saat Ini (Rp)</label>
-          <input type="text" id="pay-amount" inputmode="numeric" class="input" placeholder="0" />
+          <input type="number" pattern="[0-9]*" inputmode="numeric" id="pay-amount" class="input" placeholder="0" />
         </div>
       </div>
 
@@ -566,15 +566,14 @@ export default function CreateOrderPage() {
         </div>
       </div>
 
-      <div class="detail-actions">
-        <button class="action-btn">Draft</button>
-        <button class="action-btn primary-action">Submit</button>
+      <div class="detail-actions" style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: #ffffff; padding: var(--space-md) var(--space-lg) calc(var(--space-md) + 15px) var(--space-lg); box-shadow: 0 -8px 24px rgba(0,0,0,0.12); display: flex; gap: var(--space-md);">
+        <button class="action-btn" style="flex: 1; height: 46px; border-radius: var(--radius-md); font-weight: bold; cursor: pointer; border: 1px solid var(--border); background: #f9f9f9;">Kembali</button>
+        <button class="action-btn primary-action" style="flex: 1; height: 46px; background: var(--orange); color: white; border: none; border-radius: var(--radius-md); font-weight: bold; cursor: pointer;">Submit</button>
       </div>
 
-      <div id="customer-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px;">
+      <div id="customer-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 99999; display: none; align-items: center; justify-content: center; padding: 20px;">
         <div class="card" style="width: 100%; max-width: 400px; background: var(--white); padding: var(--space-lg); border-radius: var(--radius-md); box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
           <h3 style="font-size: var(--text-md); font-weight: var(--font-bold); margin-bottom: var(--space-sm); color: var(--text);">Tambah Customer Baru</h3>
-          <p class="text-light text-xs" style="margin-bottom: var(--space-md);">Warung belum terdaftar di master data area Anda.</p>
           
           <div class="form-group" style="margin-bottom: var(--space-sm);">
             <label class="form-label">Nama Warung / Toko</label>
@@ -590,8 +589,8 @@ export default function CreateOrderPage() {
           </div>
 
           <div style="display: flex; gap: var(--space-md); justify-content: flex-end;">
-            <button id="close-customer-modal" class="action-btn" style="background: var(--border); color: var(--text); padding: 0 var(--space-md); border-radius: var(--radius-sm); border:none; height:38px; cursor:pointer;">Batal</button>
-            <button id="save-new-customer" class="action-btn" style="background: var(--orange); color: white; padding: 0 var(--space-md); border-radius: var(--radius-sm); border:none; height:38px; font-weight:bold; cursor:pointer;">Simpan Data</button>
+            <button id="close-customer-modal" style="background: var(--border); border:none; padding: 0 var(--space-md); border-radius: var(--radius-sm); height:38px; cursor:pointer;">Batal</button>
+            <button id="save-new-customer" style="background: var(--orange); color: white; border:none; padding: 0 var(--space-md); border-radius: var(--radius-sm); height:38px; font-weight:bold; cursor:pointer;">Simpan Data</button>
           </div>
         </div>
       </div>
