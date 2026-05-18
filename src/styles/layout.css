@@ -1,17 +1,38 @@
+/* ==========================================================================
+   APP CONTAINER LAYOUT (Fixing Viewport & Floating Action Button Bug)
+   ========================================================================== */
+
 .app-layout {
-  min-height: 100vh;
+  /* REVISI TOTAL: Mengunci tinggi pas seukuran layar HP asli */
+  height: 100vh;
+  height: -webkit-fill-available; /* Supaya pas di browser Safari iOS */
+  width: 100%;
   background: var(--bg);
-  /* padding-bottom disesuaikan dengan nav-height baru yang lebih pendek + safe area */
-  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 12px);
+  position: relative;
+  
+  /* Hancurkan luapan konten di container paling luar agar tidak double scroll */
+  overflow: hidden; 
+  display: flex;
+  flex-direction: column;
 }
 
 .app-content {
+  /* REVISI TOTAL: Jadikan konten utama sebagai satu-satunya area yang boleh digulung */
+  flex: 1;
+  width: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* Biar scroll di iPhone super mulus */
+  
   padding: var(--page-padding);
   display: flex;
   flex-direction: column;
   gap: var(--section-gap);
   
-  /* OPTIMASI: Transisi mobile sebaiknya sedikit lebih cepat (140ms - 150ms) */
+  /* Bantalan bawah wajib di sini agar kartu terakhir berhenti persis di atas menu bawah */
+  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 20px);
+  box-sizing: border-box;
+
+  /* TRANSISI ANIMASI MOBILE */
   transition: 
     transform 150ms cubic-bezier(0.25, 0.8, 0.25, 1), 
     opacity 150ms ease-out;
@@ -23,12 +44,12 @@
 
 /* PAGE OUT (Saat halaman keluar, geser sedikit saja agar tidak terlalu agresif) */
 .app-content.page-leave {
-  transform: translate3d(-8px, 0, 0); /* Turun dari -12px */
+  transform: translate3d(-8px, 0, 0);
   opacity: 0;
 }
 
 /* PAGE IN (Saat halaman masuk) */
 .app-content.page-enter {
-  transform: translate3d(8px, 0, 0); /* Turun dari 12px */
+  transform: translate3d(8px, 0, 0);
   opacity: 0;
 }
