@@ -10,6 +10,18 @@ function renderPage(route = "dashboard") {
       route
     });
 
+  const content =
+    document.querySelector(".app-content");
+
+  if (content) {
+
+    content.classList.add("page-enter");
+
+    requestAnimationFrame(() => {
+      content.classList.remove("page-enter");
+    });
+  }
+
   lucide.createIcons();
 }
 
@@ -19,9 +31,29 @@ function renderPage(route = "dashboard") {
 
 window.navigate = function(route) {
 
-  window.location.hash = route;
+  if (
+    window.location.hash === `#${route}`
+  ) {
+    return;
+  }
 
-  renderPage(route);
+  const content =
+    document.querySelector(".app-content");
+
+  if (!content) {
+
+    window.location.hash = route;
+
+    return;
+  }
+
+  content.classList.add("page-leave");
+
+  setTimeout(() => {
+
+    window.location.hash = route;
+
+  }, 140);
 };
 
 /* =====================
