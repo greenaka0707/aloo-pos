@@ -192,6 +192,9 @@ export function OrderDetailPage() {
         // ==========================================================================
     // 3. GENERATOR PDF INVOICE A5 (FIX REKENING & STRUKTUR LOGO ENNA)
     // ==========================================================================
+        // ==========================================================================
+    // 3. GENERATOR PDF INVOICE A5 (FIX UKURAN TEKS KONSISTEN)
+    // ==========================================================================
     function downloadInvoiceA5() {
       if (!orderDataLocal) return;
 
@@ -277,13 +280,13 @@ export function OrderDetailPage() {
 
         <div style="background-color:#F9FAFB; border:1px solid #E5E7EB; border-radius:4px; padding:10px; font-size:10px; line-height:1.4;">
           <strong style="color:#111827; font-size:10px; text-transform:uppercase; display:block; margin-bottom:4px; border-bottom:1px dashed #E5E7EB; padding-bottom:3px; letter-spacing:0.3px;">Konfirmasi Pembayaran</strong>
-          <span style="color:#4B5563; display:block; margin-bottom:3px;">Silahkan Melakukan Pembayaran Ke:</span>
-          <div style="color:#111827; margin-top:2px;">
-            <span style="color:#4B5563;">Bank:</span> <strong>MANDIRI</strong><br/>
-            <span style="color:#4B5563;">An:</span> <strong>PT. EKSPANSI NUTRISI NUSANTARA</strong><br/>
-            <span style="color:#4B5563;">No. Rek:</span> <strong style="font-size:11px; color:#F97316; letter-spacing:0.5px;">1420000699008</strong>
-          </div>
-          <span style="color:#6B7280; font-style:italic; display:block; margin-top:5px; font-size:9px;">* Mohon konfirmasi jika sudah melakukan pembayaran</span>
+          <div style="color:#4B5563; margin-bottom:4px;">Silahkan Melakukan Pembayaran Ke:</div>
+          <table style="border-collapse:collapse; font-size:10px; color:#111827;">
+            <tr><td style="color:#4B5563; padding:1px 0; width:50px;">Bank:</td><td style="font-weight:700; padding:1px 4px;">MANDIRI</td></tr>
+            <tr><td style="color:#4B5563; padding:1px 0;">An:</td><td style="font-weight:700; padding:1px 4px;">PT. EKSPANSI NUTRISI NUSANTARA</td></tr>
+            <tr><td style="color:#4B5563; padding:1px 0;">No. Rek:</td><td style="font-weight:700; color:#F97316; padding:1px 4px; letter-spacing:0.3px;">1420000699008</td></tr>
+          </table>
+          <div style="color:#6B7280; font-style:italic; margin-top:5px; font-size:9px;">* Mohon konfirmasi jika sudah melakukan pembayaran</div>
         </div>
 
         <div style="color:#9CA3AF; font-style:italic; font-size:8px; text-align:center; line-height:1.3; margin-top:15px;">
@@ -301,6 +304,7 @@ export function OrderDetailPage() {
 
       window.html2pdf().set(opt).from(element).save();
     }
+
 
 
     // ==========================================================================
