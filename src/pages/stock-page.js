@@ -30,11 +30,11 @@ export function StockPage() {
 
     if (!container) return;
 
-    // Tarik data asli dari database
+    // Tarik data asli dan realtime dari database Supabase gais
     const allItems = await getSupabaseStock();
 
     // ==========================================================================
-    // ENGINE RENDERER DENGAN TRANSISI EMOSI WARNA STATUS (TOTAL OVERHAUL)
+    // ENGINE RENDERER DENGAN TRANSISI EMOSI WARNA STATUS
     // ==========================================================================
     const renderList = (itemsToRender) => {
       container.classList.add("page-leave");
@@ -48,11 +48,11 @@ export function StockPage() {
           `;
         } else {
           container.innerHTML = itemsToRender.map(item => {
-            const stockVal = item.stock || 0;
-            const minStockVal = item.min_stock || 0;
+            const stockVal = parseFloat(item.stock || 0);
+            const minStockVal = parseFloat(item.min_stock || 0);
             const unitStr = item.unit || 'kg';
             
-            // A. Deteksi Kategori & Badge Warna Kalcer
+            // Deteksi Kategori & Badge Warna Kalcer
             let categoryText = 'Lainnya';
             let categoryBadge = 'badge-primary';
             
@@ -64,7 +64,7 @@ export function StockPage() {
               categoryBadge = 'badge-info';    
             }
 
-            // B. BREAKDOWN EVALUASI STOK (Mencegah False Alarm Oranye Merata)
+            // Breakdown Evaluasi Stok
             const isHabis = stockVal <= 0;
             const isMenipis = stockVal > 0 && stockVal <= minStockVal;
 
@@ -79,13 +79,13 @@ export function StockPage() {
             if (isHabis) {
               statusBadge = 'badge-danger';
               statusText = 'Habis';
-              cardBorderColor = 'border-color: var(--danger);'; // Amuk border merah pekat gais
+              cardBorderColor = 'border-color: var(--danger);'; 
               stockBadgeStyle = 'background: var(--danger-soft); color: var(--danger); font-weight: var(--font-bold);';
               iconBoxStyle = 'background: var(--danger-soft); color: var(--danger);';
-              iconName = 'alert-octagon'; // Ganti ikon darurat gais
+              iconName = 'alert-octagon'; 
               footerText = `<span style="color: var(--danger); font-size: var(--text-xs); font-weight: var(--font-bold);">🚨 Habis total! Segera restock</span>`;
             } else if (isMenipis) {
-              statusBadge = 'badge-warning'; // Warna oranye kalem
+              statusBadge = 'badge-warning'; 
               statusText = 'Menipis';
               cardBorderColor = 'border-color: var(--orange);';
               stockBadgeStyle = 'background: var(--orange-soft); color: var(--orange); font-weight: var(--font-bold);';
@@ -95,15 +95,9 @@ export function StockPage() {
             }
 
             return `
-              <div
-                class="card list-card" 
-                onclick="window.navigate('stock-detail')"
-                style="cursor: pointer; ${cardBorderColor}"
-              >
+              <div class="card list-card" onclick="window.navigate('stock-detail')" style="cursor: pointer; ${cardBorderColor}">
                 <div class="list-card-top">
-                  <div>
-                    <span class="badge ${categoryBadge}">${categoryText}</span>
-                  </div>
+                  <div><span class="badge ${categoryBadge}">${categoryText}</span></div>
                   <span class="badge ${statusBadge}">${statusText}</span>
                 </div>
 
@@ -113,30 +107,21 @@ export function StockPage() {
                   </div>
                   
                   <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
-                    <strong style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">
-                      ${item.name}
-                    </strong>
-                    <p class="text-light text-xs" style="margin-bottom: 6px;">
-                      ${item.description || 'Ready stock untuk operasional.'}
-                    </p>
+                    <strong style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">${item.name}</strong>
+                    <p class="text-light text-xs" style="margin-bottom: 6px;">${item.description || 'Ready stock untuk operasional.'}</p>
                     
                     <div style="display: flex; gap: var(--space-md); align-items: center;">
                       <span class="badge" style="${stockBadgeStyle} height: 22px; font-size: var(--text-xs); padding: 0 var(--space-sm);">
-                        Stock: ${stockVal} ${unitStr}
+                        Stock: ${stockVal.toFixed(2)} ${unitStr}
                       </span>
-                      <span class="text-light text-xs">Min: ${minStockVal} ${unitStr}</span>
+                      <span class="text-light text-xs">Min: ${minStockVal.toFixed(2)} ${unitStr}</span>
                     </div>
                   </div>
                 </div>
 
                 <div class="list-card-footer">
                   ${footerText}
-                  <button
-                    class="detail-btn"
-                    onclick="event.stopPropagation(); window.navigate('stock-detail')"
-                  >
-                    Detail
-                  </button>
+                  <button class="detail-btn" onclick="event.stopPropagation(); window.navigate('stock-detail')">Detail</button>
                 </div>
               </div>
             `;
@@ -149,36 +134,34 @@ export function StockPage() {
         container.classList.add("page-enter");
 
         requestAnimationFrame(() => {
-          setTimeout(() => {
-            container.classList.remove("page-enter");
-          }, 50);
+          setTimeout(() => { container.classList.remove("page-enter"); }, 50);
         });
 
       }, 150);
     };
 
     // ==========================================================================
-    // 💥 UPGRADE ENGINE: EXPORT MURNI KE PDF DENGAN LAYOUT PREMIUM A4 (html2pdf)
+    // EXPORT REALTIME KE PDF GUDANG (MURNI MENGGUNAKAN DATA LIVE SUPABASE)
     // ==========================================================================
     if (downloadBtn) {
-      downloadBtn.addEventListener("click", () => {
-        if (allItems.length === 0) return alert("Belum ada data untuk didownload gais!");
+      downloadBtn.addEventListener("click", async () => {
+        // Ambil data paling fresh saat tombol diklik biar ga nge-cache data lama gais
+        const freshItems = await getSupabaseStock();
+        if (freshItems.length === 0) return alert("Belum ada data di database Supabase lo gais!");
         
-        // Buat DOM container virtual terpisah untuk dokumen cetak A4
         const element = document.createElement("div");
         element.style.padding = "20px 15px";
-        element.style.width = "750px"; // Presisi proporsional lebar kertas A4 gais
+        element.style.width = "750px"; 
         element.style.boxSizing = "border-box";
         element.style.fontFamily = "Arial, sans-serif";
         element.style.color = "#1F2937";
         element.style.backgroundColor = "#FFFFFF";
 
-        // Hitung akumulasi kalkulasi footer data realtime
         let totalVolume = 0;
         let countKritis = 0;
         let countAman = 0;
 
-        const tableRowsHtml = allItems.map((item, idx) => {
+        const tableRowsHtml = freshItems.map((item, idx) => {
           const stockVal = parseFloat(item.stock || 0);
           const minStockVal = parseFloat(item.min_stock || 0);
           totalVolume += stockVal;
@@ -219,11 +202,10 @@ export function StockPage() {
           `;
         }).join('');
 
-        // Suntik struktur template laporan murni ke DOM virtual gais
         element.innerHTML = `
           <div style="border-bottom: 2px solid #F97316; padding-bottom: 10px; margin-bottom: 15px;">
             <h1 style="margin: 0; font-size: 24px; color: #1E293B; font-weight: 800; letter-spacing: -0.5px;">PT PRABHASKOE</h1>
-            <div style="font-size: 11px; font-weight: 700; color: #F97316; text-transform: uppercase; margin-top: 2px; letter-spacing: 0.5px;">Laporan Opname Stok Gudang (Realtime)</div>
+            <div style="font-size: 11px; font-weight: 700; color: #F97316; text-transform: uppercase; margin-top: 2px; letter-spacing: 0.5px;">Laporan Opname Stok Gudang (Realtime Supabase)</div>
           </div>
 
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 11px; line-height: 1.4;">
@@ -235,7 +217,7 @@ export function StockPage() {
             </tr>
             <tr>
               <td style="color: #6B7280;">Status Audit:</td>
-              <td style="font-weight: 600; color: #111827;">: Sinkronisasi Supabase Selesai</td>
+              <td style="font-weight: 600; color: #111827;">: Terkoneksi Live</td>
               <td style="color: #6B7280;">Otoritas:</td>
               <td style="font-weight: 600; color: #F97316;">: Owner Terverifikasi</td>
             </tr>
@@ -297,20 +279,17 @@ export function StockPage() {
 
         const opt = {
           margin:       10,
-          filename:     `Laporan_Opname_Stok_AlooPOS_${new Date().toISOString().split('T')[0]}.pdf`,
+          filename:     `Laporan_Stok_Realtime_PT_Prabhaskoe.pdf`,
           image:        { type: 'jpeg', quality: 0.98 },
           html2canvas:  { scale: 2, useCORS: true },
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // Pemicu download murni dokumen PDF gais
         window.html2pdf().set(opt).from(element).save();
       });
     }
 
-    // ==========================================================================
-    // ENGINE FILTER & PENCARIAN LIVE
-    // ==========================================================================
+    // Engine Filter & Pencarian Live
     const applyFilterAndSearch = () => {
       const activeChip = document.querySelector(".filter-chip.active");
       const filterValue = activeChip ? activeChip.textContent.trim().toLowerCase() : "semua";
@@ -323,7 +302,7 @@ export function StockPage() {
       } else if (filterValue === "bahan baku") {
         filtered = allItems.filter(item => item.category === "greenbean");
       } else if (filterValue === "menipis") {
-        filtered = allItems.filter(item => (item.stock || 0) <= (item.min_stock || 0));
+        filtered = allItems.filter(item => (parseFloat(item.stock) || 0) <= (parseFloat(item.min_stock) || 0));
       }
 
       if (searchQuery !== "") {
@@ -351,22 +330,12 @@ export function StockPage() {
 
   return `
     <section class="list-page"> 
-
       <div style="display: flex; gap: var(--space-sm); align-items: center; width: 100%;">
         <div class="card search-box" style="flex: 1; margin: 0;"> 
           <i data-lucide="search"></i>
-          <input
-            type="text"
-            class="stock-search-input"
-            placeholder="Cari stock..."
-          />
+          <input type="text" class="stock-search-input" placeholder="Cari stock..." />
         </div>
-        
-        <button 
-          class="card download-stock-btn" 
-          style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid rgba(0,0,0,0.05); cursor: pointer; color: var(--text); border-radius: var(--radius-md); padding: 0;"
-          title="Download Laporan PDF"
-        >
+        <button class="card download-stock-btn" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid rgba(0,0,0,0.05); cursor: pointer; color: var(--text); border-radius: var(--radius-md); padding: 0;" title="Download Laporan PDF">
           <i data-lucide="download" style="width: 20px; height: 20px;"></i>
         </button>
       </div>
@@ -383,7 +352,6 @@ export function StockPage() {
           <p>Memuat data stock dari database...</p>
         </div>
       </div>
-
     </section>
   `;
 }
