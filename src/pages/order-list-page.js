@@ -96,8 +96,6 @@ export function OrderListPage() {
 
       container.innerHTML = filtered.map(order => {
         const totalItems = order.sales_order_items?.length || 0;
-        
-        // 🛠️ FIX DESIMAL: parsing float akumulasi total kuantitas orderan gais
         const totalQty = order.sales_order_items?.reduce((acc, item) => acc + (parseFloat(item.qty) || 0), 0) || 0;
 
         let formattedDate = order.order_date;
@@ -108,10 +106,15 @@ export function OrderListPage() {
         }
 
         let badgeClass = "badge-warning"; 
-        let inlineStyle = ""; 
+        let cardStyle = ""; // Penampung styling background card dinamis gais
         const currentDbStatus = order.status ? order.status.toLowerCase() : "pending";
 
-        if (currentDbStatus === "diproses") {
+        // 🛠️ LOGIKA WARNA BACKGROUND CARD UMUM (UX STANDAR POS/ERP)
+        if (currentDbStatus === "pending" || currentDbStatus === "butuh produksi") {
+          badgeClass = "badge-warning";
+          // Sesuai request: dibikin agak abu-abu + border aksen orange di kiri biar tegak & rapi
+          cardStyle = "background: #F3F4F6; border-left: 4px solid var(--orange, #F97316);"; 
+        } else if (currentDbStatus === "diproses") {
           badgeClass = "badge-info"; 
         } else if (currentDbStatus === "ready") {
           badgeClass = "badge-primary"; 
@@ -119,17 +122,17 @@ export function OrderListPage() {
           badgeClass = "badge-success"; 
         } else if (currentDbStatus === "void") {
           badgeClass = "badge-muted"; 
-          inlineStyle = "background: #9CA3AF; color: #FFFFFF;"; 
+          cardStyle = "background: #F9FAFB; opacity: 0.6; border-left: 4px solid #9CA3AF;"; 
         }
 
         return `
-          <div class="card list-card" style="margin-bottom: var(--space-sm); ${currentDbStatus === 'void' ? 'opacity: 0.85;' : ''}">
+          <div class="card list-card" style="margin-bottom: var(--space-sm); ${cardStyle}">
             <div class="list-card-top">
               <div>
                 <h3 class="font-bold" style="color: var(--text);">${order.invoice_no}</h3>
                 <p class="text-light text-sm">${order.customers?.name || "Tanpa Nama Customer"}</p>
               </div>
-              <span class="badge ${badgeClass}" style="text-transform: capitalize; ${inlineStyle}">${order.status || 'Pending'}</span>
+              <span class="badge ${badgeClass}" style="text-transform: capitalize; ${currentDbStatus === 'void' ? 'background: #9CA3AF; color: #FFFFFF;' : ''}">${order.status || 'Pending'}</span>
             </div>
 
             <div class="list-card-summary">
@@ -169,17 +172,15 @@ export function OrderListPage() {
     }
 
     // ==========================================================================
-    // 💥 ENGINE BARU: GENERATE PDF PENJUALAN HARIAN ENN (LIVE SUPABASE)
+    // 💥 ENGINE: GENERATE PDF PENJUALAN HARIAN ENN (LIVE SUPABASE)
     // ==========================================================================
     if (downloadSalesBtn) {
       downloadSalesBtn.addEventListener("click", async () => {
-        // Tarik range awal hari ini murni (Waktu Lokal Indonesia)
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const isoToday = today.toISOString();
 
         try {
-          // Tarik data paling fresh khusus hari ini gais
           const { data: freshOrders, error } = await supabase
             .from("sales_orders")
             .select(`
@@ -227,18 +228,18 @@ export function OrderListPage() {
             if (method === 'CASH') totalCash += paid;
             else totalTransfer += paid;
 
-          return `
-            <tr style="border-bottom: 1px solid #E5E7EB; font-size: 11px;">
-              <td style="padding: 8px; text-align: center; color: #4B5563;">${idx + 1}</td>
-              <td style="padding: 8px; font-weight: bold; color: #111827;">${o.invoice_no}<br><span style="font-size:9px; color:#6B7280; font-weight:normal;">Jam ${timeStr}</span></td>
-              <td style="padding: 8px; color: #111827; font-weight:600;">${custName}</td>
-              <td style="padding: 8px; text-align: center; font-weight: bold; color: #4B5563;">${method}</td>
-              <td style="padding: 8px; text-align: right; font-weight: bold; color: #111827;">Rp ${gross.toLocaleString('id-ID')}</td>
-              <td style="padding: 8px; text-align: right; font-weight: bold; color: #DC2626;">Rp ${debt.toLocaleString('id-ID')}</td>
-              <td style="padding: 8px; text-align: right; font-weight: bold; color: #166534;">Rp ${paid.toLocaleString('id-ID')}</td>
-            </tr>
-          `;
-        }).join('');
+            return `
+              <tr style="border-bottom: 1px solid #E5E7EB; font-size: 11px;">
+                <td style="padding: 8px; text-align: center; color: #4B5563;">${idx + 1}</td>
+                <td style="padding: 8px; font-weight: bold; color: #111827;">${o.invoice_no}<br><span style="font-size:9px; color:#6B7280; font-weight:normal;">Jam ${timeStr}</span></td>
+                <td style="padding: 8px; color: #111827; font-weight:600;">${custName}</td>
+                <td style="padding: 8px; text-align: center; font-weight: bold; color: #4B5563;">${method}</td>
+                <td style="padding: 8px; text-align: right; font-weight: bold; color: #111827;">Rp ${gross.toLocaleString('id-ID')}</td>
+                <td style="padding: 8px; text-align: right; font-weight: bold; color: #DC2626;">Rp ${debt.toLocaleString('id-ID')}</td>
+                <td style="padding: 8px; text-align: right; font-weight: bold; color: #166534;">Rp ${paid.toLocaleString('id-ID')}</td>
+              </tr>
+            `;
+          }).join('');
 
           element.innerHTML = `
             <div style="border-bottom: 2px solid #F97316; padding-bottom: 10px; margin-bottom: 15px;">
