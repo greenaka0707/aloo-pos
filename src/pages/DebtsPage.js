@@ -9,6 +9,23 @@ export default function DebtsPage() {
     const container = document.querySelector(".debts-page");
     if (!container) return;
 
+    // ==========================================================================
+    // 💥 REPARASI HEADER NAVBAR TOP DINAMIS (GUSUR PT PRABHASKOE KELUAR GAIS)
+    // ==========================================================================
+    // Cari elemen teks header di navbar luar komponen pos pusat lo
+    const globalHeaderTitle = document.querySelector("header h1, .nav-top-title, header div h2"); 
+    const globalHeaderSub = document.querySelector("header p, .nav-top-subtitle, header div span");
+
+    // Jika struktur layout global lo pakai class standard atau div text, kita intercept murni di sini:
+    const mainAppHeader = document.querySelector("header");
+    if (mainAppHeader) {
+      const titleEl = mainAppHeader.querySelector("h1, h2, .title, strong");
+      const subEl = mainAppHeader.querySelector("p, span, .subtitle, small");
+      
+      if (titleEl) titleEl.textContent = "Piutang Usaha";
+      if (subEl) subEl.textContent = "PT. Ekspansi Nutrisi Nusantara";
+    }
+
     const summaryTotalArea = container.querySelector("#summary-total-debt");
     const debtListArea = container.querySelector("#debt-list-container");
     const tabBelumLunasBtn = container.querySelector("#tab-belum-lunas");
@@ -50,7 +67,7 @@ export default function DebtsPage() {
     function calculateAndRenderDOM() {
       totalDebtAmount = 0;
 
-      // Hitung total piutang ALL TIME murni dari yang net_amount > 0 gais
+      // Hitung total piutang berjalan murni dari yang net_amount > 0 gais
       debtOrdersLocal.forEach(order => {
         const sisaHutang = parseFloat(order.net_amount || 0);
         if (sisaHutang > 0) {
@@ -193,7 +210,7 @@ export default function DebtsPage() {
         const inputAmount = parseFloat(payInput.value) || 0;
 
         if (inputAmount <= 0 || inputAmount > currentMaxDebt) {
-          alert(`⚠️ INPUT DATA INVALID!\nNominal pembayaran wajib angka positif dan tidak boleh melebih sisa piutang Rp ${currentMaxDebt.toLocaleString('id-ID')} gais!`);
+          alert(`⚠️ INPUT DATA INVALID!\nNominal pembayaran wajib angka positif and tidak boleh melebih sisa piutang Rp ${currentMaxDebt.toLocaleString('id-ID')} gais!`);
           return;
         }
 
@@ -234,14 +251,7 @@ export default function DebtsPage() {
   return `
     <section class="debts-page" style="padding-bottom: 80px;">
       
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--space-md); padding: 0 4px;">
-        <div>
-          <h2 class="font-bold" style="font-size:20px; color:var(--text); margin:0;">Piutang Usaha</h2>
-          <span style="font-size:12px; color:var(--text-light);">PT. Ekspansi Nutrisi Nusantara</span>
-        </div>
-      </div>
-
-      <div class="card" style="background: linear-gradient(135deg, #2A3B50 0%, #1A2635 100%); color: white; padding: var(--space-lg); border-radius: var(--radius-md); margin-bottom: var(--space-md); box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+      <div class="card" style="background: linear-gradient(135deg, #2A3B50 0%, #1A2635 100%); color: white; padding: var(--space-lg); border-radius: var(--radius-md); margin-bottom: var(--space-md); box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: var(--space-md);">
         <span style="font-size: var(--text-xs); color: #94A3B8; text-transform: uppercase; font-weight: var(--font-semibold); letter-spacing: 0.5px;">Total Piutang Usaha Lapangan</span>
         <h2 id="summary-total-debt" style="font-size: 26px; font-weight: var(--font-bold); margin-top: 4px; color: #F97316;">Rp 0</h2>
         <p style="font-size: 11px; color: #94A3B8; margin-top: 6px; font-style: italic;">* Akumulasi dana nota yang belum disetor lunas oleh warung/toko.</p>
