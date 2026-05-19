@@ -1,3 +1,5 @@
+import StockAdjustmentPage from "../pages/StockAdjustmentPage.js";
+
 import { DashboardPage } from "../pages/dashboard.js";
 
 import { OrderListPage } from "../pages/order-list-page.js";
@@ -49,6 +51,12 @@ export function renderRoute(route) {
   // CORE APP ROUTER MAP (JALUR ROUTE ASLI TRANS PARAN LO)
   // ==========================================================================
   switch (route) {
+    
+    /* =========================
+       🛠️ INVENTORY ADJUSTMENT (PENYESUAIAN STOK GUDANG)
+    ========================= */
+    case "penyesuaian-stok":
+      return StockAdjustmentPage();
 
     /* =========================
        DASHBOARD
