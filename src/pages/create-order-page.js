@@ -4,7 +4,7 @@ export default function CreateOrderPage() {
   let selectedCustomer = null;
   let selectedSalesman = null;
   let cart = [];
-  let bomCart = []; // <--- 🛒 ARRAY KHUSUS MENAMPUNG BAHAN BAKU PILIHAN MANUAL LO GAIS
+  let bomCart = []; // <--- 🛒 ARRAY BAHAN BAKU PILIHAN MANUAL LO TETEP AMAN AMAN AMAN GAIS
   let isSubmitting = false;
 
   const today = new Date().toISOString().split('T')[0];
@@ -222,7 +222,7 @@ export default function CreateOrderPage() {
                 return;
               }
 
-              // 🛠️ FIX UTAMA: Harga awal 25000 lo udah di-wipe bersih murni jadi kosong (0) gais
+              // Bersih terhapus (kosong) gais
               cart.push({
                 id: pId,
                 name: target.dataset.name,
@@ -266,7 +266,7 @@ export default function CreateOrderPage() {
           <div class="form-grid-2">
             <div class="form-group">
               <label class="form-label">Qty (${item.unit})</label>
-              <input type="number" step="0.01" inputmode="decimal" class="input input-qty" value="${item.qty}" placeholder="0.00" />
+              <input type="number" step="0.01" pattern="[0-9]*([\\\\.,][0-9]*)?" inputmode="decimal" class="input input-qty" value="${item.qty}" placeholder="0.00" />
             </div>
             <div class="form-group">
               <label class="form-label">Harga (Rp)</label>
@@ -327,6 +327,7 @@ export default function CreateOrderPage() {
         }
       });
 
+      // 🛠️ KEMBALIKAN PRODUKSI CARD: Otomatis muncul gais!
       if (manufacturingCard) manufacturingCard.style.display = needsProduction ? "block" : "none";
       
       if (!needsProduction) {
@@ -396,7 +397,7 @@ export default function CreateOrderPage() {
                 id: mId,
                 name: target.dataset.name,
                 unit: target.dataset.unit,
-                qty_needed: "" // 🛠️ Dikosongkan bersih murni diawal gais
+                qty_needed: "" 
               });
 
               matFloat.style.display = "none";
@@ -414,7 +415,6 @@ export default function CreateOrderPage() {
       });
     }
 
-    // RENDER BARIS BARU BAHAN BAKU BERDASARKAN INPUT MANUAL
     function renderBomCartStructure() {
       if (!bomDetails) return;
 
@@ -433,7 +433,7 @@ export default function CreateOrderPage() {
             <span class="text-sm font-medium" style="color: var(--text); display:block;">${b.name}</span>
           </div>
           <div style="flex: 1; display: flex; align-items: center; gap: 4px;">
-            <input type="number" step="0.01" inputmode="decimal" class="input input-bom-qty" value="${b.qty_needed}" placeholder="0.00" style="text-align: right; width: 80px; padding: 4px 8px; font-size: 13px;" />
+            <input type="number" step="0.01" pattern="[0-9]*([\\\\.,][0-9]*)?" inputmode="decimal" class="input input-bom-qty" value="${b.qty_needed}" placeholder="0.00" style="text-align: right; width: 80px; padding: 4px 8px; font-size: 13px;" />
             <span class="text-xs text-light">${b.unit}</span>
           </div>
           <button type="button" class="btn-remove-bom" data-idx="${idx}" style="background: none; border: none; color: var(--danger); font-size: 16px; cursor: pointer; padding: 0 4px;">&times;</button>
@@ -481,7 +481,6 @@ export default function CreateOrderPage() {
             return;
           }
 
-          // Validasi form kosong harian
           let isFormValid = true;
           cart.forEach(item => {
             if (item.qty === "" || item.price === "") isFormValid = false;
@@ -525,7 +524,6 @@ export default function CreateOrderPage() {
               return;
             }
 
-            // Validasi input racikan kosong gais
             if (autoNeedsProduction) {
               let isBomValid = true;
               bomCart.forEach(b => { if (b.qty_needed === "") isBomValid = false; });
@@ -573,6 +571,9 @@ export default function CreateOrderPage() {
 
             if (itemsError) throw itemsError;
 
+            // ==========================================================================
+            // AUTO-INSERT ANT REAN PRODUKSI BALIK KEMBALI AMAN 100% GAIS!
+            // ==========================================================================
             if (autoNeedsProduction && targetShortageProduct) {
               const generatedPrdNo = 'PRD-' + today.replace(/-/g, '') + '-' + Date.now().toString().slice(-4);
               
