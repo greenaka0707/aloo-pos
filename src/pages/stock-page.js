@@ -7,7 +7,8 @@ async function getSupabaseStock() {
   try {
     const { data, error } = await supabase
       .from('products') 
-      .select('id, name, category, stock, min_stock, unit, description, updated_at')
+      // ✔️ FIX: updated_at dihapus dari skema select gais biar gak bikin crash database
+      .select('id, name, category, stock, min_stock, unit, description')
       .order('stock', { ascending: true }); // Mengutamakan stok kritis/menipis di atas
 
     if (error) throw error;
@@ -32,13 +33,6 @@ export function StockPage() {
 
     // Tarik data asli dari database
     const allItems = await getSupabaseStock();
-
-    // Helper pemformat tanggal Indonesia (Contoh: 19 Mei 2026)
-    const formatDate = (dateString) => {
-      if (!dateString) return 'Baru saja';
-      const options = { day: 'numeric', month: 'short', year: 'numeric' };
-      return new Date(dateString).toLocaleDateString('id-ID', options);
-    };
 
     // ==========================================================================
     // ENGINE RENDERER DENGAN ANIMASI SLIDE (100% KONSISTEN)
@@ -126,7 +120,7 @@ export function StockPage() {
                 <div class="list-card-footer">
                   ${isMenipis 
                     ? `<span style="color: var(--danger); font-size: var(--text-xs); font-weight: var(--font-medium);">Restock dibutuhkan</span>`
-                    : `<span class="text-light text-xs">Updated ${formatDate(item.updated_at)}</span>`
+                    : `<span class="text-light text-xs">Stock terverifikasi aman</span>`
                   }
                   <button
                     class="detail-btn"
