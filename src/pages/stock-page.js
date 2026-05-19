@@ -1,22 +1,28 @@
 import { supabase } from "../supabaseClient.js";
 
-// 1. Ambil data stok langsung dari tabel products
+// ==========================================================================
+// 1. FUNGSI AMBIL DATA STOCK DARI SUPABASE (PRODUCTS TABLE)
+// ==========================================================================
 async function getSupabaseStock() {
   try {
     const { data, error } = await supabase
       .from('products') 
       .select('id, name, category, stock, min_stock, unit, description, updated_at')
-      .order('stock', { ascending: true }); // Biar yang kritis/menipis naik ke atas
+      .order('stock', { ascending: true }); // Mengutamakan stok kritis/menipis di atas
 
     if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error("❌ Gagal mengambil data stok:", error.message);
+    console.error("❌ Gagal mengambil data stock dari Supabase:", error.message);
     return [];
   }
 }
 
-export default function StockPage() {
+// ==========================================================================
+// 2. CORE COMPONENT: STOCK PAGE (NAMED EXPORT - SESUAI ROUTER LO GAIS)
+// ==========================================================================
+export function StockPage() {
+  // Gunakan delay mikro aman agar elemen .stock-dynamic-list sudah bertengger di DOM
   setTimeout(async () => {
     const container = document.querySelector(".stock-dynamic-list");
     const chips = document.querySelectorAll(".filter-chip");
@@ -24,10 +30,10 @@ export default function StockPage() {
 
     if (!container) return;
 
-    // Tarik data utama dari backend
+    // Tarik data asli dari database
     const allItems = await getSupabaseStock();
 
-    // Helper format tanggal (Misal: 15 Mei 2026)
+    // Helper pemformat tanggal Indonesia (Contoh: 19 Mei 2026)
     const formatDate = (dateString) => {
       if (!dateString) return 'Baru saja';
       const options = { day: 'numeric', month: 'short', year: 'numeric' };
@@ -35,16 +41,17 @@ export default function StockPage() {
     };
 
     // ==========================================================================
-    // LOGIC RENDER LIST (ANIMASI SLIDE & DATA DINAMIS)
+    // ENGINE RENDERER DENGAN ANIMASI SLIDE (100% KONSISTEN)
     // ==========================================================================
     const renderList = (itemsToRender) => {
+      // Pemicu awal: beri efek geser keluar ke kiri gais
       container.classList.add("page-leave");
 
       setTimeout(() => {
         if (itemsToRender.length === 0) {
           container.innerHTML = `
-            <div class="card" style="padding: 24px; text-align: center; color: var(--text-light);">
-              Tidak ada data stock yang cocok.
+            <div class="card" style="padding: 24px; text-align: center; color: var(--text-light); font-size: var(--text-sm);">
+              Tidak ada data stock yang cocok dengan filter.
             </div>
           `;
         } else {
@@ -53,31 +60,30 @@ export default function StockPage() {
             const minStockVal = item.min_stock || 0;
             const unitStr = item.unit || 'kg';
             
-            // 1. Mapping Kategori & Warna Badge Kategori
+            // A. Deteksi Kategori & Custom Badge Warna Lu gais
             let categoryText = 'Lainnya';
             let categoryBadge = 'badge-primary';
             
             if (item.category === 'roastedbean' || item.category === 'kopi_bubuk') {
               categoryText = 'Barang Jadi';
-              categoryBadge = 'badge-primary';
+              categoryBadge = 'badge-primary'; // Biru bawaan template lu
             } else if (item.category === 'greenbean') {
               categoryText = 'Bahan Baku';
-              categoryBadge = 'badge-info';
+              categoryBadge = 'badge-info';    // Tosca/Cyan info gais
             }
 
-            // 2. Logic Status Kelayakan Stok (Aman vs Menipis)
+            // B. Deteksi Status Kelayakan Batas Minimum Stock
             const isMenipis = stockVal <= minStockVal;
             const statusBadge = isMenipis ? 'badge-danger' : 'badge-success';
             const statusText = isMenipis ? 'Menipis' : 'Aman';
             
-            // 3. Styling Card & Icon Berdasarkan Kondisi Stok
+            // C. Inject Style Dinamis Sesuai Template Desain Lu
             const cardBorderColor = isMenipis ? 'border-color: var(--orange);' : '';
             const iconBoxStyle = isMenipis 
               ? 'background: var(--orange-soft); color: var(--orange);' 
               : 'background: rgba(16, 185, 129, 0.1); color: #10B981;';
             const iconName = item.category === 'greenbean' ? 'package' : 'coffee';
 
-            // 4. Badge Angka Stok Dinamis
             const stockBadgeStyle = isMenipis
               ? 'background: var(--danger-soft); color: var(--danger); font-weight: var(--font-bold);'
               : 'background: var(--bg); color: var(--text);';
@@ -85,7 +91,7 @@ export default function StockPage() {
             return `
               <div
                 class="card list-card" 
-                onclick="window.navigate('stock-detail?id=${item.id}')"
+                onclick="window.navigate('stock-detail')"
                 style="cursor: pointer; ${cardBorderColor}"
               >
                 <div class="list-card-top">
@@ -105,7 +111,7 @@ export default function StockPage() {
                       ${item.name}
                     </strong>
                     <p class="text-light text-xs" style="margin-bottom: 6px;">
-                      ${item.description || 'Tidak ada keterangan.'}
+                      ${item.description || 'Ready stock untuk operasional.'}
                     </p>
                     
                     <div style="display: flex; gap: var(--space-md); align-items: center;">
@@ -124,7 +130,7 @@ export default function StockPage() {
                   }
                   <button
                     class="detail-btn"
-                    onclick="event.stopPropagation(); window.navigate('stock-detail?id=${item.id}')"
+                    onclick="event.stopPropagation(); window.navigate('stock-detail')"
                   >
                     Detail
                   </button>
@@ -134,8 +140,10 @@ export default function StockPage() {
           }).join('');
         }
 
+        // Re-aktivasi icon lucide setelah string HTML nancep di DOM
         if (window.lucide) window.lucide.createIcons();
 
+        // Transisi meluncur masuk gais
         container.classList.remove("page-leave");
         container.classList.add("page-enter");
 
@@ -149,7 +157,7 @@ export default function StockPage() {
     };
 
     // ==========================================================================
-    // LOGIC FILTER GABUNGAN (SEARCH + CHIPS)
+    // MULTI-FILTER CONTROL (GABUNGAN SEARCH + TABS CHIPS)
     // ==========================================================================
     const applyFilterAndSearch = () => {
       const activeChip = document.querySelector(".filter-chip.active");
@@ -158,7 +166,7 @@ export default function StockPage() {
 
       let filtered = allItems;
 
-      // 1. Filter Chips Logic
+      // 1. Eksekusi Filter Berdasarkan Kategori / Kondisi Stok
       if (filterValue === "barang jadi") {
         filtered = allItems.filter(item => item.category === "roastedbean" || item.category === "kopi_bubuk");
       } else if (filterValue === "bahan baku") {
@@ -167,7 +175,7 @@ export default function StockPage() {
         filtered = allItems.filter(item => (item.stock || 0) <= (item.min_stock || 0));
       }
 
-      // 2. Filter Search Logic
+      // 2. Kombinasikan Dengan Keyword Pencarian Live
       if (searchQuery !== "") {
         filtered = filtered.filter(item => item.name.toLowerCase().includes(searchQuery));
       }
@@ -175,10 +183,10 @@ export default function StockPage() {
       renderList(filtered);
     };
 
-    // Jalankan render awal
+    // Pemicu Render Pertama
     renderList(allItems);
 
-    // Event handler klik filter chips
+    // Event Listener untuk Filter Chips (Klik Tab)
     chips.forEach(chip => {
       chip.addEventListener("click", (e) => {
         chips.forEach(c => c.classList.remove("active"));
@@ -187,13 +195,14 @@ export default function StockPage() {
       });
     });
 
-    // Event handler ketik live search
+    // Event Listener untuk Live Search Input (Ketik Otomatis)
     if (searchInput) {
       searchInput.addEventListener("input", applyFilterAndSearch);
     }
 
   }, 50);
 
+  // Return layout murni sesuai mockup UI idaman lu gais!
   return `
     <section class="list-page"> 
 
@@ -213,7 +222,6 @@ export default function StockPage() {
         <button class="filter-chip">Menipis</button>
       </div>
 
-      <!-- Container Utama yang Sekarang Diisi Secara Dinamis -->
       <div class="data-list stock-dynamic-list"> 
         <div style="display: flex; justify-content: center; padding: 40px; color: var(--text-light);">
           <p>Memuat data stock dari database...</p>
