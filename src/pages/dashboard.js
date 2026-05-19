@@ -195,6 +195,11 @@ export function DashboardPage() {
             <span>Produk</span>
           </button>
 
+          <button class="quick-menu-item" onclick="window.navigate('piutang')">
+            <div class="quick-menu-icon" style="color: var(--orange); background: var(--orange-soft);"><i data-lucide="credit-card"></i></div>
+            <span style="font-weight: var(--font-semibold);">Piutang</span>
+          </button>
+
           <button class="quick-menu-item" onclick="window.navigate('laporan')">
             <div class="quick-menu-icon"><i data-lucide="bar-chart-3"></i></div>
             <span>Laporan</span>
