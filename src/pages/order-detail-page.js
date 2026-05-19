@@ -277,67 +277,64 @@ export function OrderDetailPage() {
     }
 
     // ==========================================================================
-    // 4. GENERATOR TOMBOL AKSI JALUR OPERASIONAL (WITH DYNAMIC ICONS)
+    // 4. GENERATOR TOMBOL AKSI JALUR OPERASIONAL (ONLY MAIN BUTTON HAS TEXT)
     // ==========================================================================
     function renderActionButtonsDOM() {
       const currentDbStatus = orderDataLocal.status ? orderDataLocal.status.toLowerCase() : 'pending';
       
+      // ✔️ TOMBOL KEMBALI DIHAPUS UTUH. Cetak WA ditaruh di paling kiri gais.
       let leftButtonsHtml = `
-        <button class="action-btn" id="btn-back-order" style="background:var(--border); color:var(--text); border:none; display:flex; align-items:center; justify-content:center; gap:6px;">
-          <i data-lucide="arrow-left" style="width:16px; height:16px;"></i> Kembali
-        </button>
-        <button class="action-btn" id="btn-print-invoice" style="background:var(--orange-soft); color:var(--orange); border:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:6px;">
-          <i data-lucide="printer" style="width:16px; height:16px;"></i> Cetak WA
+        <button class="action-btn-icon" id="btn-print-invoice" style="background:var(--orange-soft); color:var(--orange); border:none; width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:var(--radius-md); padding:0; cursor:pointer;" title="Cetak WA">
+          <i data-lucide="printer" style="width:20px; height:20px;"></i>
         </button>
       `;
 
       if (currentDbStatus === "void") {
         actionsArea.innerHTML = leftButtonsHtml + `
-          <button class="action-btn" style="background:var(--border); color:var(--text-light); border:none; display:flex; align-items:center; justify-content:center; gap:6px;" disabled>
-            <i data-lucide="ban" style="width:16px; height:16px;"></i> ORDER VOIDED
+          <button class="action-btn primary-action" style="background:var(--border); color:var(--text-light); border:none; flex:1; height:48px; display:flex; align-items:center; justify-content:center; gap:8px; border-radius:var(--radius-md); font-weight:bold;" disabled>
+            <i data-lucide="ban" style="width:18px; height:18px;"></i> ORDER VOIDED
           </button>
         `;
         if (window.lucide) window.lucide.createIcons();
-        const backBtn = actionsArea.querySelector("#btn-back-order");
-        if (backBtn) backBtn.addEventListener("click", () => { if(window.navigate) window.navigate("order"); });
         return;
       }
 
-      let voidButtonText = "Void Order";
       let voidIcon = "trash-2";
+      let voidTitle = "Void Order";
       if (currentDbStatus === "dikirim") {
-        voidButtonText = "Terima Retur";
         voidIcon = "refresh-cw";
+        voidTitle = "Terima Retur";
       }
 
       let voidButtonHtml = `
-        <button class="action-btn" id="btn-void-order" style="background:var(--danger-soft); color:var(--danger); border:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:6px;">
-          <i data-lucide="${voidIcon}" style="width:16px; height:16px;"></i> ${voidButtonText}
+        <button class="action-btn-icon" id="btn-void-order" style="background:var(--danger-soft); color:var(--danger); border:none; width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:var(--radius-md); padding:0; cursor:pointer;" title="${voidTitle}">
+          <i data-lucide="${voidIcon}" style="width:20px; height:20px;"></i>
         </button>
       `;
 
+      // Gabungkan komponen, tombol aksi utama melar penuh mengisi sisa ruang gais
       if (currentDbStatus === "pending" || currentDbStatus === "butuh produksi") {
         actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `
-          <button class="action-btn primary-action" id="btn-next-status" style="background:var(--orange); border:none; color:white; display:flex; align-items:center; justify-content:center; gap:6px;">
-            <i data-lucide="play" style="width:16px; height:16px;"></i> Mulai Produksi
+          <button class="action-btn primary-action" id="btn-next-status" style="background:var(--orange); border:none; color:white; flex:1; height:48px; display:flex; align-items:center; justify-content:center; gap:8px; border-radius:var(--radius-md); font-weight:bold; cursor:pointer;">
+            <i data-lucide="play" style="width:18px; height:18px;"></i> Mulai Produksi
           </button>
         `;
       } else if (currentDbStatus === "diproses") {
         actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `
-          <button class="action-btn primary-action" id="btn-next-status" style="background:var(--border); border:none; color:var(--text-light); display:flex; align-items:center; justify-content:center; gap:6px;" disabled>
-            <i data-lucide="lock" style="width:16px; height:16px;"></i> Produksi Berjalan
+          <button class="action-btn primary-action" id="btn-next-status" style="background:var(--border); border:none; color:var(--text-light); flex:1; height:48px; display:flex; align-items:center; justify-content:center; gap:8px; border-radius:var(--radius-md); font-weight:bold;" disabled>
+            <i data-lucide="lock" style="width:18px; height:18px;"></i> Produksi Berjalan
           </button>
         `;
       } else if (currentDbStatus === "ready") {
         actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `
-          <button class="action-btn primary-action" id="btn-next-status" style="background:#06B6D4; border:none; color:white; display:flex; align-items:center; justify-content:center; gap:6px;">
-            <i data-lucide="truck" style="width:16px; height:16px;"></i> Kirim Barang
+          <button class="action-btn primary-action" id="btn-next-status" style="background:#06B6D4; border:none; color:white; flex:1; height:48px; display:flex; align-items:center; justify-content:center; gap:8px; border-radius:var(--radius-md); font-weight:bold; cursor:pointer;">
+            <i data-lucide="truck" style="width:18px; height:18px;"></i> Kirim Barang
           </button>
         `;
       } else {
         actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `
-          <button class="action-btn" style="background:var(--border); border:none; color:var(--text-light); display:flex; align-items:center; justify-content:center; gap:6px;" disabled>
-            <i data-lucide="check-square" style="width:16px; height:16px;"></i> Order Closed
+          <button class="action-btn" style="background:var(--border); border:none; color:var(--text-light); flex:1; height:48px; display:flex; align-items:center; justify-content:center; gap:8px; border-radius:var(--radius-md); font-weight:bold;" disabled>
+            <i data-lucide="check-square" style="width:18px; height:18px;"></i> Order Closed
           </button>
         `;
       }
@@ -361,7 +358,7 @@ export function OrderDetailPage() {
 
           try {
             voidBtn.disabled = true;
-            voidBtn.innerHTML = `<i data-lucide="loader-2" class="animate-spin" style="width:16px; height:16px;"></i> Processing...`;
+            voidBtn.innerHTML = `<i data-lucide="loader-2" class="animate-spin" style="width:20px; height:20px;"></i>`;
             if (window.lucide) window.lucide.createIcons();
 
             if (isAlreadyShipped) {
@@ -430,9 +427,6 @@ export function OrderDetailPage() {
 
       const printBtn = actionsArea.querySelector("#btn-print-invoice");
       if (printBtn) printBtn.addEventListener("click", downloadInvoiceA5);
-
-      const backBtn = actionsArea.querySelector("#btn-back-order");
-      if (backBtn) backBtn.addEventListener("click", () => { if(window.navigate) window.navigate("order"); });
 
       const nextBtn = actionsArea.querySelector("#btn-next-status");
       if (nextBtn && !nextBtn.disabled) {
