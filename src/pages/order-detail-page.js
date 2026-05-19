@@ -187,12 +187,6 @@ export function OrderDetailPage() {
     }
 
     // ==========================================================================
-    // 3. GENERATOR PDF INVOICE A5 (STRUKTUR ENNA & PAYMENT DETAIL)
-    // ==========================================================================
-        // ==========================================================================
-    // 3. GENERATOR PDF INVOICE A5 (FIX REKENING & STRUKTUR LOGO ENNA)
-    // ==========================================================================
-        // ==========================================================================
     // 3. GENERATOR PDF INVOICE A5 (FIX UKURAN TEKS KONSISTEN)
     // ==========================================================================
     function downloadInvoiceA5() {
@@ -304,8 +298,6 @@ export function OrderDetailPage() {
 
       window.html2pdf().set(opt).from(element).save();
     }
-
-
 
     // ==========================================================================
     // 4. GENERATOR TOMBOL AKSI JALUR OPERASIONAL (WITH ONLY DYNAMIC ICONS)
@@ -454,6 +446,18 @@ export function OrderDetailPage() {
               }
             }
             
+            // ==========================================================================
+            // 💥 PERBAIKAN UTAMA: OTOMATIS IKUT VOID DATA ANTREAN PRODUKSI MANUFAKTUR
+            // ==========================================================================
+            const { error: voidProdErr } = await supabase
+              .from("productions")
+              .update({ status: "void" })
+              .eq("sales_order_id", orderId);
+
+            if (voidProdErr) {
+              console.warn("⚠️ Info: Nota tidak memiliki antrean produksi murni atau skema kolom status produksi belum diset.", voidProdErr.message);
+            }
+
             const { error: voidErr } = await supabase
               .from("sales_orders")
               .update({ status: "void" })
