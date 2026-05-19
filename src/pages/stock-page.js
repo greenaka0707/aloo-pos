@@ -141,11 +141,10 @@ export function StockPage() {
     };
 
     // ==========================================================================
-    // EXPORT REALTIME KE PDF GUDANG (MURNI MENGGUNAKAN DATA LIVE SUPABASE)
+    // EXPORT REALTIME KE PDF GUDANG (BRANDING PT EKSPANSI NUTRISI NUSANTARA)
     // ==========================================================================
     if (downloadBtn) {
       downloadBtn.addEventListener("click", async () => {
-        // Ambil data paling fresh saat tombol diklik biar ga nge-cache data lama gais
         const freshItems = await getSupabaseStock();
         if (freshItems.length === 0) return alert("Belum ada data di database Supabase lo gais!");
         
@@ -204,8 +203,8 @@ export function StockPage() {
 
         element.innerHTML = `
           <div style="border-bottom: 2px solid #F97316; padding-bottom: 10px; margin-bottom: 15px;">
-            <h1 style="margin: 0; font-size: 24px; color: #1E293B; font-weight: 800; letter-spacing: -0.5px;">PT PRABHASKOE</h1>
-            <div style="font-size: 11px; font-weight: 700; color: #F97316; text-transform: uppercase; margin-top: 2px; letter-spacing: 0.5px;">Laporan Opname Stok Gudang (Realtime Supabase)</div>
+            <h1 style="margin: 0; font-size: 22px; color: #1E293B; font-weight: 800; letter-spacing: -0.5px; text-transform: uppercase;">PT EKSPANSI NUTRISI NUSANTARA</h1>
+            <div style="font-size: 11px; font-weight: 700; color: #F97316; text-transform: uppercase; margin-top: 2px; letter-spacing: 0.5px;">Laporan Opname Stok Gudang</div>
           </div>
 
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 11px; line-height: 1.4;">
@@ -213,13 +212,11 @@ export function StockPage() {
               <td style="color: #6B7280; width: 15%;">Tanggal Cetak:</td>
               <td style="font-weight: 600; color: #111827; width: 35%;">: ${new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
               <td style="color: #6B7280; width: 15%;">Sistem Terkait:</td>
-              <td style="font-weight: 600; color: #111827; width: 35%;">: ERP POS Gudang</td>
+              <td style="font-weight: 600; color: #111827; width: 35%;">: Aloo POS</td>
             </tr>
             <tr>
               <td style="color: #6B7280;">Status Audit:</td>
-              <td style="font-weight: 600; color: #111827;">: Terkoneksi Live</td>
-              <td style="color: #6B7280;">Otoritas:</td>
-              <td style="font-weight: 600; color: #F97316;">: Owner Terverifikasi</td>
+              <td style="font-weight: 600; color: #111827;" colspan="3">: Terkoneksi Live (Supabase)</td>
             </tr>
           </table>
 
@@ -239,7 +236,7 @@ export function StockPage() {
             </tbody>
           </table>
 
-          <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 10px; margin-bottom: 30px;">
+          <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 10px; margin-bottom: 35px;">
             <div style="font-size: 11px; font-weight: bold; color: #1E293B; text-transform: uppercase; margin-bottom: 6px;">Ringkasan Evaluasi Timbangan Gudang</div>
             <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
               <tr>
@@ -269,17 +266,14 @@ export function StockPage() {
                 <strong style="text-decoration: underline; color: #111827;">Staff Lapangan Gudang</strong>
               </td>
               <td style="text-align: center; width: 50%;">
-                <p style="margin: 0;">Disetujui Oleh,</p>
-                <br><br><br>
-                <strong style="text-decoration: underline; color: #111827;">Agus Setiawan (Owner)</strong>
-              </td>
+                </td>
             </tr>
           </table>
         `;
 
         const opt = {
           margin:       10,
-          filename:     `Laporan_Stok_Realtime_PT_Prabhaskoe.pdf`,
+          filename:     `Laporan_Stok_Realtime_ENN.pdf`,
           image:        { type: 'jpeg', quality: 0.98 },
           html2canvas:  { scale: 2, useCORS: true },
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
