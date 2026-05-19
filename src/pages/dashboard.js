@@ -190,6 +190,11 @@ export function DashboardPage() {
             <span>Stock</span>
           </button>
 
+          <button class="quick-menu-item" onclick="window.navigate('penyesuaian-stok')">
+            <div class="quick-menu-icon" style="color:#06B6D4; background:#ECFEFF;"><i data-lucide="sliders"></i></div>
+            <span style="font-weight: var(--font-semibold);">Adj Stok</span>
+          </button>
+
           <button class="quick-menu-item" onclick="window.navigate('produk')">
             <div class="quick-menu-icon"><i data-lucide="boxes"></i></div>
             <span>Produk</span>
@@ -197,7 +202,7 @@ export function DashboardPage() {
 
           <button class="quick-menu-item" onclick="window.navigate('piutang')">
             <div class="quick-menu-icon" style="color: var(--orange); background: var(--orange-soft);"><i data-lucide="credit-card"></i></div>
-            <span style="font-weight: var(--font-semibold);">Piutang</span>
+            <span>Piutang</span>
           </button>
 
           <button class="quick-menu-item" onclick="window.navigate('laporan')">
