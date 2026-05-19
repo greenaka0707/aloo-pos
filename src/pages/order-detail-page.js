@@ -4,7 +4,7 @@ export function OrderDetailPage() {
   const orderId = localStorage.getItem("selected_order_id");
   let orderDataLocal = null;
   let orderItemsLocal = [];
-  let dbBomItemsLocal = []; // <--- ARRAY UNTUK MENAMPUNG LIVE BAHAN BAKU HASIL INPUT MANUAL KASIR
+  let dbBomItemsLocal = []; 
 
   setTimeout(async () => {
     const container = document.querySelector(".detail-page");
@@ -163,7 +163,7 @@ export function OrderDetailPage() {
                 <div class="left-content">
                   <span class="title" style="color: var(--text); font-weight:var(--font-medium);">${matName}</span>
                 </div>
-                <strong class="right-value" style="font-size: var(--text-sm); color: var(--text);">${matQty.toFixed(1)}${matUnit}</strong>
+                <strong class="right-value" style="font-size: var(--text-sm); color: var(--text);">${matQty.toFixed(1)} ${matUnit}</strong>
               </div>
             `;
           }).join('');
@@ -277,15 +277,11 @@ export function OrderDetailPage() {
     }
 
     // ==========================================================================
-    // 4. CORE TRIGGER UPDATE STATUS & UPDATE LOGIK RETUR MODAL QTY
-    // ==========================================================================
-    // ==========================================================================
-    // 4. CORE TRIGGER UPDATE STATUS & UPDATE LOGIK RETUR MODAL QTY (WITH ICONS)
+    // 4. GENERATOR TOMBOL AKSI JALUR OPERASIONAL (WITH DYNAMIC ICONS)
     // ==========================================================================
     function renderActionButtonsDOM() {
       const currentDbStatus = orderDataLocal.status ? orderDataLocal.status.toLowerCase() : 'pending';
       
-      // Menggunakan flex-alignment dan menambahkan icon lucide gais biar estetik
       let leftButtonsHtml = `
         <button class="action-btn" id="btn-back-order" style="background:var(--border); color:var(--text); border:none; display:flex; align-items:center; justify-content:center; gap:6px;">
           <i data-lucide="arrow-left" style="width:16px; height:16px;"></i> Kembali
@@ -295,28 +291,23 @@ export function OrderDetailPage() {
         </button>
       `;
 
-      // Jika statusnya sudah VOID, kunci permanen menu aksi operasionalnya gais
       if (currentDbStatus === "void") {
         actionsArea.innerHTML = leftButtonsHtml + `
           <button class="action-btn" style="background:var(--border); color:var(--text-light); border:none; display:flex; align-items:center; justify-content:center; gap:6px;" disabled>
             <i data-lucide="ban" style="width:16px; height:16px;"></i> ORDER VOIDED
           </button>
         `;
-        
-        // Re-aktivasi icon lucide setelah tombol di-render gais
         if (window.lucide) window.lucide.createIcons();
-        
         const backBtn = actionsArea.querySelector("#btn-back-order");
         if (backBtn) backBtn.addEventListener("click", () => { if(window.navigate) window.navigate("order"); });
         return;
       }
 
-      // Sesuai diskusi gais, teks tombol otomatis berubah jadi konfirmasi terima retur jika status dikirim
       let voidButtonText = "Void Order";
       let voidIcon = "trash-2";
       if (currentDbStatus === "dikirim") {
         voidButtonText = "Terima Retur";
-        voidIcon = "refresh-cw"; // Ikon putar balik buat retur gais
+        voidIcon = "refresh-cw";
       }
 
       let voidButtonHtml = `
@@ -351,33 +342,10 @@ export function OrderDetailPage() {
         `;
       }
 
-      // WAJIB: Pemicu ulang agar Lucide menyuntikkan SVG ke elemen <i> baru gais
       if (window.lucide) window.lucide.createIcons();
 
       // ==========================================================================
-      // ADDEVENTLISTENER LOGIC (Tetap dipertahankan di bawahnya gais...)
-      // ==========================================================================
-      const voidBtn = actionsArea.querySelector("#btn-void-order");
-      if (voidBtn) {
-        voidBtn.addEventListener("click", async () => {
-          const isAlreadyShipped = (currentDbStatus === "dikirim");
-          
-          let confirmationText = `⚠️ KONFIRMASI VOID NOTA!\n\nApakah lo yakin ingin membatalkan transaksi ${orderDataLocal.invoice_no}?`;
-          if (isAlreadyShipped) {
-            confirmationText = `⚠️ KONFIRMASI SERAH TERIMA RETUR!\n\nApakah lo yakin ingin memproses retur barang dari nota ${orderDataLocal.invoice_no} ke rak gudang?`;
-          }
-
-          if (!confirm(confirmationText)) return;
-
-          try {
-            voidBtn.disabled = true;
-            voidBtn.innerHTML = `<i data-lucide="loader-2" class="animate-spin" style="width:16px; height:16px;"></i> Processing...`;
-            if (window.lucide) window.lucide.createIcons();
-
-            // ... sisa logic retur & prompt ke bawah bawaan kodingan lo aman gais ...
-
-      // ==========================================================================
-      // DISKUSI IMPLEMENTASI: LOGIK RETUR DENGAN POP-UP PROMPT MODAL QUANTITY LIVE
+      // ADDEVENTLISTENER INTERAKSI TOMBOL
       // ==========================================================================
       const voidBtn = actionsArea.querySelector("#btn-void-order");
       if (voidBtn) {
@@ -393,22 +361,20 @@ export function OrderDetailPage() {
 
           try {
             voidBtn.disabled = true;
-            voidBtn.textContent = "Processing...";
+            voidBtn.innerHTML = `<i data-lucide="loader-2" class="animate-spin" style="width:16px; height:16px;"></i> Processing...`;
+            if (window.lucide) window.lucide.createIcons();
 
-            // 🔥 SKENARIO 2: JIKA STATUSNYA SUDAH 'DIKIRIM' (RETUR DENGAN INPUT MODAL QUANTITY YANG KEMBALI)
             if (isAlreadyShipped) {
               for (const item of orderItemsLocal) {
                 const p = item.products || {};
                 const maxQty = parseFloat(item.qty || 0);
                 const pName = p.name || "Kopi Matang";
 
-                // Pemicu prompt modal quantity input live untuk kasir lo gais
                 let inputQty = prompt(
                   `📥 INPUT FISIK RETUR GUDANG\n\nProduk: ${pName}\nKuantitas di Nota Asal: ${maxQty} kg\n\nMasukkan total berat (kg) yang beneran sukses balik masuk rak:`, 
                   maxQty
                 );
 
-                // Jika kasir membatalkan prompt tengah jalan gais
                 if (inputQty === null) {
                   alert("❌ Void retur dibatalkan oleh user.");
                   fetchOrderDetail();
@@ -417,25 +383,21 @@ export function OrderDetailPage() {
 
                 let returnedQty = parseFloat(inputQty);
 
-                // Validasi data input ketat biar isi tidak minus atau melebihi nota asal
                 if (isNaN(returnedQty) || returnedQty < 0 || returnedQty > maxQty) {
                   alert(`⚠️ INPUT DATA INVALID GAIS!\nJumlah retur produk ${pName} wajib angka positif dan tidak boleh melebihi ${maxQty} kg!`);
                   fetchOrderDetail();
                   return;
                 }
 
-                // Jalankan query update penambahan stok jika jumlah retur rill > 0
                 if (returnedQty > 0) {
                   const currentStock = parseFloat(p.stock) || 0;
-                  const restoredStock = currentStock + returnedQty; // Ditambahkan balik murni dari input kasir (+)
+                  const restoredStock = currentStock + returnedQty;
 
-                  // A. Naikkan stok produk kopi jadi matang di gudang utama harian
                   await supabase
                     .from("products")
                     .update({ stock: restoredStock })
                     .eq("id", p.id);
 
-                  // B. Simpan rekam jejak formal ke tabel kartu stock_mutations
                   await supabase
                     .from("stock_mutations")
                     .insert([{
@@ -449,10 +411,6 @@ export function OrderDetailPage() {
               }
             }
             
-            // 🔥 SKENARIO 1: KONDISI NOTA BELUM DIKIRIM ('pending' / 'butuh produksi' / 'diproses' / 'ready')
-            // Sesuai kuncian diskusi: STOK TETEP DIAM DI SITU tanpa ada mutasi/gerakan barang apa pun.
-            // Langsung update ubah status utamanya di sales_orders menjadi 'void' selesai secara administrasi.
-
             const { error: voidErr } = await supabase
               .from("sales_orders")
               .update({ status: "void" })
@@ -465,8 +423,7 @@ export function OrderDetailPage() {
 
           } catch (err) {
             alert("❌ Gagal merubah status void retur: " + err.message);
-            voidBtn.disabled = false;
-            voidBtn.textContent = isAlreadyShipped ? "Konfirmasi Terima Retur" : "Void Order";
+            fetchOrderDetail();
           }
         });
       }
@@ -515,7 +472,7 @@ export function OrderDetailPage() {
               }
             }
 
-            const { error: updateErr = "void" } = await supabase
+            const { error: updateErr } = await supabase
               .from("sales_orders")
               .update({ status: nextStatus })
               .eq("id", orderId);
@@ -527,8 +484,7 @@ export function OrderDetailPage() {
 
           } catch (err) {
             alert("❌ Gagal merubah status operational: " + err.message);
-            nextBtn.disabled = false;
-            renderActionButtonsDOM();
+            fetchOrderDetail();
           }
         });
       }
