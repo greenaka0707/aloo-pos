@@ -4,7 +4,7 @@ export default function CreateOrderPage() {
   let selectedCustomer = null;
   let selectedSalesman = null;
   let cart = [];
-  let bomCart = []; // <--- 🛒 ARRAY BAHAN BAKU PILIHAN MANUAL LO TETEP AMAN AMAN AMAN GAIS
+  let bomCart = []; // Array khusus menampung bahan baku pilihan manual lo gais
   let isSubmitting = false;
 
   const today = new Date().toISOString().split('T')[0];
@@ -222,7 +222,7 @@ export default function CreateOrderPage() {
                 return;
               }
 
-              // Bersih terhapus (kosong) gais
+              // Bersih kosong tanpa harga default gais
               cart.push({
                 id: pId,
                 name: target.dataset.name,
@@ -266,11 +266,11 @@ export default function CreateOrderPage() {
           <div class="form-grid-2">
             <div class="form-group">
               <label class="form-label">Qty (${item.unit})</label>
-              <input type="number" step="0.01" pattern="[0-9]*([\\\\.,][0-9]*)?" inputmode="decimal" class="input input-qty" value="${item.qty}" placeholder="0.00" />
+              <input type="number" step="0.01" pattern="[0-9]*([\\\\.,][0-9]*)?" inputmode="decimal" class="input input-qty" value="${item.qty}" placeholder="" />
             </div>
             <div class="form-group">
               <label class="form-label">Harga (Rp)</label>
-              <input type="number" inputmode="numeric" class="input input-price" value="${item.price}" placeholder="0" />
+              <input type="number" inputmode="numeric" class="input input-price" value="${item.price}" placeholder="" />
             </div>
           </div>
 
@@ -322,12 +322,12 @@ export default function CreateOrderPage() {
 
       cart.forEach(item => {
         const validQty = parseFloat(item.qty) || 0;
-        if (validQty > item.stock) {
+        // 🔒 ATURAN UTAMA: Jika BUKAN greenbean (bahan baku) dan qty order > sisa stok gudang, WAJIB produksi gais!
+        if (item.category !== 'greenbean' && validQty > item.stock) {
           needsProduction = true;
         }
       });
 
-      // 🛠️ KEMBALIKAN PRODUKSI CARD: Otomatis muncul gais!
       if (manufacturingCard) manufacturingCard.style.display = needsProduction ? "block" : "none";
       
       if (!needsProduction) {
@@ -507,7 +507,8 @@ export default function CreateOrderPage() {
 
             cart.forEach(item => {
               const vQty = parseFloat(item.qty) || 0;
-              if (vQty > item.stock) {
+              // 🔒 VERIFIKASI SISA STOK MANUFAKTUR
+              if (item.category !== 'greenbean' && vQty > item.stock) {
                 autoNeedsProduction = true;
                 if (!targetShortageProduct) {
                   targetShortageProduct = item;
@@ -536,6 +537,7 @@ export default function CreateOrderPage() {
               }
             }
 
+            // Status otomatis disetel kekunci 'butuh produksi' gais!
             const finalOrderStatus = autoNeedsProduction ? 'butuh produksi' : 'pending';
             const finalNetAmount = subtotalTotal + shippingCost; 
 
@@ -572,7 +574,7 @@ export default function CreateOrderPage() {
             if (itemsError) throw itemsError;
 
             // ==========================================================================
-            // AUTO-INSERT ANT REAN PRODUKSI BALIK KEMBALI AMAN 100% GAIS!
+            // AUTO-INSERT ANT REAN PRODUKSI AMAN LENGKAP GAIS
             // ==========================================================================
             if (autoNeedsProduction && targetShortageProduct) {
               const generatedPrdNo = 'PRD-' + today.replace(/-/g, '') + '-' + Date.now().toString().slice(-4);
@@ -667,7 +669,7 @@ export default function CreateOrderPage() {
         </div>
       </div>
 
-      <div class="stock-dynamic-list" id="cart-items-container"></div>
+      <div id="cart-items-container"></div>
 
       <div class="card create-card" id="manufacturing-analysis-card" style="display: none;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-sm);">
