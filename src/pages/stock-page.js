@@ -160,36 +160,50 @@ export function StockPage() {
     // ==========================================================================
     // LOGIC DOWNLOAD / EXPORT DATA KE CSV
     // ==========================================================================
-    if (downloadBtn) {
-      downloadBtn.addEventListener("click", () => {
-        if (allItems.length === 0) return alert("Belum ada data untuk didownload gais!");
-        
-        // Buat baris header CSV
-        let csvContent = "data:text/csv;charset=utf-8,ID,Nama Barang,Kategori,Stok,Min Stok,Satuan\n";
-        
-        // Loop baris kontennya
-        allItems.forEach(item => {
-          const row = [
-            item.id,
-            `"${item.name.replace(/"/g, '""')}"`, // Bungkus tanda kutip aman gais
-            item.category,
-            item.stock || 0,
-            item.min_stock || 0,
-            item.unit || 'kg'
-          ].join(",");
-          csvContent += row + "\n";
-        });
+    // ==========================================================================
+// LOGIC DOWNLOAD / EXPORT DATA KE CSV (FIX EXCEL NUMPUK & DESIMAL)
+// ==========================================================================
+if (downloadBtn) {
+  downloadBtn.addEventListener("click", () => {
+    if (allItems.length === 0) return alert("Belum ada data untuk didownload gais!");
+    
+    // 1. KUNCI UTAMA: Tambahkan 'sep=;' di baris pertama agar Excel otomatis memisah kolom gais
+    let csvContent = "data:text/csv;charset=utf-8,sep=;\n";
+    
+    // Header menggunakan pemisah titik koma (;)
+    csvContent += "ID;Nama Barang;Kategori;Stok;Min Stok;Satuan\n";
+    
+    // 2. Loop baris konten dengan pemisah titik koma (;)
+    allItems.forEach(item => {
+      const stockVal = item.stock || 0;
+      const minStockVal = item.min_stock || 0;
 
-        // Trigger download otomatis lewat DOM anchor virtual
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `Data_Stok_AlooPOS_${new Date().toISOString().split('T')[0]}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
-    }
+      // Konversi angka desimal ke format lokal (titik jadi koma: 1.5 -> 1,5) agar ramah Excel Indonesia
+      const formattedStock = stockVal.toString().replace('.', ',');
+      const formattedMinStock = minStockVal.toString().replace('.', ',');
+
+      const row = [
+        item.id,
+        `"${item.name.replace(/"/g, '""')}"`, // Aman dari bug tanda kutip gais
+        item.category,
+        formattedStock,
+        formattedMinStock,
+        item.unit || 'kg'
+      ].join(";"); // Gabungkan pakai titik koma
+      
+      csvContent += row + "\n";
+    });
+
+    // 3. Trigger download otomatis lewat DOM anchor virtual
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `Data_Stok_AlooPOS_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+}
 
     // ==========================================================================
     // ENGINE FILTER & PENCARIAN LIVE
