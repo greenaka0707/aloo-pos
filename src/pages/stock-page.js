@@ -7,9 +7,8 @@ async function getSupabaseStock() {
   try {
     const { data, error } = await supabase
       .from('products') 
-      // ✔️ FIX: updated_at dihapus dari skema select gais biar gak bikin crash database
       .select('id, name, category, stock, min_stock, unit, description')
-      .order('stock', { ascending: true }); // Mengutamakan stok kritis/menipis di atas
+      .order('stock', { ascending: true }); // Mengutamakan stok minus/habis/kritis di atas
 
     if (error) throw error;
     return data || [];
@@ -20,14 +19,14 @@ async function getSupabaseStock() {
 }
 
 // ==========================================================================
-// 2. CORE COMPONENT: STOCK PAGE (NAMED EXPORT - SESUAI ROUTER LO GAIS)
+// 2. CORE COMPONENT: STOCK PAGE (NAMED EXPORT)
 // ==========================================================================
 export function StockPage() {
-  // Gunakan delay mikro aman agar elemen .stock-dynamic-list sudah bertengger di DOM
   setTimeout(async () => {
     const container = document.querySelector(".stock-dynamic-list");
     const chips = document.querySelectorAll(".filter-chip");
     const searchInput = document.querySelector(".stock-search-input");
+    const downloadBtn = document.querySelector(".download-stock-btn");
 
     if (!container) return;
 
@@ -35,10 +34,9 @@ export function StockPage() {
     const allItems = await getSupabaseStock();
 
     // ==========================================================================
-    // ENGINE RENDERER DENGAN ANIMASI SLIDE (100% KONSISTEN)
+    // ENGINE RENDERER DENGAN TRANSISI EMOSI WARNA STATUS (TOTAL OVERHAUL)
     // ==========================================================================
     const renderList = (itemsToRender) => {
-      // Pemicu awal: beri efek geser keluar ke kiri gais
       container.classList.add("page-leave");
 
       setTimeout(() => {
@@ -54,33 +52,47 @@ export function StockPage() {
             const minStockVal = item.min_stock || 0;
             const unitStr = item.unit || 'kg';
             
-            // A. Deteksi Kategori & Custom Badge Warna Lu gais
+            // A. Deteksi Kategori & Badge Warna Kalcer
             let categoryText = 'Lainnya';
             let categoryBadge = 'badge-primary';
             
             if (item.category === 'roastedbean' || item.category === 'kopi_bubuk') {
               categoryText = 'Barang Jadi';
-              categoryBadge = 'badge-primary'; // Biru bawaan template lu
+              categoryBadge = 'badge-primary'; 
             } else if (item.category === 'greenbean') {
               categoryText = 'Bahan Baku';
-              categoryBadge = 'badge-info';    // Tosca/Cyan info gais
+              categoryBadge = 'badge-info';    
             }
 
-            // B. Deteksi Status Kelayakan Batas Minimum Stock
-            const isMenipis = stockVal <= minStockVal;
-            const statusBadge = isMenipis ? 'badge-danger' : 'badge-success';
-            const statusText = isMenipis ? 'Menipis' : 'Aman';
-            
-            // C. Inject Style Dinamis Sesuai Template Desain Lu
-            const cardBorderColor = isMenipis ? 'border-color: var(--orange);' : '';
-            const iconBoxStyle = isMenipis 
-              ? 'background: var(--orange-soft); color: var(--orange);' 
-              : 'background: rgba(16, 185, 129, 0.1); color: #10B981;';
-            const iconName = item.category === 'greenbean' ? 'package' : 'coffee';
+            // B. BREAKDOWN EVALUASI STOK (Mencegah False Alarm Oranye Merata)
+            const isHabis = stockVal <= 0;
+            const isMenipis = stockVal > 0 && stockVal <= minStockVal;
 
-            const stockBadgeStyle = isMenipis
-              ? 'background: var(--danger-soft); color: var(--danger); font-weight: var(--font-bold);'
-              : 'background: var(--bg); color: var(--text);';
+            let statusBadge = 'badge-success';
+            let statusText = 'Aman';
+            let cardBorderColor = '';
+            let footerText = '<span class="text-light text-xs">Stock terverifikasi aman</span>';
+            let stockBadgeStyle = 'background: var(--bg); color: var(--text);';
+            let iconBoxStyle = 'background: rgba(16, 185, 129, 0.1); color: #10B981;';
+            let iconName = item.category === 'greenbean' ? 'package' : 'coffee';
+
+            if (isHabis) {
+              statusBadge = 'badge-danger';
+              statusText = 'Habis';
+              cardBorderColor = 'border-color: var(--danger);'; // Amuk border merah pekat gais
+              stockBadgeStyle = 'background: var(--danger-soft); color: var(--danger); font-weight: var(--font-bold);';
+              iconBoxStyle = 'background: var(--danger-soft); color: var(--danger);';
+              iconName = 'alert-octagon'; // Ganti ikon darurat gais
+              footerText = `<span style="color: var(--danger); font-size: var(--text-xs); font-weight: var(--font-bold);">🚨 Habis total! Segera restock</span>`;
+            } else if (isMenipis) {
+              statusBadge = 'badge-warning'; // Warna oranye kalem
+              statusText = 'Menipis';
+              cardBorderColor = 'border-color: var(--orange);';
+              stockBadgeStyle = 'background: var(--orange-soft); color: var(--orange); font-weight: var(--font-bold);';
+              iconBoxStyle = 'background: var(--orange-soft); color: var(--orange);';
+              iconName = 'alert-triangle';
+              footerText = `<span style="color: var(--orange); font-size: var(--text-xs); font-weight: var(--font-medium);">Restock dibutuhkan</span>`;
+            }
 
             return `
               <div
@@ -110,18 +122,15 @@ export function StockPage() {
                     
                     <div style="display: flex; gap: var(--space-md); align-items: center;">
                       <span class="badge" style="${stockBadgeStyle} height: 22px; font-size: var(--text-xs); padding: 0 var(--space-sm);">
-                        Stock: ${stockVal}${unitStr}
+                        Stock: ${stockVal} ${unitStr}
                       </span>
-                      <span class="text-light text-xs">Min: ${minStockVal}${unitStr}</span>
+                      <span class="text-light text-xs">Min: ${minStockVal} ${unitStr}</span>
                     </div>
                   </div>
                 </div>
 
                 <div class="list-card-footer">
-                  ${isMenipis 
-                    ? `<span style="color: var(--danger); font-size: var(--text-xs); font-weight: var(--font-medium);">Restock dibutuhkan</span>`
-                    : `<span class="text-light text-xs">Stock terverifikasi aman</span>`
-                  }
+                  ${footerText}
                   <button
                     class="detail-btn"
                     onclick="event.stopPropagation(); window.navigate('stock-detail')"
@@ -134,10 +143,8 @@ export function StockPage() {
           }).join('');
         }
 
-        // Re-aktivasi icon lucide setelah string HTML nancep di DOM
         if (window.lucide) window.lucide.createIcons();
 
-        // Transisi meluncur masuk gais
         container.classList.remove("page-leave");
         container.classList.add("page-enter");
 
@@ -151,7 +158,41 @@ export function StockPage() {
     };
 
     // ==========================================================================
-    // MULTI-FILTER CONTROL (GABUNGAN SEARCH + TABS CHIPS)
+    // LOGIC DOWNLOAD / EXPORT DATA KE CSV
+    // ==========================================================================
+    if (downloadBtn) {
+      downloadBtn.addEventListener("click", () => {
+        if (allItems.length === 0) return alert("Belum ada data untuk didownload gais!");
+        
+        // Buat baris header CSV
+        let csvContent = "data:text/csv;charset=utf-8,ID,Nama Barang,Kategori,Stok,Min Stok,Satuan\n";
+        
+        // Loop baris kontennya
+        allItems.forEach(item => {
+          const row = [
+            item.id,
+            `"${item.name.replace(/"/g, '""')}"`, // Bungkus tanda kutip aman gais
+            item.category,
+            item.stock || 0,
+            item.min_stock || 0,
+            item.unit || 'kg'
+          ].join(",");
+          csvContent += row + "\n";
+        });
+
+        // Trigger download otomatis lewat DOM anchor virtual
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `Data_Stok_AlooPOS_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }
+
+    // ==========================================================================
+    // ENGINE FILTER & PENCARIAN LIVE
     // ==========================================================================
     const applyFilterAndSearch = () => {
       const activeChip = document.querySelector(".filter-chip.active");
@@ -160,16 +201,15 @@ export function StockPage() {
 
       let filtered = allItems;
 
-      // 1. Eksekusi Filter Berdasarkan Kategori / Kondisi Stok
       if (filterValue === "barang jadi") {
         filtered = allItems.filter(item => item.category === "roastedbean" || item.category === "kopi_bubuk");
       } else if (filterValue === "bahan baku") {
         filtered = allItems.filter(item => item.category === "greenbean");
       } else if (filterValue === "menipis") {
+        // Filter menipis sekarang mencakup yang kritis di bawah batas minimum
         filtered = allItems.filter(item => (item.stock || 0) <= (item.min_stock || 0));
       }
 
-      // 2. Kombinasikan Dengan Keyword Pencarian Live
       if (searchQuery !== "") {
         filtered = filtered.filter(item => item.name.toLowerCase().includes(searchQuery));
       }
@@ -177,10 +217,8 @@ export function StockPage() {
       renderList(filtered);
     };
 
-    // Pemicu Render Pertama
     renderList(allItems);
 
-    // Event Listener untuk Filter Chips (Klik Tab)
     chips.forEach(chip => {
       chip.addEventListener("click", (e) => {
         chips.forEach(c => c.classList.remove("active"));
@@ -189,24 +227,33 @@ export function StockPage() {
       });
     });
 
-    // Event Listener untuk Live Search Input (Ketik Otomatis)
     if (searchInput) {
       searchInput.addEventListener("input", applyFilterAndSearch);
     }
 
   }, 50);
 
-  // Return layout murni sesuai mockup UI idaman lu gais!
+  // Layout mutakhir: Flex alignment baru untuk kolom search bar + tombol download ikonik
   return `
     <section class="list-page"> 
 
-      <div class="card search-box"> 
-        <i data-lucide="search"></i>
-        <input
-          type="text"
-          class="stock-search-input"
-          placeholder="Cari stock..."
-        />
+      <div style="display: flex; gap: var(--space-sm); align-items: center; width: 100%;">
+        <div class="card search-box" style="flex: 1; margin: 0;"> 
+          <i data-lucide="search"></i>
+          <input
+            type="text"
+            class="stock-search-input"
+            placeholder="Cari stock..."
+          />
+        </div>
+        
+        <button 
+          class="card download-stock-btn" 
+          style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid rgba(0,0,0,0.05); cursor: pointer; color: var(--text); border-radius: var(--radius-md); padding: 0;"
+          title="Download Excel/CSV"
+        >
+          <i data-lucide="download" style="width: 20px; height: 20px;"></i>
+        </button>
       </div>
 
       <div class="filter-scroll"> 
