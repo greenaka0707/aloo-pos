@@ -112,8 +112,8 @@ export function OrderListPage() {
         // 🛠️ LOGIKA WARNA BACKGROUND CARD UMUM (UX STANDAR POS/ERP)
         if (currentDbStatus === "pending" || currentDbStatus === "butuh produksi") {
           badgeClass = "badge-warning";
-          // Sesuai request: dibikin agak abu-abu + border aksen orange di kiri biar tegak & rapi
-          cardStyle = "background: #F3F4F6; border-left: 4px solid var(--orange, #F97316);"; 
+          // UPDATE: Oranye super muda (#FFF7ED) + border kiri abu-abu semen tipis biar clean
+          cardStyle = "background: #FFF7ED; border-left: 4px solid #D1D5DB;"; 
         } else if (currentDbStatus === "diproses") {
           badgeClass = "badge-info"; 
         } else if (currentDbStatus === "ready") {
