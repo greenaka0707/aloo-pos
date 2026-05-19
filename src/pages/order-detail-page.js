@@ -187,7 +187,7 @@ export function OrderDetailPage() {
     }
 
     // ==========================================================================
-    // 3. GENERATOR PDF INVOICE A5 (FIX MELAR DI DESKTOP GAIS)
+    // 3. GENERATOR PDF INVOICE A5 (STRUKTUR ENNA & PAYMENT DETAIL)
     // ==========================================================================
     function downloadInvoiceA5() {
       if (!orderDataLocal) return;
@@ -207,10 +207,11 @@ export function OrderDetailPage() {
       element.style.backgroundColor = "#FFFFFF";
 
       element.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #E5E7EB; padding-bottom:15px; margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #E5E7EB; padding-bottom:15px; margin-bottom:20px;">
           <div>
-            <h1 style="margin:0; font-size:22px; color:#F97316; font-weight:800; letter-spacing:-0.5px;">ALOO COFFEE</h1>
-            <p style="margin:2px 0 0 0; font-size:10px; color:#6B7280;">Surabaya, Indonesia</p>
+            <h1 style="margin:0; font-size:24px; color:#111827; font-weight:800; letter-spacing:-0.5px;">ENNA</h1>
+            <p style="margin:2px 0 0 0; font-size:12px; font-weight:700; color:#F97316;">PT. Ekspansi Nutrisi Nusantara</p>
+            <p style="margin:2px 0 0 0; font-size:10px; color:#6B7280;">Pucang Anom Timur IV 26A Surabaya</p>
           </div>
           <div style="text-align:right;">
             <h2 style="margin:0; font-size:14px; color:#1F2937; font-weight:700;">SALES INVOICE</h2>
@@ -233,7 +234,7 @@ export function OrderDetailPage() {
           </div>
         </div>
 
-        <table style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:25px;">
+        <table style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:20px;">
           <thead>
             <tr style="background-color:#F9FAFB; border-bottom:1px solid #E5E7EB;">
               <th style="text-align:left; padding:8px; color:#4B5563; font-weight:700;">Nama Item Produk Kopi</th>
@@ -257,16 +258,26 @@ export function OrderDetailPage() {
           </tbody>
         </table>
 
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; border-top:1px solid #E5E7EB; padding-top:15px; font-size:11px;">
-          <div style="color:#9CA3AF; font-style:italic; font-size:10px; max-width:200px; line-height:1.4;">
-            * Dokumen ini sah dikeluarkan oleh sistem ALOO POS sebagai tanda bukti transaksi pemesanan lapangan.
+        <div style="display:flex; justify-content:flex-end; align-items:center; border-top:1px solid #E5E7EB; padding-top:10px; margin-bottom: 25px; font-size:12px;">
+          <div style="width:200px; text-align:right; display:flex; justify-content:space-between;">
+            <span style="color:#4B5563; font-weight:600;">Total Netto:</span>
+            <strong style="color:#111827; font-size:14px;">Rp ${(orderDataLocal.total_amount || 0).toLocaleString('id-ID')}</strong>
           </div>
-          <div style="width:200px; text-align:right;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px;">
-              <span style="color:#4B5563; font-weight:600;">Total Netto:</span>
-              <strong style="color:#111827; font-size:13px;">Rp ${(orderDataLocal.total_amount || 0).toLocaleString('id-ID')}</strong>
-            </div>
+        </div>
+
+        <div style="background-color:#F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; padding: 12px; font-size: 11px; line-height: 1.5; margin-bottom: 15px;">
+          <strong style="color:#111827; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 6px; border-bottom: 1px dashed #E5E7EB; padding-bottom: 4px;">Konfirmasi Pembayaran</strong>
+          <span style="color:#4B5563; display:block; margin-bottom: 4px;">Silahkan Melakukan Pembayaran Ke:</span>
+          <div style="color:#111827;">
+            <strong>MANDIRI</strong><br/>
+            An. <strong>PT. EKSPANSI NUTRISI NUSANTARA</strong><br/>
+            No. Rek: <strong style="font-size: 12px; color:#F97316;">1420000699008</strong>
           </div>
+          <span style="color:#6B7280; font-style: italic; display: block; margin-top: 6px;">* Mohon konfirmasi jika sudah melakukan pembayaran</span>
+        </div>
+
+        <div style="color:#9CA3AF; font-style:italic; font-size:9px; text-align: center; line-height:1.4; margin-top: 20px;">
+          Dokumen ini sah dikeluarkan oleh sistem ALOO POS sebagai tanda bukti transaksi pemesanan lapangan.
         </div>
       `;
 
@@ -287,6 +298,12 @@ export function OrderDetailPage() {
     function renderActionButtonsDOM() {
       const currentDbStatus = orderDataLocal.status ? orderDataLocal.status.toLowerCase() : 'pending';
       
+      // Cek apakah SEMUA produk di order ini stoknya aman/ready
+      const isAllStockReady = orderItemsLocal.every(item => {
+        const p = item.products || {};
+        return item.qty <= (p.stock || 0);
+      });
+
       let leftButtonsHtml = `
         <button class="action-btn-icon" id="btn-print-invoice" style="background:var(--orange-soft); color:var(--orange); border:none; width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:var(--radius-md); padding:0; cursor:pointer;" title="Cetak WA">
           <i data-lucide="printer" style="width:20px; height:20px;"></i>
@@ -316,12 +333,23 @@ export function OrderDetailPage() {
         </button>
       `;
 
+      // LOGIKA KONDISIONAL TOMBOL UTAMA BERDASARKAN KESIAPAN STOK
       if (currentDbStatus === "pending" || currentDbStatus === "butuh produksi") {
-        actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `
-          <button class="action-btn primary-action" id="btn-next-status" style="background:var(--orange); border:none; color:white; flex:1; height:48px; display:flex; align-items:center; justify-content:center; gap:8px; border-radius:var(--radius-md); font-weight:bold; cursor:pointer;">
-            <i data-lucide="play" style="width:18px; height:18px;"></i> Mulai Produksi
-          </button>
-        `;
+        if (isAllStockReady) {
+          // Jika stok ready semua, lewati tahap produksi, ubah tombol jadi "Siapkan Pengiriman"
+          actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `
+            <button class="action-btn primary-action" id="btn-next-status" data-skip-production="true" style="background:#06B6D4; border:none; color:white; flex:1; height:48px; display:flex; align-items:center; justify-content:center; gap:8px; border-radius:var(--radius-md); font-weight:bold; cursor:pointer;">
+              <i data-lucide="check-circle" style="width:18px; height:18px;"></i> Stok Ready, Siapkan Pengiriman
+            </button>
+          `;
+        } else {
+          // Jika ada shortage, tetap harus lewat proses giling/roasting
+          actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `
+            <button class="action-btn primary-action" id="btn-next-status" style="background:var(--orange); border:none; color:white; flex:1; height:48px; display:flex; align-items:center; justify-content:center; gap:8px; border-radius:var(--radius-md); font-weight:bold; cursor:pointer;">
+              <i data-lucide="play" style="width:18px; height:18px;"></i> Mulai Produksi
+            </button>
+          `;
+        }
       } else if (currentDbStatus === "diproses") {
         actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `
           <button class="action-btn primary-action" id="btn-next-status" style="background:var(--border); border:none; color:var(--text-light); flex:1; height:48px; display:flex; align-items:center; justify-content:center; gap:8px; border-radius:var(--radius-md); font-weight:bold;" disabled>
@@ -435,7 +463,12 @@ export function OrderDetailPage() {
       if (nextBtn && !nextBtn.disabled) {
         nextBtn.addEventListener("click", async () => {
           let nextStatus = "diproses";
-          if (currentDbStatus === "pending" || currentDbStatus === "butuh produksi") nextStatus = "diproses";
+          
+          // Modifikasi logic penentuan status berikutnya
+          if (currentDbStatus === "pending" || currentDbStatus === "butuh produksi") {
+            const shouldSkip = nextBtn.getAttribute("data-skip-production") === "true";
+            nextStatus = shouldSkip ? "ready" : "diproses"; 
+          }
           if (currentDbStatus === "diproses") nextStatus = "ready";
           if (currentDbStatus === "ready") nextStatus = "dikirim";
 
