@@ -189,58 +189,65 @@ export function OrderDetailPage() {
     // ==========================================================================
     // 3. GENERATOR PDF INVOICE A5 (STRUKTUR ENNA & PAYMENT DETAIL)
     // ==========================================================================
+        // ==========================================================================
+    // 3. GENERATOR PDF INVOICE A5 (FIX REKENING & STRUKTUR LOGO ENNA)
+    // ==========================================================================
     function downloadInvoiceA5() {
       if (!orderDataLocal) return;
 
       const cust = orderDataLocal.customers || {};
       
       const element = document.createElement("div");
-      element.style.padding = "30px";
-      
-      // ✔️ FIX UTAMA: Kunci lebar pixel virtual canvas agar desktop tidak melar gais!
-      element.style.width = "560px";  
-      element.style.maxWidth = "100%";
+      element.style.padding = "20px";
+      element.style.width = "540px";  
       element.style.boxSizing = "border-box";
-      
-      element.style.fontFamily = "sans-serif";
+      element.style.fontFamily = "'Helvetica Neue', Helvetica, Arial, sans-serif";
       element.style.color = "#1F2937";
       element.style.backgroundColor = "#FFFFFF";
 
       element.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #E5E7EB; padding-bottom:15px; margin-bottom:20px;">
-          <div>
-            <h1 style="margin:0; font-size:24px; color:#111827; font-weight:800; letter-spacing:-0.5px;">ENNA</h1>
-            <p style="margin:2px 0 0 0; font-size:12px; font-weight:700; color:#F97316;">PT. Ekspansi Nutrisi Nusantara</p>
-            <p style="margin:2px 0 0 0; font-size:10px; color:#6B7280;">Pucang Anom Timur IV 26A Surabaya</p>
-          </div>
-          <div style="text-align:right;">
-            <h2 style="margin:0; font-size:14px; color:#1F2937; font-weight:700;">SALES INVOICE</h2>
-            <p style="margin:2px 0 0 0; font-size:11px; font-weight:600; color:#4B5563;">${orderDataLocal.invoice_no}</p>
-          </div>
-        </div>
+        <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
+          <tr>
+            <td style="vertical-align:top;">
+              <h1 style="margin:0; font-size:20px; color:#111827; font-weight:800; line-height:1.1; letter-spacing:-0.5px;">ENNA</h1>
+              <div style="font-size:11px; font-weight:700; color:#F97316; margin-top:2px;">PT. Ekspansi Nutrisi Nusantara</div>
+              <div style="font-size:9px; color:#6B7280; margin-top:1px;">Pucang Anom Timur IV 26A Surabaya</div>
+            </td>
+            <td style="text-align:right; vertical-align:top;">
+              <h2 style="margin:0; font-size:12px; color:#1F2937; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Sales Invoice</h2>
+              <div style="font-size:10px; font-weight:600; color:#4B5563; margin-top:2px;">${orderDataLocal.invoice_no}</div>
+            </td>
+          </tr>
+        </table>
 
-        <div style="display:flex; justify-content:space-between; margin-bottom:25px; font-size:11px; line-height:1.5;">
-          <div>
-            <span style="color:#9CA3AF; display:block; text-transform:uppercase; font-size:9px; font-weight:700; margin-bottom:4px;">Tujuan Pengiriman:</span>
-            <strong style="font-size:12px; color:#111827; display:block;">${cust.name || "Tanpa Nama"}</strong>
-            <span style="display:block; color:#4B5563; max-width:180px;">${cust.address || "-"}</span>
-            <span style="display:block; color:#4B5563;">Telp: ${cust.phone || "-"}</span>
-          </div>
-          <div style="text-align:right;">
-            <span style="color:#9CA3AF; display:block; text-transform:uppercase; font-size:9px; font-weight:700; margin-bottom:4px;">Detail Nota:</span>
-            <span>Tanggal: <strong>${orderDataLocal.order_date}</strong></span><br/>
-            <span>Salesman: <strong>${orderDataLocal.salesmen?.name || "-"}</strong></span><br/>
-            <span>Status: <strong style="color:#F97316;">${orderDataLocal.status?.toUpperCase()}</strong></span>
-          </div>
-        </div>
+        <div style="border-top:1px solid #E5E7EB; margin-bottom:15px;"></div>
 
-        <table style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:20px;">
+        <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:10px; line-height:1.4;">
+          <tr>
+            <td style="width:50%; vertical-align:top; padding-right:10px;">
+              <span style="color:#9CA3AF; display:block; text-transform:uppercase; font-size:8px; font-weight:700; margin-bottom:4px; letter-spacing:0.3px;">Tujuan Pengiriman:</span>
+              <strong style="font-size:11px; color:#111827; display:block; margin-bottom:2px;">${cust.name || "Tanpa Nama"}</strong>
+              <span style="display:block; color:#4B5563; max-width:220px; white-space:pre-wrap;">${cust.address || "-"}</span>
+              <span style="display:block; color:#4B5563; margin-top:2px;">Telp: ${cust.phone || "-"}</span>
+            </td>
+            <td style="width:50%; text-align:right; vertical-align:top;">
+              <span style="color:#9CA3AF; display:block; text-transform:uppercase; font-size:8px; font-weight:700; margin-bottom:4px; letter-spacing:0.3px;">Detail Nota:</span>
+              <table style="border-collapse:collapse; margin-left:auto; font-size:10px;">
+                <tr><td style="text-align:right; color:#6B7280; padding:1px 4px;">Tanggal:</td><td style="text-align:left; font-weight:600; padding:1px 4px;">${orderDataLocal.order_date}</td></tr>
+                <tr><td style="text-align:right; color:#6B7280; padding:1px 4px;">Salesman:</td><td style="text-align:left; font-weight:600; padding:1px 4px;">${orderDataLocal.salesmen?.name || "-"}</td></tr>
+                <tr><td style="text-align:right; color:#6B7280; padding:1px 4px;">Status:</td><td style="text-align:left; font-weight:700; color:#F97316; padding:1px 4px;">${orderDataLocal.status?.toUpperCase()}</td></tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+
+        <table style="width:100%; border-collapse:collapse; font-size:10px; margin-bottom:15px;">
           <thead>
-            <tr style="background-color:#F9FAFB; border-bottom:1px solid #E5E7EB;">
-              <th style="text-align:left; padding:8px; color:#4B5563; font-weight:700;">Nama Item Produk Kopi</th>
-              <th style="text-align:center; padding:8px; color:#4B5563; font-weight:700; width:50px;">Qty</th>
-              <th style="text-align:right; padding:8px; color:#4B5563; font-weight:700; width:80px;">Harga</th>
-              <th style="text-align:right; padding:8px; color:#4B5563; font-weight:700; width:90px;">Subtotal</th>
+            <tr style="background-color:#F9FAFB; border-top:1px solid #E5E7EB; border-bottom:1px solid #E5E7EB;">
+              <th style="text-align:left; padding:6px 8px; color:#4B5563; font-weight:700;">Nama Item Produk Kopi</th>
+              <th style="text-align:center; padding:6px 8px; color:#4B5563; font-weight:700; width:50px;">Qty</th>
+              <th style="text-align:right; padding:6px 8px; color:#4B5563; font-weight:700; width:90px;">Harga</th>
+              <th style="text-align:right; padding:6px 8px; color:#4B5563; font-weight:700; width:100px;">Subtotal</th>
             </tr>
           </thead>
           <tbody>
@@ -248,35 +255,38 @@ export function OrderDetailPage() {
               const p = item.products || {};
               return `
                 <tr style="border-bottom:1px solid #F3F4F6;">
-                  <td style="padding:10px 8px; font-weight:600; color:#111827;">${p.name || "Item"}</td>
-                  <td style="text-align:center; padding:10px 8px; color:#4B5563;">${item.qty} ${p.unit || 'kg'}</td>
-                  <td style="text-align:right; padding:10px 8px; color:#4B5563;">Rp ${(item.unit_price || 0).toLocaleString('id-ID')}</td>
-                  <td style="text-align:right; padding:10px 8px; font-weight:700; color:#111827;">Rp ${(item.qty * item.unit_price).toLocaleString('id-ID')}</td>
+                  <td style="padding:8px 8px; font-weight:600; color:#111827;">${p.name || "Item"}</td>
+                  <td style="text-align:center; padding:8px 8px; color:#4B5563;">${item.qty} ${p.unit || 'kg'}</td>
+                  <td style="text-align:right; padding:8px 8px; color:#4B5563;">Rp ${(item.unit_price || 0).toLocaleString('id-ID')}</td>
+                  <td style="text-align:right; padding:8px 8px; font-weight:700; color:#111827;">Rp ${(item.qty * item.unit_price).toLocaleString('id-ID')}</td>
                 </tr>
               `;
             }).join('')}
           </tbody>
         </table>
 
-        <div style="display:flex; justify-content:flex-end; align-items:center; border-top:1px solid #E5E7EB; padding-top:10px; margin-bottom: 25px; font-size:12px;">
-          <div style="width:200px; text-align:right; display:flex; justify-content:space-between;">
-            <span style="color:#4B5563; font-weight:600;">Total Netto:</span>
-            <strong style="color:#111827; font-size:14px;">Rp ${(orderDataLocal.total_amount || 0).toLocaleString('id-ID')}</strong>
+        <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:11px;">
+          <tr>
+            <td></td>
+            <td style="width:220px; text-align:right; padding:4px 8px; border-top:1px solid #E5E7EB;">
+              <span style="color:#4B5563; font-weight:600; margin-right:15px;">Total Netto:</span>
+              <strong style="color:#111827; font-size:12px;">Rp ${(orderDataLocal.total_amount || 0).toLocaleString('id-ID')}</strong>
+            </td>
+          </tr>
+        </table>
+
+        <div style="background-color:#F9FAFB; border:1px solid #E5E7EB; border-radius:4px; padding:10px; font-size:10px; line-height:1.4;">
+          <strong style="color:#111827; font-size:10px; text-transform:uppercase; display:block; margin-bottom:4px; border-bottom:1px dashed #E5E7EB; padding-bottom:3px; letter-spacing:0.3px;">Konfirmasi Pembayaran</strong>
+          <span style="color:#4B5563; display:block; margin-bottom:3px;">Silahkan Melakukan Pembayaran Ke:</span>
+          <div style="color:#111827; margin-top:2px;">
+            <span style="color:#4B5563;">Bank:</span> <strong>MANDIRI</strong><br/>
+            <span style="color:#4B5563;">An:</span> <strong>PT. EKSPANSI NUTRISI NUSANTARA</strong><br/>
+            <span style="color:#4B5563;">No. Rek:</span> <strong style="font-size:11px; color:#F97316; letter-spacing:0.5px;">1420000699008</strong>
           </div>
+          <span style="color:#6B7280; font-style:italic; display:block; margin-top:5px; font-size:9px;">* Mohon konfirmasi jika sudah melakukan pembayaran</span>
         </div>
 
-        <div style="background-color:#F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; padding: 12px; font-size: 11px; line-height: 1.5; margin-bottom: 15px;">
-          <strong style="color:#111827; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 6px; border-bottom: 1px dashed #E5E7EB; padding-bottom: 4px;">Konfirmasi Pembayaran</strong>
-          <span style="color:#4B5563; display:block; margin-bottom: 4px;">Silahkan Melakukan Pembayaran Ke:</span>
-          <div style="color:#111827;">
-            <strong>MANDIRI</strong><br/>
-            An. <strong>PT. EKSPANSI NUTRISI NUSANTARA</strong><br/>
-            No. Rek: <strong style="font-size: 12px; color:#F97316;">1420000699008</strong>
-          </div>
-          <span style="color:#6B7280; font-style: italic; display: block; margin-top: 6px;">* Mohon konfirmasi jika sudah melakukan pembayaran</span>
-        </div>
-
-        <div style="color:#9CA3AF; font-style:italic; font-size:9px; text-align: center; line-height:1.4; margin-top: 20px;">
+        <div style="color:#9CA3AF; font-style:italic; font-size:8px; text-align:center; line-height:1.3; margin-top:15px;">
           Dokumen ini sah dikeluarkan oleh sistem ALOO POS sebagai tanda bukti transaksi pemesanan lapangan.
         </div>
       `;
@@ -291,6 +301,7 @@ export function OrderDetailPage() {
 
       window.html2pdf().set(opt).from(element).save();
     }
+
 
     // ==========================================================================
     // 4. GENERATOR TOMBOL AKSI JALUR OPERASIONAL (WITH ONLY DYNAMIC ICONS)
