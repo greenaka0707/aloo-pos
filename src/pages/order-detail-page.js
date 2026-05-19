@@ -187,7 +187,7 @@ export function OrderDetailPage() {
     }
 
     // ==========================================================================
-    // 3. GENERATOR PDF INVOICE A5 (SHAREABLE VIA WHATSAPP)
+    // 3. GENERATOR PDF INVOICE A5 (FIX MELAR DI DESKTOP GAIS)
     // ==========================================================================
     function downloadInvoiceA5() {
       if (!orderDataLocal) return;
@@ -196,7 +196,12 @@ export function OrderDetailPage() {
       
       const element = document.createElement("div");
       element.style.padding = "30px";
-      element.style.width = "148mm";  
+      
+      // ✔️ FIX UTAMA: Kunci lebar pixel virtual canvas agar desktop tidak melar gais!
+      element.style.width = "560px";  
+      element.style.maxWidth = "100%";
+      element.style.boxSizing = "border-box";
+      
       element.style.fontFamily = "sans-serif";
       element.style.color = "#1F2937";
       element.style.backgroundColor = "#FFFFFF";
@@ -277,12 +282,11 @@ export function OrderDetailPage() {
     }
 
     // ==========================================================================
-    // 4. GENERATOR TOMBOL AKSI JALUR OPERASIONAL (ONLY MAIN BUTTON HAS TEXT)
+    // 4. GENERATOR TOMBOL AKSI JALUR OPERASIONAL (WITH ONLY DYNAMIC ICONS)
     // ==========================================================================
     function renderActionButtonsDOM() {
       const currentDbStatus = orderDataLocal.status ? orderDataLocal.status.toLowerCase() : 'pending';
       
-      // ✔️ TOMBOL KEMBALI DIHAPUS UTUH. Cetak WA ditaruh di paling kiri gais.
       let leftButtonsHtml = `
         <button class="action-btn-icon" id="btn-print-invoice" style="background:var(--orange-soft); color:var(--orange); border:none; width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:var(--radius-md); padding:0; cursor:pointer;" title="Cetak WA">
           <i data-lucide="printer" style="width:20px; height:20px;"></i>
@@ -312,7 +316,6 @@ export function OrderDetailPage() {
         </button>
       `;
 
-      // Gabungkan komponen, tombol aksi utama melar penuh mengisi sisa ruang gais
       if (currentDbStatus === "pending" || currentDbStatus === "butuh produksi") {
         actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `
           <button class="action-btn primary-action" id="btn-next-status" style="background:var(--orange); border:none; color:white; flex:1; height:48px; display:flex; align-items:center; justify-content:center; gap:8px; border-radius:var(--radius-md); font-weight:bold; cursor:pointer;">
