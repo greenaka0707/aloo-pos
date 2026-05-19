@@ -96,6 +96,8 @@ export function OrderListPage() {
 
       container.innerHTML = filtered.map(order => {
         const totalItems = order.sales_order_items?.length || 0;
+        
+        // 🛠️ FIX DESIMAL: parsing float akumulasi total kuantitas orderan gais
         const totalQty = order.sales_order_items?.reduce((acc, item) => acc + (parseFloat(item.qty) || 0), 0) || 0;
 
         let formattedDate = order.order_date;
@@ -137,7 +139,7 @@ export function OrderListPage() {
               </div>
               <div class="list-card-summary-item">
                 <span>Qty</span>
-                <strong>${totalQty} kg</strong>
+                <strong>${totalQty.toFixed(2)} kg</strong>
               </div>
             </div>
 
@@ -225,18 +227,18 @@ export function OrderListPage() {
             if (method === 'CASH') totalCash += paid;
             else totalTransfer += paid;
 
-            return `
-              <tr style="border-bottom: 1px solid #E5E7EB; font-size: 11px;">
-                <td style="padding: 8px; text-align: center; color: #4B5563;">${idx + 1}</td>
-                <td style="padding: 8px; font-weight: bold; color: #111827;">${o.invoice_no}<br><span style="font-size:9px; color:#6B7280; font-weight:normal;">Jam ${timeStr}</span></td>
-                <td style="padding: 8px; color: #111827; font-weight:600;">${custName}</td>
-                <td style="padding: 8px; text-align: center; font-weight: bold; color: #4B5563;">${method}</td>
-                <td style="padding: 8px; text-align: right; font-weight: bold; color: #111827;">Rp ${gross.toLocaleString('id-ID')}</td>
-                <td style="padding: 8px; text-align: right; font-weight: bold; color: #DC2626;">Rp ${debt.toLocaleString('id-ID')}</td>
-                <td style="padding: 8px; text-align: right; font-weight: bold; color: #166534;">Rp ${paid.toLocaleString('id-ID')}</td>
-              </tr>
-            `;
-          }).join('');
+          return `
+            <tr style="border-bottom: 1px solid #E5E7EB; font-size: 11px;">
+              <td style="padding: 8px; text-align: center; color: #4B5563;">${idx + 1}</td>
+              <td style="padding: 8px; font-weight: bold; color: #111827;">${o.invoice_no}<br><span style="font-size:9px; color:#6B7280; font-weight:normal;">Jam ${timeStr}</span></td>
+              <td style="padding: 8px; color: #111827; font-weight:600;">${custName}</td>
+              <td style="padding: 8px; text-align: center; font-weight: bold; color: #4B5563;">${method}</td>
+              <td style="padding: 8px; text-align: right; font-weight: bold; color: #111827;">Rp ${gross.toLocaleString('id-ID')}</td>
+              <td style="padding: 8px; text-align: right; font-weight: bold; color: #DC2626;">Rp ${debt.toLocaleString('id-ID')}</td>
+              <td style="padding: 8px; text-align: right; font-weight: bold; color: #166534;">Rp ${paid.toLocaleString('id-ID')}</td>
+            </tr>
+          `;
+        }).join('');
 
           element.innerHTML = `
             <div style="border-bottom: 2px solid #F97316; padding-bottom: 10px; margin-bottom: 15px;">
@@ -349,7 +351,6 @@ export function OrderListPage() {
 
   }, 50);
 
-  // 🛠️ REPARASI LAYAT BAR ATAS: GABUNGKAN SEARCH INPUT + DOWNLOAD BUTTON GAIS
   return `
     <section class="list-page">
 
