@@ -583,7 +583,7 @@ export default function CreateOrderPage() {
 
           } catch (err) {
             alert("❌ Gagal menyimpan order: " + err.message);
-          } final {
+          } finally { // ✔️ FIX UTAMA DI SINI: final -> finally gais!
             isSubmitting = false;
             submitBtn.disabled = false;
             submitBtn.textContent = "Submit";
