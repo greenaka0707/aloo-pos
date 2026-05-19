@@ -1,4 +1,5 @@
 import { BottomNav } from "../components/bottom-nav.js";
+import { supabase } from "../supabaseClient.js";
 
 // Objek Pemetaan Judul & Subjudul berdasarkan Route ID aplikasi Anda
 const navbarMeta = {
@@ -18,8 +19,15 @@ const navbarMeta = {
   'akun': { title: 'Akun Saya', subtitle: 'User profile settings', backTo: 'dashboard' },
   
   // 💸 SUNTIKAN METADATA BARU: ROUTE PIUTANG TOKO ENNA FIELD TRIAL LO GAIS
-  'piutang': { title: 'Piutang Usaha', subtitle: 'PT. Ekspansi Nutrisi Nusantara', backTo: 'dashboard' }
+  'piutang': { title: 'Piutang Usaha', subtitle: 'PT. Ekspansi Nutrisi Nusantara', backTo: 'dashboard' },
+  
+  // 🛠️ SUNTIKAN METADATA BARU: ROUTE ADJUSTMENT STOK TIMBANGAN GUDANG LO GAIS
+  'penyesuaian-stok': { title: 'Penyesuaian Stok', subtitle: 'PT. Ekspansi Nutrisi Nusantara', backTo: 'stok' }
 };
+
+// State penampung jumlah unread order secara global gais
+let unreadOrderCount = 0;
+let isRealtimeInitialized = false;
 
 export function AppLayout({ content, route }) {
   // Ambil meta data berdasarkan route saat ini (Default fallback diganti ke PT baru lo gais)
@@ -33,6 +41,54 @@ export function AppLayout({ content, route }) {
          <i data-lucide="arrow-left"></i>
        </button>`
     : '';
+
+  // ==========================================================================
+  // 🔔 REALTIME COUNTER ENGINE FOR NAVBAR NOTIFICATION BELL GAIS
+  // ==========================================================================
+  setTimeout(() => {
+    const badgeEl = document.getElementById("navbar-bell-badge");
+    const bellBtn = document.getElementById("navbar-bell-btn");
+    
+    // Fungsi sinkronisasi render visual angka di DOM gais
+    const updateBadgeDOM = () => {
+      if (!badgeEl) return;
+      if (unreadOrderCount > 0) {
+        badgeEl.textContent = unreadOrderCount;
+        badgeEl.style.display = "flex";
+      } else {
+        badgeEl.style.display = "none";
+      }
+    };
+
+    // Jalankan render awal status badge
+    updateBadgeDOM();
+
+    // Reset notifikasi jika kasir klik tombol lonceng dan arahkan ke Sales Order gais
+    if (bellBtn) {
+      bellBtn.onclick = () => {
+        unreadOrderCount = 0;
+        updateBadgeDOM();
+        if (window.navigate) window.navigate("order");
+      };
+    }
+
+    // Pasang Realtime Listener Supabase jika belum di-init
+    if (!isRealtimeInitialized) {
+      isRealtimeInitialized = true;
+
+      supabase
+        .channel('navbar-global-realtime-orders')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'sales_orders' },
+          () => {
+            unreadOrderCount += 1; // Dongkrak angka counter tiap ada sales order masuk gais
+            updateBadgeDOM();
+          }
+        )
+        .subscribe();
+    }
+  }, 50);
 
   return `
     <div class="app-layout">
@@ -52,8 +108,26 @@ export function AppLayout({ content, route }) {
             <button class="btn-nav-action" onclick="window.navigate('akun')">
               <i data-lucide="user"></i>
             </button>
-            <button class="btn-nav-action">
+            
+            <button id="navbar-bell-btn" class="btn-nav-action" style="position: relative;">
               <i data-lucide="bell"></i>
+              <span id="navbar-bell-badge" style="
+                position: absolute;
+                top: -2px;
+                right: -2px;
+                background: #EF4444;
+                color: white;
+                font-size: 9px;
+                font-weight: bold;
+                width: 15px;
+                height: 15px;
+                border-radius: 50%;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                border: 2px solid white;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+              ">0</span>
             </button>
           </div>
 
