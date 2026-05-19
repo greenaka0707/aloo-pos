@@ -28,11 +28,13 @@ export default function CreateOrderPage() {
     const manufacturingCard = container.querySelector("#manufacturing-analysis-card");
     const bomDetails = container.querySelector("#bom-details-list");
     
-    // Ringkasan Biaya & Catatan
+    // Ringkasan Biaya, Catatan, & Ongkir
     const summarySubtotal = container.querySelector("#summary-subtotal");
+    const summaryOngkir = container.querySelector("#summary-ongkir"); // <--- 🚚 DOM BARU ONG KIP
     const summaryBayar = container.querySelector("#summary-bayar");
     const summarySisa = container.querySelector("#summary-sisa");
     const bayarInput = container.querySelector("#pay-amount");
+    const ongkirInput = container.querySelector("#shipping-amount"); // <--- 🚚 DOM INPUT ONGKIR
     const catatanInput = container.querySelector("#order-note");
 
     // Modal Customer
@@ -328,10 +330,14 @@ export default function CreateOrderPage() {
       }
 
       const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
+      const ongkirVal = parseFloat(ongkirInput?.value) || 0; // <--- 🚚 Tarik data input ongkir
       const payVal = parseFloat(bayarInput?.value) || 0;
-      const sisaTotal = subtotalTotal - payVal;
+      
+      // Rumus baru: Subtotal + Ongkir - Bayar harian gais
+      const sisaTotal = (subtotalTotal + ongkirVal) - payVal;
 
       if (summarySubtotal) summarySubtotal.textContent = `Rp ${subtotalTotal.toLocaleString('id-ID')}`;
+      if (summaryOngkir) summaryOngkir.textContent = `Rp ${ongkirVal.toLocaleString('id-ID')}`; // <--- 🚚 Update ringkasan ongkir
       if (summaryBayar) summaryBayar.textContent = `Rp ${payVal.toLocaleString('id-ID')}`;
       if (summarySisa) {
         summarySisa.textContent = `Rp ${sisaTotal.toLocaleString('id-ID')}`;
@@ -339,9 +345,8 @@ export default function CreateOrderPage() {
       }
     }
 
-    if (bayarInput) {
-      bayarInput.addEventListener("input", calculateTotalsOnly);
-    }
+    if (bayarInput) bayarInput.addEventListener("input", calculateTotalsOnly);
+    if (ongkirInput) ongkirInput.addEventListener("input", calculateTotalsOnly); // <--- 🚚 Listener ongkir live calculation
 
     // ==========================================================================
     // 💥 FITUR KEMAUAN LO: LIVE SEARCH BAHAN BAKU + INPUT QTY MANUAL (SKEMA TAMBAH PRODUK)
@@ -482,8 +487,9 @@ export default function CreateOrderPage() {
           try {
             const invoiceNo = 'SO-' + today.replace(/-/g, '') + '-' + Date.now().toString().slice(-4);
             const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
+            const shippingCost = parseFloat(ongkirInput?.value) || 0; // <--- 🚚 Tarik nominal ongkir rill
             const payAmount = parseFloat(bayarInput?.value) || 0;
-            const orderNoteValue = catatanInput?.value?.trim() || ""; // ✔️ FIX: Tarik value dari textarea catatan
+            const orderNoteValue = catatanInput?.value?.trim() || ""; 
 
             let autoNeedsProduction = false;
             let targetShortageProduct = null;
@@ -501,7 +507,7 @@ export default function CreateOrderPage() {
 
             // Jika butuh produksi tapi kasir belum ngeracik item bahan baku murninya gais
             if (autoNeedsProduction && bomCart.length === 0) {
-              alert("⚠️ Pesanan butuh produksi! Silahkan tambahkan & isi kuantitas bahan baku (BOM) analisis manufaktur terlebih dahulu.");
+              alert("⚠️ Keranjang butuh racikan manufaktur! Silahkan tambahkan & isi kuantitas analisa bahan baku (BOM) terlebih dahulu.");
               isSubmitting = false;
               submitBtn.disabled = false;
               submitBtn.textContent = "Submit";
@@ -509,6 +515,9 @@ export default function CreateOrderPage() {
             }
 
             const finalOrderStatus = autoNeedsProduction ? 'butuh produksi' : 'pending';
+            
+            // Total tagihan rill setelah ditambah ongkos kirim gais
+            const finalNetAmount = subtotalTotal + shippingCost; 
 
             const { data: orderData, error: orderError } = await supabase
               .from('sales_orders')
@@ -518,11 +527,12 @@ export default function CreateOrderPage() {
                 customer_id: selectedCustomer.id,
                 salesman_id: selectedSalesman,
                 total_amount: subtotalTotal,
+                shipping_fee: shippingCost, // <--- 🚚 PASTIKAN DI TABLE 'sales_orders' LO UDAH ADA KOLOM INI YA GAIS!
                 discount: 0,
-                net_amount: subtotalTotal,
-                payment_method: payAmount >= subtotalTotal ? 'QRIS' : 'Cash',
+                net_amount: finalNetAmount, // <--- 🚚 Net amount diisi (Subtotal + Ongkir)
+                payment_method: payAmount >= finalNetAmount ? 'QRIS' : 'Cash',
                 status: finalOrderStatus,
-                notes: orderNoteValue // ✔️ FIX: Masukkan catatan ke kolom notes sales_orders
+                notes: orderNoteValue 
               }])
               .select();
 
@@ -562,12 +572,12 @@ export default function CreateOrderPage() {
 
               if (newProdErr) throw newProdErr;
 
-              // B. Ambil isi array bomCart yang lo input manual tadi, langsung tembak massal gais!
+              // B. ✔️ FIX UTAMA MASALAH 9,5KG: b.qty_used diganti menjadi b.qty_needed
               if (newProdData && newProdData.length > 0 && bomCart.length > 0) {
                 const ingredientsPayload = bomCart.map(b => ({
                   production_id: newProdData[0].id,
-                  material_id: b.id, // ID rill hasil search bahan baku lo gais
-                  qty_used: b.qty_needed // Nilai Qty inputan manual lo di lapangan
+                  material_id: b.id, 
+                  qty_used: b.qty_needed // <--- FIX: Data rill timbangan desimal sukses dikirim ke database
                 }));
 
                 const { error: ingErr } = await supabase
@@ -583,7 +593,7 @@ export default function CreateOrderPage() {
 
           } catch (err) {
             alert("❌ Gagal menyimpan order: " + err.message);
-          } finally { // ✔️ FIX UTAMA DI SINI: final -> finally gais!
+          } finally { 
             isSubmitting = false;
             submitBtn.disabled = false;
             submitBtn.textContent = "Submit";
@@ -669,6 +679,10 @@ export default function CreateOrderPage() {
             <strong id="summary-subtotal" style="font-size: var(--text-sm); font-weight: var(--font-bold);">Rp 0</strong>
           </div>
           <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
+            <span class="text-light text-sm">Ongkos Kirim</span>
+            <strong id="summary-ongkir" style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text-light);">Rp 0</strong>
+          </div>
+          <div class="detail-row-item" style="padding: 2px 0; display:flex; justify-content:space-between;">
             <span class="text-light text-sm">Bayar</span>
             <strong id="summary-bayar" style="font-size: var(--text-sm); font-weight: var(--font-bold);">Rp 0</strong>
           </div>
@@ -680,9 +694,15 @@ export default function CreateOrderPage() {
       </div>
 
       <div class="card create-card">
-        <div class="form-group">
-          <label class="form-label">Nominal Pembayaran Saat Ini (Rp)</label>
-          <input type="number" pattern="[0-9]*" inputmode="numeric" id="pay-amount" class="input" placeholder="0" />
+        <div class="form-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md);">
+          <div class="form-group">
+            <label class="form-label">Nominal Pembayaran (Rp)</label>
+            <input type="number" pattern="[0-9]*" inputmode="numeric" id="pay-amount" class="input" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ongkos Kirim (Rp)</label>
+            <input type="number" pattern="[0-9]*" inputmode="numeric" id="shipping-amount" class="input" placeholder="0" />
+          </div>
         </div>
       </div>
 
