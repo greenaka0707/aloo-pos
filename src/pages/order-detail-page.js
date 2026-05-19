@@ -279,17 +279,33 @@ export function OrderDetailPage() {
     // ==========================================================================
     // 4. CORE TRIGGER UPDATE STATUS & UPDATE LOGIK RETUR MODAL QTY
     // ==========================================================================
+    // ==========================================================================
+    // 4. CORE TRIGGER UPDATE STATUS & UPDATE LOGIK RETUR MODAL QTY (WITH ICONS)
+    // ==========================================================================
     function renderActionButtonsDOM() {
       const currentDbStatus = orderDataLocal.status ? orderDataLocal.status.toLowerCase() : 'pending';
       
+      // Menggunakan flex-alignment dan menambahkan icon lucide gais biar estetik
       let leftButtonsHtml = `
-        <button class="action-btn" id="btn-back-order" style="background:var(--border); color:var(--text); border:none;">Kembali</button>
-        <button class="action-btn" id="btn-print-invoice" style="background:var(--orange-soft); color:var(--orange); border:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:4px;">Cetak WA</button>
+        <button class="action-btn" id="btn-back-order" style="background:var(--border); color:var(--text); border:none; display:flex; align-items:center; justify-content:center; gap:6px;">
+          <i data-lucide="arrow-left" style="width:16px; height:16px;"></i> Kembali
+        </button>
+        <button class="action-btn" id="btn-print-invoice" style="background:var(--orange-soft); color:var(--orange); border:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:6px;">
+          <i data-lucide="printer" style="width:16px; height:16px;"></i> Cetak WA
+        </button>
       `;
 
       // Jika statusnya sudah VOID, kunci permanen menu aksi operasionalnya gais
       if (currentDbStatus === "void") {
-        actionsArea.innerHTML = leftButtonsHtml + `<button class="action-btn" style="background:var(--border); color:var(--text-light); border:none;" disabled>ORDER VOIDED</button>`;
+        actionsArea.innerHTML = leftButtonsHtml + `
+          <button class="action-btn" style="background:var(--border); color:var(--text-light); border:none; display:flex; align-items:center; justify-content:center; gap:6px;" disabled>
+            <i data-lucide="ban" style="width:16px; height:16px;"></i> ORDER VOIDED
+          </button>
+        `;
+        
+        // Re-aktivasi icon lucide setelah tombol di-render gais
+        if (window.lucide) window.lucide.createIcons();
+        
         const backBtn = actionsArea.querySelector("#btn-back-order");
         if (backBtn) backBtn.addEventListener("click", () => { if(window.navigate) window.navigate("order"); });
         return;
@@ -297,21 +313,68 @@ export function OrderDetailPage() {
 
       // Sesuai diskusi gais, teks tombol otomatis berubah jadi konfirmasi terima retur jika status dikirim
       let voidButtonText = "Void Order";
+      let voidIcon = "trash-2";
       if (currentDbStatus === "dikirim") {
-        voidButtonText = "Konfirmasi Terima Retur";
+        voidButtonText = "Terima Retur";
+        voidIcon = "refresh-cw"; // Ikon putar balik buat retur gais
       }
 
-      let voidButtonHtml = `<button class="action-btn" id="btn-void-order" style="background:var(--danger-soft); color:var(--danger); border:none; font-weight:bold;">${voidButtonText}</button>`;
+      let voidButtonHtml = `
+        <button class="action-btn" id="btn-void-order" style="background:var(--danger-soft); color:var(--danger); border:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:6px;">
+          <i data-lucide="${voidIcon}" style="width:16px; height:16px;"></i> ${voidButtonText}
+        </button>
+      `;
 
       if (currentDbStatus === "pending" || currentDbStatus === "butuh produksi") {
-        actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:var(--orange); border:none; color:white;">Mulai Produksi</button>`;
+        actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `
+          <button class="action-btn primary-action" id="btn-next-status" style="background:var(--orange); border:none; color:white; display:flex; align-items:center; justify-content:center; gap:6px;">
+            <i data-lucide="play" style="width:16px; height:16px;"></i> Mulai Produksi
+          </button>
+        `;
       } else if (currentDbStatus === "diproses") {
-        actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:var(--border); border:none; color:var(--text-light);" disabled>Proses Produksi Berjalan (Locked)</button>`;
+        actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `
+          <button class="action-btn primary-action" id="btn-next-status" style="background:var(--border); border:none; color:var(--text-light); display:flex; align-items:center; justify-content:center; gap:6px;" disabled>
+            <i data-lucide="lock" style="width:16px; height:16px;"></i> Produksi Berjalan
+          </button>
+        `;
       } else if (currentDbStatus === "ready") {
-        actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `<button class="action-btn primary-action" id="btn-next-status" style="background:#06B6D4; border:none; color:white;">Kirim Barang</button>`;
+        actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `
+          <button class="action-btn primary-action" id="btn-next-status" style="background:#06B6D4; border:none; color:white; display:flex; align-items:center; justify-content:center; gap:6px;">
+            <i data-lucide="truck" style="width:16px; height:16px;"></i> Kirim Barang
+          </button>
+        `;
       } else {
-        actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `<button class="action-btn" style="background:var(--border); border:none; color:var(--text-light);" disabled>Order Closed</button>`;
+        actionsArea.innerHTML = leftButtonsHtml + voidButtonHtml + `
+          <button class="action-btn" style="background:var(--border); border:none; color:var(--text-light); display:flex; align-items:center; justify-content:center; gap:6px;" disabled>
+            <i data-lucide="check-square" style="width:16px; height:16px;"></i> Order Closed
+          </button>
+        `;
       }
+
+      // WAJIB: Pemicu ulang agar Lucide menyuntikkan SVG ke elemen <i> baru gais
+      if (window.lucide) window.lucide.createIcons();
+
+      // ==========================================================================
+      // ADDEVENTLISTENER LOGIC (Tetap dipertahankan di bawahnya gais...)
+      // ==========================================================================
+      const voidBtn = actionsArea.querySelector("#btn-void-order");
+      if (voidBtn) {
+        voidBtn.addEventListener("click", async () => {
+          const isAlreadyShipped = (currentDbStatus === "dikirim");
+          
+          let confirmationText = `⚠️ KONFIRMASI VOID NOTA!\n\nApakah lo yakin ingin membatalkan transaksi ${orderDataLocal.invoice_no}?`;
+          if (isAlreadyShipped) {
+            confirmationText = `⚠️ KONFIRMASI SERAH TERIMA RETUR!\n\nApakah lo yakin ingin memproses retur barang dari nota ${orderDataLocal.invoice_no} ke rak gudang?`;
+          }
+
+          if (!confirm(confirmationText)) return;
+
+          try {
+            voidBtn.disabled = true;
+            voidBtn.innerHTML = `<i data-lucide="loader-2" class="animate-spin" style="width:16px; height:16px;"></i> Processing...`;
+            if (window.lucide) window.lucide.createIcons();
+
+            // ... sisa logic retur & prompt ke bawah bawaan kodingan lo aman gais ...
 
       // ==========================================================================
       // DISKUSI IMPLEMENTASI: LOGIK RETUR DENGAN POP-UP PROMPT MODAL QUANTITY LIVE
