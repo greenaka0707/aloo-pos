@@ -455,7 +455,7 @@ export default function CreateOrderPage() {
     renderCartStructure();
 
     // ==========================================================================
-    // 5. SUBMIT DATA KE SUPABASE
+    // 5. SUBMIT DATA KE SUPABASE (FIX: CAPTURE CATATAN LAPANGAN)
     // ==========================================================================
     const actionsArea = container.querySelector(".detail-actions");
     if (actionsArea) {
@@ -483,6 +483,7 @@ export default function CreateOrderPage() {
             const invoiceNo = 'SO-' + today.replace(/-/g, '') + '-' + Date.now().toString().slice(-4);
             const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
             const payAmount = parseFloat(bayarInput?.value) || 0;
+            const orderNoteValue = catatanInput?.value?.trim() || ""; // ✔️ FIX: Tarik value dari textarea catatan
 
             let autoNeedsProduction = false;
             let targetShortageProduct = null;
@@ -498,6 +499,15 @@ export default function CreateOrderPage() {
               }
             });
 
+            // Jika butuh produksi tapi kasir belum ngeracik item bahan baku murninya gais
+            if (autoNeedsProduction && bomCart.length === 0) {
+              alert("⚠️ Pesanan butuh produksi! Silahkan tambahkan & isi kuantitas bahan baku (BOM) analisis manufaktur terlebih dahulu.");
+              isSubmitting = false;
+              submitBtn.disabled = false;
+              submitBtn.textContent = "Submit";
+              return;
+            }
+
             const finalOrderStatus = autoNeedsProduction ? 'butuh produksi' : 'pending';
 
             const { data: orderData, error: orderError } = await supabase
@@ -511,7 +521,8 @@ export default function CreateOrderPage() {
                 discount: 0,
                 net_amount: subtotalTotal,
                 payment_method: payAmount >= subtotalTotal ? 'QRIS' : 'Cash',
-                status: finalOrderStatus 
+                status: finalOrderStatus,
+                notes: orderNoteValue // ✔️ FIX: Masukkan catatan ke kolom notes sales_orders
               }])
               .select();
 
@@ -545,7 +556,7 @@ export default function CreateOrderPage() {
                   product_id: targetShortageProduct.id,
                   qty_produced: calculatedShortageQty,
                   sales_order_id: orderData[0].id,
-                  notes: `Auto-generated dari transaksi penjualan kasir ${invoiceNo}`
+                  notes: `Auto-generated dari transaksi penjualan kasir ${invoiceNo}. ${orderNoteValue}`
                 }])
                 .select();
 
@@ -572,7 +583,7 @@ export default function CreateOrderPage() {
 
           } catch (err) {
             alert("❌ Gagal menyimpan order: " + err.message);
-          } finally {
+          } final {
             isSubmitting = false;
             submitBtn.disabled = false;
             submitBtn.textContent = "Submit";
