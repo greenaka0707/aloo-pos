@@ -181,7 +181,7 @@ export default function CreateOrderPage() {
     }
 
     // ==========================================================================
-    // 3. LIVE SEARCH PRODUK JUALAN UTAMA
+    // 3. LIVE SEARCH PRODUK JUALAN UTAMA (UPDATE: Select Price)
     // ==========================================================================
     if (productInput && productFloat) {
       productInput.addEventListener("input", async (e) => {
@@ -193,13 +193,13 @@ export default function CreateOrderPage() {
 
         const { data: products, error } = await supabase
           .from('products')
-          .select('id, name, stock, unit, category')
+          .select('id, name, stock, unit, category, price') // Tambah ambil kolom price
           .ilike('name', `%${val}%`)
           .limit(5);
 
         if (!error && products) {
           productFloat.innerHTML = products.map(p => `
-            <div class="product-row-item" data-id="${p.id}" data-name="${p.name}" data-stock="${p.stock || 0}" data-unit="${p.unit || 'kg'}" data-category="${p.category || ''}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+            <div class="product-row-item" data-id="${p.id}" data-name="${p.name}" data-stock="${p.stock || 0}" data-unit="${p.unit || 'kg'}" data-category="${p.category || ''}" data-price="${p.price || 0}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
               <div>
                 <strong style="font-size: var(--text-sm); color: var(--text);">${p.name}</strong>
                 <span class="text-xs text-light" style="display: block; text-transform: uppercase;">${p.category || 'UNSET'}</span>
@@ -222,7 +222,9 @@ export default function CreateOrderPage() {
                 return;
               }
 
-              // Bersih kosong tanpa harga default gais
+              // Otomatis inject harga default database ke cart array gais
+              const dbPrice = parseFloat(target.dataset.price) || 0;
+
               cart.push({
                 id: pId,
                 name: target.dataset.name,
@@ -230,7 +232,7 @@ export default function CreateOrderPage() {
                 unit: target.dataset.unit,
                 category: target.dataset.category,
                 qty: "",
-                price: "" 
+                price: dbPrice > 0 ? dbPrice : "" 
               });
 
               productFloat.style.display = "none";
@@ -290,7 +292,6 @@ export default function CreateOrderPage() {
         const subtotalTextEl = row.querySelector(".row-subtotal-text");
 
         qtyEl.addEventListener("input", (e) => {
-          // 🛠️ AUTOMATIC CONVERT: Mengubah live koma inputan iPhone jadi titik desimal background
           let rawVal = e.target.value.replace(/,/g, '.');
           cart[idx].qty = rawVal !== "" ? rawVal : "";
           
@@ -320,12 +321,14 @@ export default function CreateOrderPage() {
       calculateTotalsOnly();
     }
 
+    // ==========================================================================
+    // UPDATE: KALKULASI TOTALS (Fix typo paybyInput)
+    // ==========================================================================
     function calculateTotalsOnly() {
       let needsProduction = false;
 
       cart.forEach(item => {
         const validQty = parseFloat(item.qty) || 0;
-        // 🔒 ATURAN UTAMA: Jika BUKAN greenbean (bahan baku) dan qty order > sisa stok gudang, WAJIB produksi gais!
         if (item.category !== 'greenbean' && validQty > item.stock) {
           needsProduction = true;
         }
@@ -340,7 +343,9 @@ export default function CreateOrderPage() {
 
       const subtotalTotal = cart.reduce((acc, item) => acc + ((parseFloat(item.qty) || 0) * (parseFloat(item.price) || 0)), 0);
       const ongkirVal = parseFloat(ongkirInput?.value) || 0; 
-      const payVal = parseFloat(paybyInput?.value) || parseFloat(bayarInput?.value) || 0;
+      
+      // FIX DI SINI: Langsung ambil dari bayarInput yang valid dicapture di atas gais
+      const payVal = parseFloat(bayarInput?.value) || 0;
       
       const sisaTotal = (subtotalTotal + ongkirVal) - payVal;
 
@@ -511,7 +516,6 @@ export default function CreateOrderPage() {
 
             cart.forEach(item => {
               const vQty = parseFloat(item.qty) || 0;
-              // 🔒 VERIFIKASI SISA STOK MANUFAKTUR
               if (item.category !== 'greenbean' && vQty > item.stock) {
                 autoNeedsProduction = true;
                 if (!targetShortageProduct) {
@@ -541,7 +545,6 @@ export default function CreateOrderPage() {
               }
             }
 
-            // Status otomatis disetel kekunci 'butuh produksi' gais!
             const finalOrderStatus = autoNeedsProduction ? 'butuh produksi' : 'pending';
             const finalNetAmount = subtotalTotal + shippingCost; 
 
@@ -578,7 +581,7 @@ export default function CreateOrderPage() {
             if (itemsError) throw itemsError;
 
             // ==========================================================================
-            // AUTO-INSERT ANT REAN PRODUKSI AMAN LENGKAP GAIS
+            // AUTO-INSERT ANTREAN PRODUKSI AMAN LENGKAP GAIS
             // ==========================================================================
             if (autoNeedsProduction && targetShortageProduct) {
               const generatedPrdNo = 'PRD-' + today.replace(/-/g, '') + '-' + Date.now().toString().slice(-4);
