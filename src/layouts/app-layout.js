@@ -15,12 +15,15 @@ const navbarMeta = {
   'stock-detail': { title: 'RB Robusta Grade A', subtitle: 'Stock Detail', backTo: 'stok' },
   'laporan': { title: 'Laporan', subtitle: 'Operational analytics reporting', backTo: 'dashboard' },
   'produk': { title: 'Produk', subtitle: 'Product master data list', backTo: 'dashboard' },
-  'akun': { title: 'Akun Saya', subtitle: 'User profile settings', backTo: 'dashboard' }
+  'akun': { title: 'Akun Saya', subtitle: 'User profile settings', backTo: 'dashboard' },
+  
+  // 💸 SUNTIKAN METADATA BARU: ROUTE PIUTANG TOKO ENNA FIELD TRIAL LO GAIS
+  'piutang': { title: 'Piutang Usaha', subtitle: 'PT. Ekspansi Nutrisi Nusantara', backTo: 'dashboard' }
 };
 
 export function AppLayout({ content, route }) {
-  // Ambil meta data berdasarkan route saat ini
-  const meta = navbarMeta[route] || { title: 'ERP POS', subtitle: 'PT Prabhaskoe', backTo: 'dashboard' };
+  // Ambil meta data berdasarkan route saat ini (Default fallback diganti ke PT baru lo gais)
+  const meta = navbarMeta[route] || { title: 'ERP POS', subtitle: 'PT. Ekspansi Nutrisi Nusantara', backTo: 'dashboard' };
 
   const isDashboard = route === 'dashboard';
 
