@@ -1,4 +1,3 @@
-// 1. PERBAIKAN: "Import" (I besar) diubah menjadi "import" (i kecil) agar tidak error di server
 import { DashboardPage } from "../pages/dashboard.js";
 
 import { OrderListPage } from "../pages/order-list-page.js";
@@ -14,6 +13,9 @@ import { StockDetailPage } from "../pages/stock-detail-page.js";
 import { PurchaseListPage } from "../pages/purchase-list-page.js";
 import { PurchaseDetailPage } from "../pages/purchase-detail-page.js";
 import { CreatePurchasePage } from "../pages/create-purchase-page.js";
+
+// 💸 SUNTIKAN JALUR PAGE BARU: IMPORT HALAMAN PIUTANG USAHA TRIAL LO GAIS
+import DebtsPage from "../pages/DebtsPage.js"; 
 
 // 2. PERBAIKAN UTAMA: Mengubah named import {} menjadi default import (tanpa {})
 import ProductPage from "../pages/ProductPage.js"; 
@@ -101,6 +103,12 @@ export function renderRoute(route) {
     ========================= */
     case "produk":
       return ProductPage();
+
+    /* =========================
+       💸 ACCOUNTS RECEIVABLE (PIUTANG TRIAL)
+    ========================= */
+    case "piutang":
+      return DebtsPage();
 
     default:
       return DashboardPage();
