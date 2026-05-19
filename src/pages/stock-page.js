@@ -158,52 +158,155 @@ export function StockPage() {
     };
 
     // ==========================================================================
-    // LOGIC DOWNLOAD / EXPORT DATA KE CSV
+    // 💥 UPGRADE ENGINE: EXPORT MURNI KE PDF DENGAN LAYOUT PREMIUM A4 (html2pdf)
     // ==========================================================================
-    // ==========================================================================
-// LOGIC DOWNLOAD / EXPORT DATA KE CSV (FIX EXCEL NUMPUK & DESIMAL)
-// ==========================================================================
-if (downloadBtn) {
-  downloadBtn.addEventListener("click", () => {
-    if (allItems.length === 0) return alert("Belum ada data untuk didownload gais!");
-    
-    // 1. KUNCI UTAMA: Tambahkan 'sep=;' di baris pertama agar Excel otomatis memisah kolom gais
-    let csvContent = "data:text/csv;charset=utf-8,sep=;\n";
-    
-    // Header menggunakan pemisah titik koma (;)
-    csvContent += "ID;Nama Barang;Kategori;Stok;Min Stok;Satuan\n";
-    
-    // 2. Loop baris konten dengan pemisah titik koma (;)
-    allItems.forEach(item => {
-      const stockVal = item.stock || 0;
-      const minStockVal = item.min_stock || 0;
+    if (downloadBtn) {
+      downloadBtn.addEventListener("click", () => {
+        if (allItems.length === 0) return alert("Belum ada data untuk didownload gais!");
+        
+        // Buat DOM container virtual terpisah untuk dokumen cetak A4
+        const element = document.createElement("div");
+        element.style.padding = "20px 15px";
+        element.style.width = "750px"; // Presisi proporsional lebar kertas A4 gais
+        element.style.boxSizing = "border-box";
+        element.style.fontFamily = "Arial, sans-serif";
+        element.style.color = "#1F2937";
+        element.style.backgroundColor = "#FFFFFF";
 
-      // Konversi angka desimal ke format lokal (titik jadi koma: 1.5 -> 1,5) agar ramah Excel Indonesia
-      const formattedStock = stockVal.toString().replace('.', ',');
-      const formattedMinStock = minStockVal.toString().replace('.', ',');
+        // Hitung akumulasi kalkulasi footer data realtime
+        let totalVolume = 0;
+        let countKritis = 0;
+        let countAman = 0;
 
-      const row = [
-        item.id,
-        `"${item.name.replace(/"/g, '""')}"`, // Aman dari bug tanda kutip gais
-        item.category,
-        formattedStock,
-        formattedMinStock,
-        item.unit || 'kg'
-      ].join(";"); // Gabungkan pakai titik koma
-      
-      csvContent += row + "\n";
-    });
+        const tableRowsHtml = allItems.map((item, idx) => {
+          const stockVal = parseFloat(item.stock || 0);
+          const minStockVal = parseFloat(item.min_stock || 0);
+          totalVolume += stockVal;
 
-    // 3. Trigger download otomatis lewat DOM anchor virtual
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `Data_Stok_AlooPOS_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  });
-}
+          const isHabis = stockVal <= 0;
+          const isMenipis = stockVal > 0 && stockVal <= minStockVal;
+
+          let badgeColor = "#D1FAE5; color: #065F46;";
+          let badgeText = "Aman";
+
+          if (isHabis) {
+            badgeColor = "#FEE2E2; color: #991B1B;";
+            badgeText = "Minus/Habis";
+            countKritis++;
+          } else if (isMenipis) {
+            badgeColor = "#FEF3C7; color: #92400E;";
+            badgeText = "Menipis";
+            countKritis++;
+          } else {
+            countAman++;
+          }
+
+          return `
+            <tr style="border-bottom: 1px solid #E5E7EB; font-size: 11px;">
+              <td style="padding: 8px; text-align: center; font-weight: bold; color: #4B5563;">${idx + 1}</td>
+              <td style="padding: 8px; font-weight: bold; color: #111827;">${item.name}</td>
+              <td style="padding: 8px; color: #4B5563; text-transform: uppercase; font-size: 10px;">${item.category || 'Lainnya'}</td>
+              <td style="padding: 8px; text-align: right; font-weight: bold; color: ${stockVal <= 0 ? '#DC2626' : '#111827'};">
+                ${stockVal.toFixed(2)} ${item.unit || 'kg'}
+              </td>
+              <td style="padding: 8px; text-align: right; color: #6B7280;">${minStockVal.toFixed(2)} ${item.unit || 'kg'}</td>
+              <td style="padding: 8px; text-align: center;">
+                <span style="display: inline-block; padding: 2px 6px; font-size: 9px; font-weight: bold; border-radius: 4px; background: ${badgeColor}">
+                  ${badgeText}
+                </span>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        // Suntik struktur template laporan murni ke DOM virtual gais
+        element.innerHTML = `
+          <div style="border-bottom: 2px solid #F97316; padding-bottom: 10px; margin-bottom: 15px;">
+            <h1 style="margin: 0; font-size: 24px; color: #1E293B; font-weight: 800; letter-spacing: -0.5px;">PT PRABHASKOE</h1>
+            <div style="font-size: 11px; font-weight: 700; color: #F97316; text-transform: uppercase; margin-top: 2px; letter-spacing: 0.5px;">Laporan Opname Stok Gudang (Realtime)</div>
+          </div>
+
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 11px; line-height: 1.4;">
+            <tr>
+              <td style="color: #6B7280; width: 15%;">Tanggal Cetak:</td>
+              <td style="font-weight: 600; color: #111827; width: 35%;">: ${new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+              <td style="color: #6B7280; width: 15%;">Sistem Terkait:</td>
+              <td style="font-weight: 600; color: #111827; width: 35%;">: ERP POS Gudang</td>
+            </tr>
+            <tr>
+              <td style="color: #6B7280;">Status Audit:</td>
+              <td style="font-weight: 600; color: #111827;">: Sinkronisasi Supabase Selesai</td>
+              <td style="color: #6B7280;">Otoritas:</td>
+              <td style="font-weight: 600; color: #F97316;">: Owner Terverifikasi</td>
+            </tr>
+          </table>
+
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 20px; border: 1px solid #E5E7EB;">
+            <thead>
+              <tr style="background-color: #1E293B; color: #FFFFFF;">
+                <th style="padding: 8px; text-align: center; font-weight: bold; width: 40px;">NO</th>
+                <th style="padding: 8px; text-align: left; font-weight: bold;">NAMA ITEM / VARIAN KOPI</th>
+                <th style="padding: 8px; text-align: left; font-weight: bold; width: 110px;">KATEGORI</th>
+                <th style="padding: 8px; text-align: right; font-weight: bold; width: 100px;">STOK FISIK</th>
+                <th style="padding: 8px; text-align: right; font-weight: bold; width: 90px;">MIN STOK</th>
+                <th style="padding: 8px; text-align: center; font-weight: bold; width: 90px;">STATUS</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRowsHtml}
+            </tbody>
+          </table>
+
+          <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 10px; margin-bottom: 30px;">
+            <div style="font-size: 11px; font-weight: bold; color: #1E293B; text-transform: uppercase; margin-bottom: 6px;">Ringkasan Evaluasi Timbangan Gudang</div>
+            <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 4px; background: white; border: 1px dashed #CBD5E1; text-align: center; width: 32%;">
+                  <span style="font-size: 9px; color: #64748B; display: block;">Total Volume Stok</span>
+                  <strong style="font-size: 13px; color: #0F172A;">${totalVolume.toFixed(2)} kg</strong>
+                </td>
+                <td style="width: 2%;"></td>
+                <td style="padding: 4px; background: white; border: 1px dashed #CBD5E1; text-align: center; width: 32%;">
+                  <span style="font-size: 9px; color: #64748B; display: block;">Item Kritis/Menipis</span>
+                  <strong style="font-size: 13px; color: #DC2626;">${countKritis} Varian</strong>
+                </td>
+                <td style="width: 2%;"></td>
+                <td style="padding: 4px; background: white; border: 1px dashed #CBD5E1; text-align: center; width: 32%;">
+                  <span style="font-size: 9px; color: #64748B; display: block;">Item Status Aman</span>
+                  <strong style="font-size: 13px; color: #166534;">${countAman} Varian</strong>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <table style="width: 100%; font-size: 11px; margin-top: 15px;">
+            <tr>
+              <td style="text-align: center; width: 50%;">
+                <p style="margin: 0;">Dilaporkan Oleh,</p>
+                <br><br><br>
+                <strong style="text-decoration: underline; color: #111827;">Staff Lapangan Gudang</strong>
+              </td>
+              <td style="text-align: center; width: 50%;">
+                <p style="margin: 0;">Disetujui Oleh,</p>
+                <br><br><br>
+                <strong style="text-decoration: underline; color: #111827;">Agus Setiawan (Owner)</strong>
+              </td>
+            </tr>
+          </table>
+        `;
+
+        const opt = {
+          margin:       10,
+          filename:     `Laporan_Opname_Stok_AlooPOS_${new Date().toISOString().split('T')[0]}.pdf`,
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2, useCORS: true },
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // Pemicu download murni dokumen PDF gais
+        window.html2pdf().set(opt).from(element).save();
+      });
+    }
 
     // ==========================================================================
     // ENGINE FILTER & PENCARIAN LIVE
@@ -220,7 +323,6 @@ if (downloadBtn) {
       } else if (filterValue === "bahan baku") {
         filtered = allItems.filter(item => item.category === "greenbean");
       } else if (filterValue === "menipis") {
-        // Filter menipis sekarang mencakup yang kritis di bawah batas minimum
         filtered = allItems.filter(item => (item.stock || 0) <= (item.min_stock || 0));
       }
 
@@ -247,7 +349,6 @@ if (downloadBtn) {
 
   }, 50);
 
-  // Layout mutakhir: Flex alignment baru untuk kolom search bar + tombol download ikonik
   return `
     <section class="list-page"> 
 
@@ -264,7 +365,7 @@ if (downloadBtn) {
         <button 
           class="card download-stock-btn" 
           style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid rgba(0,0,0,0.05); cursor: pointer; color: var(--text); border-radius: var(--radius-md); padding: 0;"
-          title="Download Excel/CSV"
+          title="Download Laporan PDF"
         >
           <i data-lucide="download" style="width: 20px; height: 20px;"></i>
         </button>
