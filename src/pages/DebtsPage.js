@@ -3,6 +3,7 @@ import { supabase } from "../supabaseClient.js";
 export default function DebtsPage() {
   let debtOrdersLocal = [];
   let totalDebtAmount = 0;
+  let currentTab = "belum-lunas"; // Tab default gais
 
   setTimeout(async () => {
     const container = document.querySelector(".debts-page");
@@ -10,13 +11,14 @@ export default function DebtsPage() {
 
     const summaryTotalArea = container.querySelector("#summary-total-debt");
     const debtListArea = container.querySelector("#debt-list-container");
+    const tabBelumLunasBtn = container.querySelector("#tab-belum-lunas");
+    const tabLunasBtn = container.querySelector("#tab-lunas");
 
     // ==========================================================================
-    // 1. PULL DATA NOTA YANG MASIH PUNYA SISA TAGIHAN (NET_AMOUNT > TOTAL PAID)
+    // 1. PULL DATA NOTA AKTIF (BUKAN VOID)
     // ==========================================================================
     async function fetchDebtsData() {
       try {
-        // Ambil data sales order yang statusnya sudah jalan/dikirim tapi belum lunas murni gais
         const { data: orders, error } = await supabase
           .from("sales_orders")
           .select(`
@@ -29,17 +31,13 @@ export default function DebtsPage() {
             customers ( name, phone ),
             salesmen ( name )
           `)
-          .neq("status", "void") // Nota void jangan dihitung hutang
+          .neq("status", "void") 
           .order("order_date", { ascending: false });
 
         if (error) throw error;
 
-        // Tarik data mutasi pembayaran/cicilan harian (jika lo ada tabel pembayaran terpisah kelak)
-        // Sementara kita bandingkan net_amount dengan status atau records pembayaran kasir.
-        // Di sistem trial ini, kita asumsikan net_amount yang sisa didapat dari pelacakan dinamis atau field sisa tagihan.
-        
         debtOrdersLocal = orders || [];
-        calculateDebtSummaryDOM();
+        calculateAndRenderDOM();
 
       } catch (err) {
         debtListArea.innerHTML = `<p style="padding:var(--space-xl); text-align:center; color:var(--danger);">❌ Gagal muat data piutang: ${err.message}</p>`;
@@ -47,29 +45,44 @@ export default function DebtsPage() {
     }
 
     // ==========================================================================
-    // 2. HITUNG TOTAL & RENDER KE DOM
+    // 2. LOGIKA FILTER TAB & RENDERING CARD
     // ==========================================================================
-    function calculateDebtSummaryDOM() {
+    function calculateAndRenderDOM() {
       totalDebtAmount = 0;
 
-      if (debtOrdersLocal.length === 0) {
-        summaryTotalArea.textContent = "Rp 0";
+      // Hitung total piutang ALL TIME murni dari yang net_amount > 0 gais
+      debtOrdersLocal.forEach(order => {
+        const sisaHutang = parseFloat(order.net_amount || 0);
+        if (sisaHutang > 0) {
+          totalDebtAmount += sisaHutang;
+        }
+      });
+      if (summaryTotalArea) summaryTotalArea.textContent = `Rp ${totalDebtAmount.toLocaleString('id-ID')}`;
+
+      // Filter data berdasarkan TAB aktif
+      const filteredOrders = debtOrdersLocal.filter(order => {
+        const sisaHutang = parseFloat(order.net_amount || 0);
+        if (currentTab === "belum-lunas") {
+          return sisaHutang > 0;
+        } else {
+          return sisaHutang <= 0;
+        }
+      });
+
+      if (filteredOrders.length === 0) {
         debtListArea.innerHTML = `
-          <p class="text-light text-xs" style="text-align: center; padding: var(--space-xl); background: var(--white); border-radius: var(--radius-md); border: 1px dashed var(--border);">
-            🎉 Mantap gais! Semua piutang toko lunas murni aman terkendali.
+          <p class="text-light text-xs" style="text-align: center; padding: var(--space-xl); background: var(--white); border-radius: var(--radius-md); border: 1px dashed var(--border); margin-top:10px;">
+            ${currentTab === "belum-lunas" ? "🎉 Mantap gais! Semua piutang toko lunas murni aman." : "Belum ada riwayat nota yang lunas murni gais."}
           </p>
         `;
         return;
       }
 
-      // Render list data warung berpiutang gais
-      let htmlRows = debtOrdersLocal.map(order => {
+      // Render list data warung ke DOM
+      debtListArea.innerHTML = filteredOrders.map(order => {
         const cust = order.customers || {};
         const sales = order.salesmen || {};
-        
-        // Sementara simulasikan hitungan sisa piutang rill (bisa disesuaikan field database lo gais)
-        const sisaHutang = order.net_amount; 
-        totalDebtAmount += sisaHutang;
+        const sisaHutang = parseFloat(order.net_amount || 0);
 
         return `
           <div class="card" style="margin-bottom: var(--space-sm); border: 1px solid var(--border); padding: var(--space-md); background: var(--white); border-radius: var(--radius-md);">
@@ -78,31 +91,36 @@ export default function DebtsPage() {
                 <strong style="color:var(--text); font-size:var(--text-sm); display:block;">${cust.name || "Warung Tanpa Nama"}</strong>
                 <span class="text-xs text-light">${order.invoice_no} &bull; ${order.order_date}</span>
               </div>
-              <span class="badge badge-warning" style="text-transform:uppercase; font-size:10px;">Belum Lunas</span>
+              <span class="badge ${sisaHutang > 0 ? 'badge-warning' : 'badge-success'}" style="text-transform:uppercase; font-size:10px;">
+                ${sisaHutang > 0 ? 'Belum Lunas' : 'Lunas Murni'}
+              </span>
             </div>
 
-            <div style="font-size:12px; color:var(--text-light); line-height:1.5; margin-bottom:var(--space-md);">
+            <div style="font-size:12px; color:var(--text-light); line-height:1.5; margin-bottom: var(--space-sm);">
               <div style="display:flex; justify-content:space-between;"><span>Salesman:</span><strong style="color:var(--text);">${sales.name || "-"}</strong></div>
-              <div style="display:flex; justify-content:space-between; margin-top:2px;"><span>Catatan Lapangan:</span><span style="color:var(--text); italic">${order.notes || "-"}</span></div>
+              <div style="display:flex; justify-content:space-between; margin-top:2px;"><span>Catatan Lapangan:</span><span style="color:var(--text); font-style:italic;">${order.notes || "-"}</span></div>
             </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:center; background:var(--warning-soft); padding:8px var(--space-sm); border-radius:var(--radius-sm);">
+            <div style="display:flex; justify-content:space-between; align-items:center; background:${sisaHutang > 0 ? 'var(--warning-soft)' : '#ECFDF5'}; padding:8px var(--space-sm); border-radius:var(--radius-sm);">
               <div>
-                <span style="font-size:10px; color:#D97706; display:block; font-weight:var(--font-medium);">Sisa Piutang:</span>
-                <strong style="font-size:14px; color:#B45309;">Rp ${sisaHutang.toLocaleString('id-ID')}</strong>
+                <span style="font-size:10px; color:${sisaHutang > 0 ? '#D97706' : '#10B981'}; display:block; font-weight:var(--font-medium);">${sisaHutang > 0 ? 'Sisa Piutang:' : 'Status Keuangan:'}</span>
+                <strong style="font-size:14px; color:${sisaHutang > 0 ? '#B45309' : '#047857'};">Rp ${sisaHutang.toLocaleString('id-ID')}</strong>
               </div>
-              <button class="btn-pay-debt" data-id="${order.id}" data-invoice="${order.invoice_no}" data-amount="${sisaHutang}" style="background:var(--orange); color:white; border:none; padding:6px var(--space-md); border-radius:var(--radius-sm); font-size:12px; font-weight:bold; cursor:pointer;">
-                Bayar / Cicil
-              </button>
+              ${sisaHutang > 0 ? `
+                <button class="btn-pay-debt" data-id="${order.id}" data-invoice="${order.invoice_no}" data-amount="${sisaHutang}" style="background:var(--orange); color:white; border:none; padding:6px var(--space-md); border-radius:var(--radius-sm); font-size:12px; font-weight:bold; cursor:pointer;">
+                  Bayar / Cicil
+                </button>
+              ` : `
+                <span style="color:#10B981; font-size:12px; font-weight:bold;"><i data-lucide="check-circle" style="width:16px; height:16px; vertical-align:middle; margin-right:2px;"></i> Selesai</span>
+              `}
             </div>
           </div>
         `;
       }).join('');
 
-      summaryTotalArea.textContent = `Rp ${totalDebtAmount.toLocaleString('id-ID')}`;
-      debtListArea.innerHTML = htmlRows;
+      if (window.lucide) window.lucide.createIcons();
 
-      // Pasang Event Listener Tombol Setor Cicilan/Pelunasan
+      // Pasang Listener Tombol Setor Cicilan
       debtListArea.querySelectorAll(".btn-pay-debt").forEach(btn => {
         btn.addEventListener("click", (e) => {
           const target = e.target;
@@ -112,7 +130,34 @@ export default function DebtsPage() {
     }
 
     // ==========================================================================
-    // 3. INTERAKSI MODAL PENAGIHAN PIUTANG KASIR
+    // 3. LOGIKA INTERAKSI TAB NAVIGATION
+    // ==========================================================================
+    function updateTabUI() {
+      if (currentTab === "belum-lunas") {
+        tabBelumLunasBtn.style.background = "var(--orange)";
+        tabBelumLunasBtn.style.color = "white";
+        tabBelumLunasBtn.style.border = "none";
+
+        tabLunasBtn.style.background = "none";
+        tabLunasBtn.style.color = "var(--text-light)";
+        tabLunasBtn.style.border = "1px solid var(--border)";
+      } else {
+        tabLunasBtn.style.background = "#10B981";
+        tabLunasBtn.style.color = "white";
+        tabLunasBtn.style.border = "none";
+
+        tabBelumLunasBtn.style.background = "none";
+        tabBelumLunasBtn.style.color = "var(--text-light)";
+        tabBelumLunasBtn.style.border = "1px solid var(--border)";
+      }
+      calculateAndRenderDOM();
+    }
+
+    tabBelumLunasBtn.addEventListener("click", () => { currentTab = "belum-lunas"; updateTabUI(); });
+    tabLunasBtn.addEventListener("click", () => { currentTab = "lunas"; updateTabUI(); });
+
+    // ==========================================================================
+    // 4. INTERAKSI MODAL PENAGIHAN PIUTANG KASIR
     // ==========================================================================
     const modal = container.querySelector("#debt-payment-modal");
     const modalTitle = container.querySelector("#debt-modal-title");
@@ -131,7 +176,7 @@ export default function DebtsPage() {
       if (modalTitle) modalTitle.textContent = `Setoran Nota ${invoiceNo}`;
       if (modalMaxInfo) modalMaxInfo.textContent = `Total Piutang Toko: Rp ${maxDebt.toLocaleString('id-ID')}`;
       if (payInput) {
-        payInput.value = maxDebt; // Default-kan langsung lunas gais
+        payInput.value = maxDebt; 
         payInput.max = maxDebt;
       }
       if (modal) modal.style.display = "flex";
@@ -156,18 +201,13 @@ export default function DebtsPage() {
           saveBtn.disabled = true;
           saveBtn.textContent = "Saving...";
 
-          // Hitung nilai akhir status nota
           const isLunasMurni = (inputAmount === currentMaxDebt);
-          
-          // Hitung net_amount baru setelah dipotong setoran cicilan uang kasir gais
           const newNetAmount = currentMaxDebt - inputAmount;
 
-          // Update data keuangan order di tabel Supabase
           const { error: updateErr } = await supabase
             .from("sales_orders")
             .update({ 
               net_amount: newNetAmount,
-              // Jika lunas murni, lo bisa tambahkan penanda notes atau log pembayaran kelak gais
               notes: isLunasMurni ? "LUNAS NAGIH LAPANGAN" : `Dicicil masuk Rp ${inputAmount.toLocaleString('id-ID')}`
             })
             .eq("id", currentSelectedOrderId);
@@ -194,13 +234,27 @@ export default function DebtsPage() {
   return `
     <section class="debts-page" style="padding-bottom: 80px;">
       
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--space-md); padding: 0 4px;">
+        <div>
+          <h2 class="font-bold" style="font-size:20px; color:var(--text); margin:0;">Piutang Usaha</h2>
+          <span style="font-size:12px; color:var(--text-light);">PT. Ekspansi Nutrisi Nusantara</span>
+        </div>
+      </div>
+
       <div class="card" style="background: linear-gradient(135deg, #2A3B50 0%, #1A2635 100%); color: white; padding: var(--space-lg); border-radius: var(--radius-md); margin-bottom: var(--space-md); box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
         <span style="font-size: var(--text-xs); color: #94A3B8; text-transform: uppercase; font-weight: var(--font-semibold); letter-spacing: 0.5px;">Total Piutang Usaha Lapangan</span>
         <h2 id="summary-total-debt" style="font-size: 26px; font-weight: var(--font-bold); margin-top: 4px; color: #F97316;">Rp 0</h2>
         <p style="font-size: 11px; color: #94A3B8; margin-top: 6px; font-style: italic;">* Akumulasi dana nota yang belum disetor lunas oleh warung/toko.</p>
       </div>
 
-      <h3 style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text); margin-bottom: var(--space-sm); padding-left: 2px;">Daftar Tagihan Mengambang</h3>
+      <div style="display: flex; gap: var(--space-sm); margin-bottom: var(--space-md);">
+        <button id="tab-belum-lunas" style="flex:1; height:38px; font-size:12px; font-weight:bold; border-radius:var(--radius-sm); border:none; background:var(--orange); color:white; cursor:pointer; transition:all 0.2s;">
+          Belum Lunas
+        </button>
+        <button id="tab-lunas" style="flex:1; height:38px; font-size:12px; font-weight:bold; border-radius:var(--radius-sm); border:1px solid var(--border); background:none; color:var(--text-light); cursor:pointer; transition:all 0.2s;">
+          Lunas
+        </button>
+      </div>
       
       <div id="debt-list-container">
         <p class="text-light text-xs" style="text-align: center; padding: var(--space-md);">Memuat silsilah piutang toko...</p>
