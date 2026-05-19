@@ -266,7 +266,7 @@ export default function CreateOrderPage() {
           <div class="form-grid-2">
             <div class="form-group">
               <label class="form-label">Qty (${item.unit})</label>
-              <input type="number" step="0.01" pattern="[0-9]*([\\\\.,][0-9]*)?" inputmode="decimal" class="input input-qty" value="${item.qty}" placeholder="" />
+              <input type="text" pattern="[0-9]*([\\\\.,][0-9]*)?" inputmode="decimal" class="input input-qty" value="${item.qty}" placeholder="" />
             </div>
             <div class="form-group">
               <label class="form-label">Harga (Rp)</label>
@@ -290,7 +290,10 @@ export default function CreateOrderPage() {
         const subtotalTextEl = row.querySelector(".row-subtotal-text");
 
         qtyEl.addEventListener("input", (e) => {
-          cart[idx].qty = e.target.value !== "" ? parseFloat(e.target.value) : "";
+          // 🛠️ AUTOMATIC CONVERT: Mengubah live koma inputan iPhone jadi titik desimal background
+          let rawVal = e.target.value.replace(/,/g, '.');
+          cart[idx].qty = rawVal !== "" ? rawVal : "";
+          
           const validQty = parseFloat(cart[idx].qty) || 0;
           const validPrice = parseFloat(cart[idx].price) || 0;
           subtotalTextEl.textContent = `Rp ${(validQty * validPrice).toLocaleString('id-ID')}`;
@@ -337,7 +340,7 @@ export default function CreateOrderPage() {
 
       const subtotalTotal = cart.reduce((acc, item) => acc + ((parseFloat(item.qty) || 0) * (parseFloat(item.price) || 0)), 0);
       const ongkirVal = parseFloat(ongkirInput?.value) || 0; 
-      const payVal = parseFloat(bayarInput?.value) || 0;
+      const payVal = parseFloat(paybyInput?.value) || parseFloat(bayarInput?.value) || 0;
       
       const sisaTotal = (subtotalTotal + ongkirVal) - payVal;
 
@@ -433,7 +436,7 @@ export default function CreateOrderPage() {
             <span class="text-sm font-medium" style="color: var(--text); display:block;">${b.name}</span>
           </div>
           <div style="flex: 1; display: flex; align-items: center; gap: 4px;">
-            <input type="number" step="0.01" pattern="[0-9]*([\\\\.,][0-9]*)?" inputmode="decimal" class="input input-bom-qty" value="${b.qty_needed}" placeholder="0.00" style="text-align: right; width: 80px; padding: 4px 8px; font-size: 13px;" />
+            <input type="text" pattern="[0-9]*([\\\\.,][0-9]*)?" inputmode="decimal" class="input input-bom-qty" value="${b.qty_needed}" placeholder="0.00" style="text-align: right; width: 80px; padding: 4px 8px; font-size: 13px;" />
             <span class="text-xs text-light">${b.unit}</span>
           </div>
           <button type="button" class="btn-remove-bom" data-idx="${idx}" style="background: none; border: none; color: var(--danger); font-size: 16px; cursor: pointer; padding: 0 4px;">&times;</button>
@@ -445,7 +448,8 @@ export default function CreateOrderPage() {
         const qtyInp = row.querySelector(".input-bom-qty");
 
         qtyInp.addEventListener("input", (e) => {
-          bomCart[idx].qty_needed = e.target.value !== "" ? parseFloat(e.target.value) : "";
+          let rawVal = e.target.value.replace(/,/g, '.');
+          bomCart[idx].qty_needed = rawVal !== "" ? rawVal : "";
         });
       });
 
