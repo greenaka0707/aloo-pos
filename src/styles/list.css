@@ -5,43 +5,44 @@
 .list-page {
   display: flex;
   flex-direction: column;
-
-  gap: 18px;
-
+  gap: 16px;
   width: 100%;
-
   position: relative;
-
-  padding-bottom:
-    calc(
-      var(--bottom-nav-height)
-      + env(safe-area-inset-bottom)
-      + 120px
-    );
+  /* Padding tambahan di atas agar konten awal tidak tertutup header bawaan */
+  padding-top: 8px;
+  padding-bottom: calc(
+    var(--bottom-nav-height)
+    + env(safe-area-inset-bottom)
+    + 120px
+  );
 }
 
 /* ==========================================================================
-   STICKY SEARCH ROW
+   STICKY HEADER WRAPPER
    ========================================================================== */
 
-.sticky-search-row {
+/* KUNCI PERBAIKAN: Menyatukan baris search dan filter ke dalam satu wrapper sticky 
+   supaya data-list di bawahnya bisa meluncur ke atas dengan mulus */
+.sticky-header-wrapper {
   position: sticky;
-
-  top: 66px;
-
+  top: 0; 
   z-index: 995;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  background: transparent;
+  padding-bottom: 4px;
+}
 
+.sticky-search-row {
   display: flex;
   align-items: center;
-
   gap: 12px;
-
   width: 100%;
-
   padding: 0;
-
-  background: transparent;
 }
+
 .search-box,
 .filter-date-btn,
 .download-sales-btn {
@@ -55,52 +56,33 @@
 
 .search-box {
   flex: 1;
-
   height: 54px;
-
   display: flex;
   align-items: center;
-
   gap: 12px;
-
   padding: 0 18px !important;
-
   margin: 0 !important;
-
   border-radius: 999px !important;
-
-  background:
-    rgba(255,255,255,0.88) !important;
-
+  background: rgba(255, 255, 255, 0.88) !important;
   backdrop-filter: blur(18px);
-
-  border:
-    1px solid rgba(255,255,255,0.7) !important;
-
-  box-shadow:
-    0 8px 30px rgba(15,23,42,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.7) !important;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
 }
 
 .search-box svg,
 .search-box i {
   width: 18px;
   height: 18px;
-
   color: #94a3b8;
-
   flex-shrink: 0;
 }
 
 .search-box input {
   flex: 1;
-
   border: none !important;
   outline: none !important;
-
   background: transparent !important;
-
   font-size: 14px;
-
   color: #0f172a;
 }
 
@@ -116,33 +98,18 @@
 .download-sales-btn {
   width: 54px !important;
   height: 54px !important;
-
   flex-shrink: 0;
-
   border: none !important;
-
   border-radius: 999px !important;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  background:
-    rgba(255,255,255,0.88) !important;
-
+  background: rgba(255, 255, 255, 0.88) !important;
   backdrop-filter: blur(18px);
-
-  border:
-    1px solid rgba(255,255,255,0.7) !important;
-
+  border: 1px solid rgba(255, 255, 255, 0.7) !important;
   color: #0f172a;
-
-  box-shadow:
-    0 8px 30px rgba(15,23,42,0.06);
-
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .filter-date-btn svg,
@@ -157,47 +124,14 @@
 }
 
 /* ==========================================================================
-   DOWNLOAD BUTTON
-   ========================================================================== */
-
-.download-sales-btn {
-  width: 54px !important;
-  height: 54px !important;
-
-  border-radius: 999px !important;
-
-  background:
-    rgba(255,255,255,0.88) !important;
-
-  backdrop-filter: blur(18px);
-
-  border:
-    1px solid rgba(255,255,255,0.7) !important;
-
-  box-shadow:
-    0 8px 30px rgba(15,23,42,0.06);
-
-  transition:
-    transform 0.2s ease;
-}
-
-.download-sales-btn:active {
-  transform: scale(0.94);
-}
-
-/* ==========================================================================
    FILTER TABS
    ========================================================================== */
 
 .filter-scroll {
   display: flex;
-
   gap: 10px;
-
   overflow-x: auto;
-
   scrollbar-width: none;
-
   padding-bottom: 2px;
 }
 
@@ -207,43 +141,24 @@
 
 .filter-chip {
   height: 38px;
-
   border: none;
-
   padding: 0 18px;
-
   border-radius: 999px;
-
-  background:
-    rgba(255,255,255,0.7);
-
+  background: rgba(255, 255, 255, 0.7);
   color: #64748b;
-
   font-size: 13px;
   font-weight: 600;
-
   white-space: nowrap;
-
   flex-shrink: 0;
-
-  transition:
-    all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-
-  border:
-    1px solid rgba(255,255,255,0.7);
-
-  box-shadow:
-    0 4px 18px rgba(15,23,42,0.04);
+  transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
 }
 
 .filter-chip.active {
-  background:
-    rgba(15,23,42,0.92);
-
+  background: rgba(15, 23, 42, 0.92);
   color: white;
-
-  box-shadow:
-    0 8px 20px rgba(15,23,42,0.14);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.14);
 }
 
 /* ==========================================================================
@@ -253,21 +168,14 @@
 .data-list {
   display: flex;
   flex-direction: column;
-
   gap: 12px;
-
   width: 100%;
-
+  margin-top: 4px;
   transition:
     opacity 180ms ease-out,
     transform 250ms cubic-bezier(0.215, 0.610, 0.355, 1);
-
-  will-change:
-    transform,
-    opacity;
-
+  will-change: transform, opacity;
   opacity: 1;
-
   transform: translateX(0);
 }
 
@@ -287,9 +195,7 @@
 
 .list-card {
   position: relative;
-
   width: 100%;
-
   box-sizing: border-box;
 }
 
@@ -299,25 +205,13 @@
 
 .modern-order-card {
   padding: 16px 18px;
-
   border-radius: 24px;
-
-  background:
-    rgba(255,255,255,0.82);
-
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(18px);
-
-  border:
-    1px solid rgba(255,255,255,0.7);
-
-  box-shadow:
-    0 4px 20px rgba(15,23,42,0.05);
-
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
   min-height: 92px;
-
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .modern-order-card:active {
@@ -331,9 +225,7 @@
 .order-card-left {
   display: flex;
   flex-direction: column;
-
   gap: 14px;
-
   width: 100%;
 }
 
@@ -341,25 +233,19 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-
   gap: 12px;
 }
 
 .order-title-group {
   flex: 1;
-
   min-width: 0;
 }
 
 .order-title-group h3 {
   margin: 0;
-
   font-size: 15px;
-
   font-weight: 700;
-
   color: #0f172a;
-
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -367,11 +253,8 @@
 
 .order-ref {
   margin-top: 4px;
-
   font-size: 12px;
-
   color: #94a3b8;
-
   font-weight: 500;
 }
 
@@ -383,9 +266,7 @@
 
 .order-total {
   font-size: 15px;
-
   font-weight: 700;
-
   color: #0f172a;
 }
 
@@ -395,45 +276,39 @@
 
 .modern-status {
   height: 28px;
-
   padding: 0 12px;
-
   border-radius: 999px;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   font-size: 11px;
   font-weight: 700;
-
   text-transform: uppercase;
-
   flex-shrink: 0;
 }
 
 .modern-status.pending {
-  background: rgba(251,191,36,0.12);
+  background: rgba(251, 191, 36, 0.12);
   color: #b45309;
 }
 
 .modern-status.diproses {
-  background: rgba(59,130,246,0.12);
+  background: rgba(59, 130, 246, 0.12);
   color: #2563eb;
 }
 
 .modern-status.ready {
-  background: rgba(139,92,246,0.12);
+  background: rgba(139, 92, 246, 0.12);
   color: #7c3aed;
 }
 
 .modern-status.dikirim {
-  background: rgba(34,197,94,0.12);
+  background: rgba(34, 197, 94, 0.12);
   color: #15803d;
 }
 
 .modern-status.void {
-  background: rgba(148,163,184,0.12);
+  background: rgba(148, 163, 184, 0.12);
   color: #64748b;
 }
 
@@ -444,25 +319,15 @@
 .order-arrow-btn {
   width: 42px;
   height: 42px;
-
   border: none;
-
   border-radius: 999px;
-
-  background:
-    rgba(15,23,42,0.06);
-
+  background: rgba(15, 23, 42, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
-
   color: #0f172a;
-
   flex-shrink: 0;
-
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .order-arrow-btn svg {
@@ -475,151 +340,29 @@
 }
 
 /* ==========================================================================
-   PRODUCT CARD
-   ========================================================================== */
-
-.product-card-body {
-  display: flex;
-  align-items: center;
-
-  width: 100%;
-}
-
-.product-avatar {
-  width: 44px;
-  height: 44px;
-
-  border-radius: 14px;
-
-  background: #e0f2fe;
-
-  color: #0369a1;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  margin-right: 14px;
-
-  flex-shrink: 0;
-}
-
-.product-avatar svg,
-.product-avatar i {
-  width: 20px;
-  height: 20px;
-}
-
-.product-details {
-  flex: 1;
-
-  display: flex;
-  flex-direction: column;
-
-  gap: 4px;
-
-  overflow: hidden;
-}
-
-.product-title {
-  font-size: 14px;
-
-  font-weight: 700;
-
-  color: #0f172a;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.product-price {
-  font-size: 13px;
-
-  font-weight: 600;
-
-  color: #0ea5e9;
-}
-
-.product-meta {
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-
-  font-size: 11px;
-
-  color: #64748b;
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-
-  gap: 4px;
-}
-
-.meta-item svg,
-.meta-item i {
-  width: 12px;
-  height: 12px;
-}
-
-.action-trigger-btn {
-  width: 40px;
-  height: 40px;
-
-  border: none;
-
-  border-radius: 999px;
-
-  background:
-    rgba(15,23,42,0.06);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ==========================================================================
    FLOATING ACTION BUTTON
    ========================================================================== */
 
 .fab-btn {
   position: fixed;
-
   right: 20px;
-
-  bottom:
-    calc(
-      var(--bottom-nav-height)
-      + env(safe-area-inset-bottom)
-      + 34px
-    );
-
+  bottom: calc(
+    var(--bottom-nav-height)
+    + env(safe-area-inset-bottom)
+    + 34px
+  );
   width: 58px;
   height: 58px;
-
   border: none;
-
   border-radius: 999px;
-
-  background:
-    rgba(15,23,42,0.96);
-
+  background: rgba(15, 23, 42, 0.96);
   color: white;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   z-index: 995;
-
-  box-shadow:
-    0 10px 28px rgba(15,23,42,0.22);
-
-  transition:
-    transform 0.2s ease;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.22);
+  transition: transform 0.2s ease;
 }
 
 .fab-btn:active {
@@ -630,6 +373,5 @@
 .fab-btn i {
   width: 24px;
   height: 24px;
-
   stroke-width: 2.5;
 }
