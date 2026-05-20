@@ -1,8 +1,8 @@
 import { supabase } from "../supabaseClient.js";
 
-// ==========================================================================
-// 1. FUNGSI AMBIL DATA STOCK DARI SUPABASE (PRODUCTS TABLE)
-// ==========================================================================
+/* ==========================================================================
+   1. FUNGSI AMBIL DATA STOCK DARI SUPABASE (PRODUCTS TABLE)
+   ========================================================================== */
 async function getSupabaseInventory() {
   try {
     const { data, error } = await supabase
@@ -18,10 +18,10 @@ async function getSupabaseInventory() {
   }
 }
 
-// ==========================================================================
-// 2. CORE COMPONENT: PRODUCT PAGE (NAMED EXPORT - CLEAN SINKRON)
-// ==========================================================================
-export function ProductPage() {
+/* ==========================================================================
+   2. CORE COMPONENT: PRODUCT PAGE (FIXED TO EXPORT DEFAULT FOR VITE ROUTER)
+   ========================================================================== */
+export default function ProductPage() {
   setTimeout(async () => {
     const container = document.querySelector(".product-data-list");
     const searchInput = document.querySelector(".search-box input");
@@ -39,7 +39,7 @@ export function ProductPage() {
     const allItems = await getSupabaseInventory();
 
     // ==========================================================================
-    // ENGINE RENDERER DENGAN STRUKTUR CARD UNIFORM & TOMBOL PANAH DETIL
+    // ENGINE RENDERER DENGAN STRUKTUR CARD COMPACT & TOMBOL PANAH
     // ==========================================================================
     const renderList = (filteredItems) => {
       container.classList.add("page-leave");
