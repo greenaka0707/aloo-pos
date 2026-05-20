@@ -353,12 +353,12 @@ export function OrderListPage() {
   }, 50);
 
 /* ==========================================================================
-     REPLACE SEGMEN RETURN DI JS KAMU DENGAN KODE DI BAWAH INI
+     RETURN TEMPLATE (SEMUA ELEMEN UTK SCROLL NORMAL & LEBIH NAIK)
      ========================================================================== */
   return `
     <section class="list-page">
 
-      <div class="sticky-search-row">
+      <div class="normal-search-row">
         <button class="filter-date-btn" title="Filter Tanggal">
           <i data-lucide="calendar-days"></i>
         </button>
