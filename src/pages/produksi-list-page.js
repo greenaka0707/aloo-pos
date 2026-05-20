@@ -46,10 +46,7 @@ export function ProduksiListPage() {
             notes,
             sales_order_id,
             sales_orders ( invoice_no, status ),
-            products ( name, unit ),
-            production_ingredients (
-              products ( name )
-            )
+            products ( name, unit )
           `)
           .order("created_at", { ascending: false });
 
@@ -104,23 +101,14 @@ export function ProduksiListPage() {
         return;
       }
 
-      // Render baris data kartu ke dalam DOM list jiplak total desain visual lo
+      // ==========================================================================
+      // RENDER CARD KARTU YANG SUDAH DISEDERHANAKAN TOTAL (KIRI-KANAN SINKRON)
+      // ==========================================================================
       container.innerHTML = filtered.map(p => {
         const pName = p.products?.name || "Produk Tidak Diketahui";
         const pUnit = p.products?.unit || "kg";
-        // ✔️ FIXED: Mapping data dari p.sales_orders.invoice_no
         const refText = p.sales_orders?.invoice_no ? `Ref: ${p.sales_orders.invoice_no}` : "Produk Mandiri (MTS)";
         
-        // Looper badge kecil-kecil komposisi bahan mentah yang habis dikonsumsi
-        const ingredientsBadges = p.production_ingredients?.map(ing => {
-          const matName = ing.products?.name || "Bahan Baku";
-          return `
-            <span class="badge" style="background: var(--bg); color: var(--text-light); font-weight: var(--font-medium); height: 22px; padding: 0 var(--space-sm);">
-              ${matName}
-            </span>
-          `;
-        }).join('') || `<span class="text-xs text-light">Tanpa info resep</span>`;
-
         // Konversi format tanggal bawaan DB ke Bahasa Indonesia harian
         let formattedDate = p.production_date;
         if (p.production_date) {
@@ -129,64 +117,62 @@ export function ProduksiListPage() {
           formattedDate = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
         }
 
-        // Tentukan lencana badge status visual penanda siklus produksi lo
-        let badgeClass = "badge-success";
+        // Sinkronisasi class badge status visual dengan gaya uniform aplikasi
+        let badgeClass = "void";
         let statusText = "Selesai";
 
         if (p.sales_orders?.status) {
           const soStatus = p.sales_orders.status.toLowerCase();
-          if (soStatus === "butuh produksi") { badgeClass = "badge-warning"; statusText = "Pending"; }
-          else if (soStatus === "proses produksi") { badgeClass = "badge-info"; statusText = "Diproses"; }
-          else if (soStatus === "ready") { badgeClass = "badge-success"; statusText = "Ready"; }
+          if (soStatus === "butuh produksi") { badgeClass = "pending"; statusText = "Pending"; }
+          else if (soStatus === "proses produksi") { badgeClass = "diproses"; statusText = "Diproses"; }
+          else if (soStatus === "ready") { badgeClass = "ready"; statusText = "Ready"; }
         }
 
         return `
-          <div class="card list-card" style="margin-bottom: var(--space-sm);">
-            <div class="list-card-top">
-              <div>
-                <h3 class="font-bold">${p.production_no}</h3>
-                <p class="text-light text-sm">${refText}</p>
-              </div>
-              <span class="badge ${badgeClass}">${statusText}</span>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: var(--space-md); padding: var(--space-xs) 0;">
+          <div class="list-card modern-order-card">
+            <div class="order-card-left">
               
-              <div style="display: flex; align-items: center; gap: var(--space-md);">
-                <div class="icon-box" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: var(--bg); border-radius: var(--radius-sm);"> 
-                  <i data-lucide="factory" style="width: 16px; height: 16px; color: var(--text-light);"></i>
+              <div class="order-main-row">
+                <div class="order-title-group">
+                  <h3>${p.production_no}</h3>
+                  <p class="order-ref">${refText}</p>
                 </div>
-                <div>
-                  <strong class="font-semibold" style="font-size: var(--text-sm); display: block; color: var(--text);">
-                    ${pName}
-                  </strong>
-                  <span class="text-light text-xs">Produksi ${p.qty_produced} ${pUnit}</span>
-                </div>
+                <span class="modern-status ${badgeClass}">
+                  ${statusText}
+                </span>
               </div>
 
-              <div style="display: flex; flex-wrap: wrap; gap: var(--space-xs);">
-                ${ingredientsBadges}
+              <div style="margin-top: 2px;">
+                <strong style="font-size: 14px; font-weight: 700; color: #0f172a; display: block;">
+                  ${pName}
+                </strong>
+                <span style="font-size: 12px; color: #64748b; font-weight: 500;">
+                  Produksi ${p.qty_produced} ${pUnit}
+                </span>
               </div>
 
-            </div>
+              <div class="order-bottom-row" style="margin-top: 6px;">
+                <span style="font-size: 13px; font-weight: 600; color: #64748b;">
+                  ${formattedDate}
+                </span>
+                <button 
+                  class="order-arrow-btn detail-btn" 
+                  data-id="${p.id}"
+                >
+                  <i data-lucide="arrow-up-right"></i>
+                </button>
+              </div>
 
-            <div class="list-card-footer">
-              <span>${formattedDate}</span>
-              <button
-                class="btn btn-soft detail-btn"
-                data-id="${p.id}"
-              >
-                Detail
-              </button>
             </div>
           </div>
         `;
       }).join('');
 
-      // Pasang event klik simpan ID untuk dilempar ke halaman detail produksi nanti
+      // Pasang event klik simpan ID untuk dilempar ke halaman detail produksi
       container.querySelectorAll(".detail-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
-          const prodId = e.currentTarget.dataset.id;
+          const currentTarget = e.currentTarget;
+          const prodId = currentTarget.dataset.id;
           localStorage.setItem("selected_production_id", prodId);
           if (window.navigate) window.navigate("produksi-detail");
         });
