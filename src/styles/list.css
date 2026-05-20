@@ -123,18 +123,21 @@
 }
 
 /* ==========================================================================
-   FILTER TABS (MURNI TIDAK STICKY, IKUT HANYUT KE SCROLL)
+   FILTER TABS (TIDAK STICKY - DIKASIH RUANG NAPAS)
    ========================================================================== */
 
 .filter-scroll {
-  position: relative !important; /* Diubah ke relative agar ikut hanyut ter-scroll ke atas */
+  position: relative !important;
   z-index: 10;
   display: flex;
   gap: 10px;
   overflow-x: auto;
   scrollbar-width: none;
+  
   padding-bottom: 6px; 
-  margin-top: -2px;    
+  
+  /* KUNCI PERBAIKAN: Ubah dari minus menjadi positif agar tabnya turun sedikit */
+  margin-top: 12px !important; 
 }
 
 .filter-scroll::-webkit-scrollbar {
