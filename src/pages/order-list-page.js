@@ -352,8 +352,8 @@ export function OrderListPage() {
 
   }, 50);
 
- /* ==========================================================================
-     RETURN CLEAN TEMPLATE (TAB TIDAK STICKY, POSISI NAIK)
+/* ==========================================================================
+     REPLACE SEGMEN RETURN DI JS KAMU DENGAN KODE DI BAWAH INI
      ========================================================================== */
   return `
     <section class="list-page">
@@ -397,3 +397,4 @@ export function OrderListPage() {
 
     </section>
   `;
+}
