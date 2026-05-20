@@ -81,7 +81,7 @@ export function OrderListPage() {
             Tidak ada transaksi sales order yang cocok.
           </p>
         `;
-        return;
+        ;
       }
 
       container.innerHTML = filtered.map(order => {
@@ -113,39 +113,54 @@ export function OrderListPage() {
           cardStyle = "background: #F9FAFB; opacity: 0.6; border-left: 4px solid #9CA3AF;"; 
         }
 
-        return `
-          <div class="card list-card" style="margin-bottom: var(--space-sm); ${cardStyle}">
-            <div class="list-card-top">
-              <div>
-                <h3 class="font-bold" style="color: var(--text);">${order.invoice_no}</h3>
-                <p class="text-light text-sm">${order.customers?.name || "Tanpa Nama Customer"}</p>
-              </div>
-              <span class="badge ${badgeClass}" style="text-transform: capitalize; ${currentDbStatus === 'void' ? 'background: #9CA3AF; color: #FFFFFF;' : ''}">${order.status || 'Pending'}</span>
-            </div>
+      return `
+  <div
+    class="list-card modern-order-card"
+    style="${cardStyle}"
+  >
 
-            <div class="list-card-summary">
-              <div class="list-card-summary-item">
-                <span>Total Item</span>
-                <strong>${totalItems} Produk</strong>
-              </div>
-              <div class="list-card-summary-item">
-                <span>Qty</span>
-                <strong>${totalQty.toFixed(2)} kg</strong>
-              </div>
-            </div>
+    <div class="order-card-left">
 
-            <div class="list-card-footer">
-              <span>${formattedDate}</span>
-              <button
-                class="btn btn-soft detail-btn" 
-                style="color: var(--orange); background: var(--orange-soft); border: none;"
-                data-id="${order.id}"
-              >
-                Detail
-              </button>
-            </div>
-          </div>
-        `;
+      <div class="order-main-row">
+
+        <div class="order-title-group">
+          <h3>
+            ${order.customers?.name || "Tanpa Nama Customer"}
+          </h3>
+
+          <p class="order-ref">
+            ${order.invoice_no}
+          </p>
+        </div>
+
+        <span
+          class="modern-status ${currentDbStatus}"
+        >
+          ${order.status || "Pending"}
+        </span>
+
+      </div>
+
+      <div class="order-bottom-row">
+
+        <strong class="order-total">
+          Rp ${Number(order.total_amount || 0).toLocaleString("id-ID")}
+        </strong>
+
+        <button
+          class="order-arrow-btn detail-btn"
+          data-id="${order.id}"
+        >
+          <i data-lucide="arrow-up-right"></i>
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+`;
+
       }).join('');
 
       container.querySelectorAll(".detail-btn").forEach(btn => {
