@@ -65,7 +65,7 @@ export default function ProductPage() {
                 background: #ffffff; 
                 border-radius: 14px; 
                 padding: 12px 16px; 
-                margin-bottom: 10px;
+                margin-bottom: 6px; /* SOLUSI PERBAIKAN 2: Jarak antar card dibuat mepet rapat */
                 box-shadow: 0 1px 2px rgba(0,0,0,0.02);
                 position: relative;
                 width: 100%;
@@ -169,11 +169,12 @@ export default function ProductPage() {
       
       <div class="sticky-search-wrapper" style="
         position: sticky;
-        top: 0;
+        top: -20px; /* Tarik paksa ke atas melewati padding container bawaan aplikasi */
+        margin-left: -16px; /* Lebarkan paksa ke kiri menembus padding */
+        margin-right: -16px; /* Lebarkan paksa ke kanan menembus padding */
+        padding: 16px 16px 12px 16px; /* Beri padding internal baru agar input tetap presisi di tengah */
         background: #f8fafc;
-        padding: 8px 0 12px 0;
         z-index: 100;
-        width: 100%;
         box-sizing: border-box;
       ">
         <div class="custom-search-box" style="
@@ -201,7 +202,7 @@ export default function ProductPage() {
       <div class="data-list product-data-list" style="
         width: 100%; 
         box-sizing: border-box; 
-        margin-top: 2px;
+        margin-top: 0px; /* Pangkas jarak atas list agar mepet */
         display: flex;
         flex-direction: column;
       ">
