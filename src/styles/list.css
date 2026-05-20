@@ -5,13 +5,12 @@
 .list-page {
   display: flex;
   flex-direction: column;
-  /* Kurangi gap antar baris utama agar tidak terlalu renggang */
   gap: 12px; 
   width: 100%;
   position: relative;
   
-  /* Hilangkan atau minimalkan padding-top bawaan agar konten langsung naik */
-  padding-top: 0px; 
+  /* Dipaksa 0 agar konten langsung mepet ke top navbar bawaan */
+  padding-top: 0px !important; 
   
   padding-bottom: calc(
     var(--bottom-nav-height)
@@ -21,31 +20,17 @@
 }
 
 /* ==========================================================================
-   STICKY HEADER WRAPPER
+   SEARCH ROW (TIDAK STICKY & MENEMPEL KE ATAS)
    ========================================================================== */
 
-/* KUNCI PERBAIKAN: Menyatukan baris search dan filter ke dalam satu wrapper sticky 
-   supaya data-list di bawahnya bisa meluncur ke atas dengan mulus */
-.sticky-header-wrapper {
-  position: sticky;
-  top: 0; 
-  z-index: 995;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-  background: transparent;
-  padding-bottom: 4px;
-}
-
 .sticky-search-row {
-  /* Ubah menjadi static/relative agar mengikuti aliran normal */
-  position: relative;
-  top: 0; 
+  /* Diubah menjadi relative agar ikut ter-scroll ke atas secara normal */
+  position: relative !important;
+  top: 0 !important; 
   z-index: 10;
   
-  /* Gunakan margin negatif jika ingin memaksa naik lebih nempel ke top navbar */
-  margin-top: -6px; 
+  /* Menarik posisi ke atas agar memotong sisa ruang kosong navbar */
+  margin-top: -12px !important; 
 
   display: flex;
   align-items: center;
@@ -59,7 +44,7 @@
 .filter-date-btn,
 .download-sales-btn {
   position: relative;
-  z-index: 996;
+  z-index: 20;
 }
 
 /* ==========================================================================
@@ -136,7 +121,7 @@
 }
 
 /* ==========================================================================
-   FILTER TABS
+   FILTER TABS (TIDAK STICKY)
    ========================================================================== */
 
 .filter-scroll {
@@ -144,8 +129,8 @@
   gap: 10px;
   overflow-x: auto;
   scrollbar-width: none;
-  padding-bottom: 6px; /* Beri sedikit jarak aman sebelum menyentuh card list */
-  margin-top: -2px;    /* Sedikit merapat ke baris search box atasnya */
+  padding-bottom: 6px; 
+  margin-top: -2px;    
 }
 
 .filter-scroll::-webkit-scrollbar {
