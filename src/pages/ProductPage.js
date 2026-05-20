@@ -19,9 +19,9 @@ async function getSupabaseInventory() {
 }
 
 // ==========================================================================
-// 2. CORE COMPONENT: PRODUCT PAGE (DEFAULT EXPORT)
+// 2. CORE COMPONENT: PRODUCT PAGE (NAMED EXPORT - CLEAN SINKRON)
 // ==========================================================================
-export default function ProductPage() {
+export function ProductPage() {
   setTimeout(async () => {
     const container = document.querySelector(".product-data-list");
     const searchInput = document.querySelector(".search-box input");
@@ -52,7 +52,7 @@ export default function ProductPage() {
             </div>
           `;
         } else {
-         container.innerHTML = filteredItems.map(item => {
+          container.innerHTML = filteredItems.map(item => {
             let catText = 'Lainnya';
             let catBadge = 'void';
             if (item.category === 'greenbean') { catText = 'Bahan Baku'; catBadge = 'ready'; }
@@ -102,6 +102,7 @@ export default function ProductPage() {
               </div>
             `;
           }).join('');
+        }
 
         if (window.lucide) window.lucide.createIcons();
 
@@ -111,7 +112,7 @@ export default function ProductPage() {
             const currentTarget = e.currentTarget;
             const itemId = currentTarget.dataset.id;
             localStorage.setItem("selected_product_id", itemId);
-            if (window.navigate) window.navigate("product-detail"); // Sesuaikan nama rute navigasimu gais
+            if (window.navigate) window.navigate("product-detail");
           });
         });
 
