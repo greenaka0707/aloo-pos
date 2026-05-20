@@ -364,7 +364,16 @@ export function OrderListPage() {
     <i data-lucide="calendar-days"></i>
   </button>
 
-  <div class="card search-box">
+ <div class="sticky-search-row">
+
+  <button
+    class="filter-date-btn"
+    title="Filter Tanggal"
+  >
+    <i data-lucide="calendar-days"></i>
+  </button>
+
+  <div class="search-box">
     <i data-lucide="search"></i>
 
     <input
@@ -375,7 +384,7 @@ export function OrderListPage() {
   </div>
 
   <button
-    class="card download-sales-btn"
+    class="download-sales-btn"
     title="Download Rekap PDF Harian"
   >
     <i data-lucide="download"></i>
