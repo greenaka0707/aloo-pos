@@ -219,14 +219,21 @@
    MODUL MODIFIKASI KHUSUS: HALAMAN PRODUK MASTER (COMPACT)
    ========================================================================== */
 
-/* Sticky Search: Mengikuti layout dasar, posisi nempel tepat di atas */
+/* FIX PRESTISE: Naik mempet ke bawah judul navbar menghilangkan container boxy */
 .sticky-search-wrapper {
   position: -webkit-sticky !important;
   position: sticky !important;
-  top: 0px;
-  background: var(--bg-clean, #f8fafc) !important;
-  padding: 4px 0 8px 0 !important;
-  z-index: 110;
+  
+  /* 1. Mengunci tepat di bawah tinggi navbar fisik kamu (76px) */
+  top: 76px; 
+  background: var(--bg, #f4f5f6) !important;
+  
+  /* 2. Menarik paksa ke atas menembus batas padding-top global .app-content (96px) */
+  margin-top: -96px !important; 
+  
+  /* 3. Beri bantalan bawah tipis agar card produk pertama nempel rapat */
+  padding: 12px 0 6px 0 !important; 
+  z-index: 990; /* Berada di bawah z-index .page-navbar (1000) */
   width: 100%;
   box-sizing: border-box;
 }
@@ -256,7 +263,8 @@
 
 /* Penyesuaian khusus list data agar jarak antar kartu rapat */
 .product-data-list {
-  margin-top: 4px !important;
+  margin-top: 0px !important;
+  padding-top: 0px !important;
   gap: 6px !important; /* Jarak antar kartu dibuat super rapat */
 }
 
