@@ -21,14 +21,40 @@
 }
 
 /* ==========================================================================
-   STICKY SEARCH
+   STICKY SEARCH ROW
+   ========================================================================== */
+
+.sticky-search-row {
+  position: sticky;
+
+  top: 78px;
+
+  z-index: 990;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  width: 100%;
+
+  padding-top: 4px;
+  padding-bottom: 4px;
+
+  background:
+    linear-gradient(
+      to bottom,
+      #f8fafc 75%,
+      rgba(248,250,252,0)
+    );
+}
+
+/* ==========================================================================
+   SEARCH BOX
    ========================================================================== */
 
 .search-box {
-  position: sticky !important;
-  top: 74px;
-
-  z-index: 990;
+  flex: 1;
 
   height: 54px;
 
@@ -38,6 +64,8 @@
   gap: 12px;
 
   padding: 0 18px !important;
+
+  margin: 0 !important;
 
   border-radius: 999px !important;
 
@@ -51,11 +79,6 @@
 
   box-shadow:
     0 8px 30px rgba(15,23,42,0.06);
-
-  margin-top: -92px !important;
-
-  transition:
-    all 0.28s ease;
 }
 
 .search-box svg,
@@ -79,12 +102,58 @@
   font-size: 14px;
 
   color: #0f172a;
-
-  width: 100%;
 }
 
 .search-box input::placeholder {
   color: #94a3b8;
+}
+
+/* ==========================================================================
+   ROUND ACTION BUTTONS
+   ========================================================================== */
+
+.filter-date-btn,
+.download-sales-btn {
+  width: 54px !important;
+  height: 54px !important;
+
+  flex-shrink: 0;
+
+  border: none !important;
+
+  border-radius: 999px !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    rgba(255,255,255,0.88) !important;
+
+  backdrop-filter: blur(18px);
+
+  border:
+    1px solid rgba(255,255,255,0.7) !important;
+
+  color: #0f172a;
+
+  box-shadow:
+    0 8px 30px rgba(15,23,42,0.06);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.filter-date-btn svg,
+.download-sales-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.filter-date-btn:active,
+.download-sales-btn:active {
+  transform: scale(0.94);
 }
 
 /* ==========================================================================
