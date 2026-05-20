@@ -19,18 +19,18 @@
   );
 }
 
+
 /* ==========================================================================
-   SEARCH ROW (TIDAK STICKY & MENEMPEL KE ATAS)
+   NORMAL SEARCH ROW (POLOS, IKUT KE-SCROLL KE ATAS)
    ========================================================================== */
 
-.sticky-search-row {
-  /* Diubah menjadi relative agar ikut ter-scroll ke atas secara normal */
+.normal-search-row {
   position: relative !important;
   top: 0 !important; 
   z-index: 10;
   
-  /* Menarik posisi ke atas agar memotong sisa ruang kosong navbar */
-  margin-top: -12px !important; 
+  /* Menarik posisi ke atas agar lebih rapat menempel ke top navbar */
+  margin-top: -14px !important; 
 
   display: flex;
   align-items: center;
@@ -40,11 +40,12 @@
   background: transparent;
 }
 
+/* Pastikan elemen di dalamnya juga mengikuti aturan posisi normal */
 .search-box,
 .filter-date-btn,
 .download-sales-btn {
-  position: relative;
-  z-index: 20;
+  position: relative !important;
+  z-index: 11;
 }
 
 /* ==========================================================================
