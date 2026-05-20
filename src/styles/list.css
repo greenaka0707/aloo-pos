@@ -27,7 +27,7 @@
 .sticky-search-row {
   position: sticky;
 
-  top: 78px;
+  top: 0;
 
   z-index: 990;
 
@@ -38,13 +38,15 @@
 
   width: 100%;
 
-  padding-top: 4px;
-  padding-bottom: 4px;
+  margin-top: -6px;
+
+  padding-top: 8px;
+  padding-bottom: 10px;
 
   background:
     linear-gradient(
       to bottom,
-      #f8fafc 75%,
+      #f8fafc 82%,
       rgba(248,250,252,0)
     );
 }
