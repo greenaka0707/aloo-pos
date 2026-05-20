@@ -25,7 +25,7 @@ export function ProduksiListPage() {
     const filterChips = listPage.querySelectorAll(".filter-chip");
 
     // ==========================================================================
-    // 2. CORE ENGINE DATA: FETCH REAL PRODUCTION DATA (FIXED TO invoice_no)
+    // 2. CORE ENGINE DATA: FETCH REAL PRODUCTION DATA (+ CUSTOMER NAME)
     // ==========================================================================
     async function fetchProductions() {
       try {
@@ -35,7 +35,7 @@ export function ProduksiListPage() {
           </p>
         `;
 
-        // ✔️ FIXED: Ganti order_no ke invoice_no agar sinkron dengan kolom DB asli lo
+        // ✔️ UPDATE: Ambil customer_name dari relasi sales_orders
         const { data: productions, error } = await supabase
           .from("productions")
           .select(`
@@ -45,7 +45,7 @@ export function ProduksiListPage() {
             qty_produced,
             notes,
             sales_order_id,
-            sales_orders ( invoice_no, status ),
+            sales_orders ( invoice_no, status, customer_name ),
             products ( name, unit )
           `)
           .order("created_at", { ascending: false });
@@ -72,23 +72,23 @@ export function ProduksiListPage() {
       // Filter berdasarkan Tab Chip operasional harian lo
       if (currentTab !== "Semua") {
         filtered = filtered.filter(p => {
-          // Jika produksi bersumber dari MTO, kita baca status rill dari sales ordernya
           let soStatus = p.sales_orders?.status?.toLowerCase() || "";
           
           if (currentTab === "Pending") return p.sales_order_id && soStatus === "butuh produksi";
           if (currentTab === "Diproses") return p.sales_order_id && soStatus === "proses produksi";
           if (currentTab === "Ready") return soStatus === "ready";
-          if (currentTab === "Selesai") return soStatus === "selesai" || (!p.sales_order_id); // MTS langsung masuk selesai harian
+          if (currentTab === "Selesai") return soStatus === "selesai" || (!p.sales_order_id);
           return false;
         });
       }
 
-      // Filter berdasarkan nomor produksi, nama kopi matang, atau nomor invoice referensi
+      // Filter berdasarkan nomor produksi, nama customer, nama kopi, atau nomor invoice
       if (searchQuery) {
         filtered = filtered.filter(p => 
           p.production_no?.toLowerCase().includes(searchQuery) || 
           p.products?.name?.toLowerCase().includes(searchQuery) ||
-          p.sales_orders?.invoice_no?.toLowerCase().includes(searchQuery) // ✔️ FIXED: Ganti order_no ke invoice_no
+          p.sales_orders?.customer_name?.toLowerCase().includes(searchQuery) || // ✔️ LIVE SEARCH UNTUK NAMA CUSTOMER
+          p.sales_orders?.invoice_no?.toLowerCase().includes(searchQuery)
         );
       }
 
@@ -102,12 +102,15 @@ export function ProduksiListPage() {
       }
 
       // ==========================================================================
-      // RENDER CARD KARTU YANG SUDAH DISEDERHANAKAN TOTAL (KIRI-KANAN SINKRON)
+      // RENDER CARD KARTU - RE-ARRANGE: NAMA CUSTOMER DI ATAS
       // ==========================================================================
       container.innerHTML = filtered.map(p => {
         const pName = p.products?.name || "Produk Tidak Diketahui";
         const pUnit = p.products?.unit || "kg";
-        const refText = p.sales_orders?.invoice_no ? `Ref: ${p.sales_orders.invoice_no}` : "Produk Mandiri (MTS)";
+        
+        // ✔️ Tentukan Identitas Atas: Nama Customer (MTO) atau Produksi Mandiri (MTS)
+        const topTitle = p.sales_orders?.customer_name || "Produksi Mandiri (MTS)";
+        const refText = p.sales_orders?.invoice_no ? `Ref: ${p.sales_orders.invoice_no}` : `No. Prod: ${p.production_no}`;
         
         // Konversi format tanggal bawaan DB ke Bahasa Indonesia harian
         let formattedDate = p.production_date;
@@ -134,7 +137,7 @@ export function ProduksiListPage() {
               
               <div class="order-main-row">
                 <div class="order-title-group">
-                  <h3>${p.production_no}</h3>
+                  <h3>${topTitle}</h3>
                   <p class="order-ref">${refText}</p>
                 </div>
                 <span class="modern-status ${badgeClass}">
@@ -204,9 +207,6 @@ export function ProduksiListPage() {
 
   }, 50);
 
-  /* ==========================================================================
-     RETURN CLEAN TEMPLATE (SUDAH DISINKRONKAN DENGAN FORMULA CSS BARU)
-     ========================================================================== */
   return `
     <section class="list-page"> 
 
@@ -215,7 +215,7 @@ export function ProduksiListPage() {
           <i data-lucide="search"></i>
           <input
             type="text"
-            placeholder="Cari nomor produksi atau nama kopi..."
+            placeholder="Cari customer, nomor produksi atau nama kopi..."
           />
         </div>
       </div>
