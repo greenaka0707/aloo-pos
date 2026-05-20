@@ -1,18 +1,18 @@
 /* ==========================================================================
-   LIST LAYOUT (Universal untuk Sales Order, Produksi, Stok, & Pembelian)
+   LIST LAYOUT & CONTAINER (Universal untuk Semua Halaman List)
    ========================================================================== */
 
 .list-page {
   display: flex;
   flex-direction: column;
-  gap: var(--section-gap);
-  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 90px) !important; /* Dinaikkan agar list card paling bawah tidak tertutup floating search */
   position: relative; 
   width: 100%;
+  /* Jarak bawah agar kartu terakhir tidak tenggelam di bawah menu navigasi */
+  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 32px) !important;
 }
 
 /* ==========================================================================
-   HEADER SECTION
+   HEADER & FILTER CHIPS SECTION
    ========================================================================== */
 .page-header {
   display: flex;
@@ -26,46 +26,13 @@
   color: var(--text-light);
 }
 
-/* ==========================================================================
-   UNIVERSAL SEARCH BOX
-   ========================================================================== */
-.search-box {
-  height: var(--input-height);
-  padding: 0 var(--space-md);
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  box-sizing: border-box;
-}
-
-.search-box svg {
-  width: 18px;
-  height: 18px;
-  color: var(--text-light);
-}
-
-.search-box input {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: var(--text-md);
-  color: var(--text);
-}
-
-.search-box input::placeholder {
-  color: #9CA3AF;
-}
-
-/* ==========================================================================
-   FILTER CHIPS (Swipeable)
-   ========================================================================== */
 .filter-scroll {
   display: flex;
   gap: var(--space-xs);
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: 8px;
   scrollbar-width: none;
+  background: var(--bg, #f8fafc);
 }
 
 .filter-scroll::-webkit-scrollbar {
@@ -93,12 +60,64 @@
 }
 
 /* ==========================================================================
-   UNIVERSAL DATA LIST & CARD OLD STYLE
+   STICKY SEARCH BOX (Sekarang Murni Bersih & Mepet Ke Navbar)
+   ========================================================================== */
+.search-box {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  top: 0px;
+  background: var(--bg, #f8fafc) !important;
+  
+  /* Tarik paksa ke atas menembus padding-top .app-content (96px) bawaan layout global */
+  margin-top: -16px !important;
+  padding: 4px 0 12px 0 !important;
+  z-index: 990;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+/* Kotak Input Minimalis Sesuai Gambar POS */
+.custom-search-container {
+  background: #f1f5f9 !important;
+  border-radius: 14px !important;
+  padding: 10px 14px !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.custom-search-container svg,
+.custom-search-container i {
+  width: 18px;
+  height: 18px;
+  color: #94a3b8;
+}
+
+.custom-search-container input {
+  flex: 1;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  font-size: 13px;
+  color: var(--text);
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* ==========================================================================
+   DATA LIST & COMPACT CARD LAYOUT
    ========================================================================== */
 .data-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: 6px !important; /* Jarak antar kartu seragam super rapat */
+  margin-top: 0px !important;
+  padding-top: 0px !important;
+  
   transition: opacity 180ms ease-out, transform 250ms cubic-bezier(0.215, 0.610, 0.355, 1);
   will-change: transform, opacity;
   opacity: 1;
@@ -115,184 +134,8 @@
   transform: translateX(16px);
 }
 
+/* Desain Card Baru: Tipis, Padat, Modern Tanpa Kontainer Luar */
 .list-card {
-  padding: var(--card-padding);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-}
-
-.list-card-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
-.list-card-top h3 {
-  font-size: var(--text-md);
-  font-weight: var(--font-bold);
-  color: var(--text);
-}
-
-.list-card-top p {
-  margin-top: 2px;
-  font-size: var(--text-xs);
-  color: var(--text-light);
-}
-
-.list-card-summary {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-md);
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--border);
-}
-
-.list-card-summary-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.list-card-summary-item span {
-  font-size: var(--text-xs);
-  color: var(--text-light);
-}
-
-.list-card-summary-item strong {
-  font-size: var(--text-sm);
-  font-weight: var(--font-bold);
-  color: var(--text);
-}
-
-.list-card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.list-card-footer span {
-  font-size: var(--text-xs);
-  color: var(--text-light);
-}
-
-.detail-btn {
-  height: 32px;
-  padding: 0 var(--space-md);
-  font-size: var(--text-xs);
-  border-radius: var(--radius-sm);
-}
-
-/* ==========================================================================
-   UNIVERSAL FAB
-   ========================================================================== */
-.fab-btn {
-  position: fixed;
-  right: 16px;
-  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 16px);
-  width: 48px;
-  height: 48px;
-  border: none;
-  border-radius: var(--radius-md);
-  background: var(--orange);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6px 16px rgba(249,115,22,0.25);
-  z-index: 999; 
-  transition: var(--transition);
-}
-
-.fab-btn:active {
-  transform: scale(0.92);
-}
-
-.fab-btn svg,
-.fab-btn i {
-  width: 20px;
-  height: 20px;
-  stroke-width: 2.2;
-}
-
-/* ==========================================================================
-   MODUL MODIFIKASI KHUSUS: HALAMAN PRODUK MASTER (COMPACT BOTTOM PANEL)
-   ========================================================================== */
-
-/* BARU: Kontainer Mengambang Jauh Lebih Rendah & Sejajar di Bawah Layar */
-.floating-bottom-panel {
-  position: fixed;
-  /* Mengunci pas di atas batas bottom nav bar bawaan kamu */
-  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 14px);
-  left: 16px;
-  right: 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  z-index: 995; /* Sesuai z-index FAB bawaan biar sinkron */
-  box-sizing: border-box;
-  pointer-events: none; /* Supaya area transparan di sela-sela tidak memblokir klik card di belakangnya */
-}
-
-/* Input Box Minimalis yang Sejajar (Mengambil sisa ruang kiri) */
-.custom-search-box-bottom {
-  background: #ffffff !important; 
-  border-radius: 14px !important;
-  padding: 0 14px !important;
-  height: 46px; /* Disamakan tingginya dengan standard button */
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1; /* Melar penuh ke kiri */
-  box-sizing: border-box;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06) !important;
-  pointer-events: auto; /* Aktifkan klik kembali untuk input */
-}
-
-.custom-search-input {
-  background: transparent;
-  border: none;
-  outline: none;
-  width: 100%;
-  font-size: 13px;
-  color: #1e293b;
-}
-
-/* Tombol + Produk Baru Versi Sejajar Kanan */
-.fab-btn-inline {
-  height: 46px;
-  background: #349a9a;
-  color: #ffffff;
-  border: none;
-  border-radius: 14px;
-  padding: 0 16px;
-  font-size: 13px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 4px 14px rgba(52, 154, 154, 0.25);
-  cursor: pointer;
-  flex-shrink: 0; /* Kunci ukuran tombol agar tidak gepeng tertekan search */
-  pointer-events: auto;
-}
-
-.fab-btn-inline svg,
-.fab-btn-inline i {
-  width: 16px;
-  height: 16px;
-}
-
-/* Penyesuaian khusus list data agar jarak antar kartu rapat */
-.product-data-list {
-  margin-top: -12px !important; /* Tarik naik mentok ke atas navbar karena search bar atas sudah hilang */
-  padding-top: 0px !important;
-  gap: 6px !important; 
-}
-
-/* Desain Card Rapat */
-.compact-product-card {
   display: flex;
   align-items: center;
   background: #ffffff;
@@ -305,6 +148,7 @@
   border: 1px solid #f1f5f9;
 }
 
+/* Komponen internal avatar kiri */
 .product-avatar {
   width: 44px;
   height: 44px;
@@ -318,12 +162,13 @@
   flex-shrink: 0;
 }
 
-.product-avatar svg,
-.product-avatar i {
+.product-avatar i,
+.product-avatar svg {
   width: 20px;
   height: 20px;
 }
 
+/* Komponen internal detail tengah */
 .product-details {
   flex: 1;
   display: flex;
@@ -362,23 +207,25 @@
   gap: 4px;
 }
 
-.meta-item svg,
-.meta-item i {
+.meta-item i,
+.meta-item svg {
   width: 12px;
   height: 12px;
   color: #9ca3af;
 }
 
+/* Kondisi Stok Kritis / Habis */
 .meta-item.stock-critical {
   color: #ef4444 !important;
   font-weight: 600;
 }
 
-.meta-item.stock-critical svg,
-.meta-item.stock-critical i {
+.meta-item.stock-critical i,
+.meta-item.stock-critical svg {
   color: #ef4444 !important;
 }
 
+/* Tombol Menu Aksi Tiga Titik Kanan */
 .action-trigger-btn {
   background: none;
   border: none;
@@ -388,4 +235,39 @@
   font-size: 14px;
   font-weight: bold;
   flex-shrink: 0;
+}
+
+/* ==========================================================================
+   UNIVERSAL STICKY FLOATING ACTION BUTTON (FAB)
+   ========================================================================== */
+.fab-btn {
+  position: fixed; 
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 24px); 
+  right: 24px; 
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full, 50%);
+  background-color: #349a9a; /* Menyeragamkan warna toska POS */
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 995; 
+  box-shadow: 0 4px 16px rgba(52, 154, 154, 0.3), 
+              0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fab-btn:active {
+  transform: scale(0.92);
+}
+
+.fab-btn svg,
+.fab-btn i {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.5;
 }
