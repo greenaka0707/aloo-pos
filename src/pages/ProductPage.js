@@ -20,7 +20,7 @@ export default function ProductPage() {
     const container = document.querySelector(".product-data-list");
     const searchInput = document.querySelector(".custom-search-input");
     
-    // Pindahkan FAB ke root .app-layout jika ada
+    // Pindahkan FAB ke root .app-layout agar tidak ikut tergulung/terpotong
     const fab = document.querySelector(".fab-btn-extended");
     const appLayout = document.querySelector(".app-layout");
     if (fab && appLayout && fab.parentElement !== appLayout) {
@@ -37,7 +37,7 @@ export default function ProductPage() {
       setTimeout(() => {
         if (filteredItems.length === 0) {
           container.innerHTML = `
-            <div style="padding: 32px; text-align: center; color: #9ca3af; font-size: 13px;">
+            <div style="padding: 32px; text-align: center; color: #94a3b8; font-size: 13px;">
               Tidak ada produk ditemukan.
             </div>
           `;
@@ -54,7 +54,6 @@ export default function ProductPage() {
               maximumFractionDigits: 0
             }).format(item.price || 0);
 
-            // Logika kritis: jika stok <= min_stock, buat jadi merah
             const isCritical = (item.stock || 0) <= (item.min_stock || 0);
             const stockColor = isCritical ? '#ef4444' : '#6b7280'; 
             const stockIconColor = isCritical ? '#ef4444' : '#9ca3af';
@@ -64,46 +63,46 @@ export default function ProductPage() {
                 display: flex; 
                 align-items: center; 
                 background: #ffffff; 
-                border: 1px solid #f3f4f6; 
-                border-radius: 18px; 
-                padding: 16px; 
-                margin-bottom: 14px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+                border-radius: 14px; 
+                padding: 12px 16px; 
+                margin-bottom: 10px;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.02);
                 position: relative;
                 width: 100%;
                 box-sizing: border-box;
+                border: 1px solid #f1f5f9;
               ">
                 <div class="product-avatar" style="
-                  width: 48px; 
-                  height: 48px; 
-                  background: #e0f2fe; 
-                  color: #0369a1; 
-                  border-radius: 12px; 
+                  width: 44px; 
+                  height: 44px; 
+                  background: #a5f3fc; 
+                  color: #083344; 
+                  border-radius: 10px; 
                   display: flex; 
                   align-items: center; 
                   justify-content: center;
                   margin-right: 14px;
                   flex-shrink: 0;
                 ">
-                  <i data-lucide="box" style="width: 22px; height: 22px;"></i>
+                  <i data-lucide="box" style="width: 20px; height: 20px;"></i>
                 </div>
 
-                <div style="flex: 1; display: flex; flex-direction: column; gap: 4px; overflow: hidden;">
-                  <strong style="font-size: 15px; color: #111827; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 2px; overflow: hidden;">
+                  <strong style="font-size: 14px; color: #1e293b; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                     ${item.name}
                   </strong>
                   
-                  <span style="font-size: 14px; color: #0ea5e9; font-weight: 600;">
+                  <span style="font-size: 13px; color: #0ea5e9; font-weight: 600;">
                     ${priceFormatted}
                   </span>
                   
-                  <div style="display: flex; align-items: center; gap: 14px; margin-top: 2px; font-size: 12px; color: #6b7280;">
-                    <span style="display: flex; align-items: center; gap: 4px; color: ${stockColor}; font-weight: ${isCritical ? '600' : '500'};">
-                      <i data-lucide="archive" style="width: 13px; height: 13px; color: ${stockIconColor};"></i> 
+                  <div style="display: flex; align-items: center; gap: 12px; margin-top: 1px; font-size: 11px; color: #6b7280;">
+                    <span style="display: flex; align-items: center; gap: 4px; color: ${stockColor}; font-weight: ${isCritical ? '600' : '400'};">
+                      <i data-lucide="archive" style="width: 12px; height: 12px; color: ${stockIconColor};"></i> 
                       Stok: ${(item.stock || 0).toFixed(1)}
                     </span>
                     <span style="display: flex; align-items: center; gap: 4px;">
-                      <i data-lucide="layers" style="width: 13px; height: 13px; color: #9ca3af;"></i> 
+                      <i data-lucide="layers" style="width: 12px; height: 12px; color: #9ca3af;"></i> 
                       ${catCode}
                     </span>
                   </div>
@@ -112,10 +111,10 @@ export default function ProductPage() {
                 <button class="action-trigger-btn" style="
                   background: none; 
                   border: none; 
-                  color: #1f2937; 
-                  padding: 8px 4px 8px 12px; 
+                  color: #334155; 
+                  padding: 8px 0 8px 12px; 
                   cursor: pointer;
-                  font-size: 16px;
+                  font-size: 14px;
                   font-weight: bold;
                   flex-shrink: 0;
                 " onclick="console.log('Menu opsional untuk produk: ${item.id}')">
@@ -156,47 +155,57 @@ export default function ProductPage() {
 
   return `
     <section class="list-page-clean" style="
-      width: 100% !important; 
-      max-width: 100% !important; 
-      padding: 0 20px 100px 20px !important; 
+      width: 100vw !important; 
+      max-width: 100vw !important; 
+      margin-left: -20px !important; 
+      margin-right: -20px !important;
+      padding: 0 16px 120px 16px !important; 
       background: #f8fafc !important; 
       min-height: 100vh;
       box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
     ">
       
       <div class="sticky-search-wrapper" style="
         position: sticky;
         top: 0;
         background: #f8fafc;
-        padding: 16px 0 12px 0;
+        padding: 8px 0 12px 0;
         z-index: 100;
         width: 100%;
         box-sizing: border-box;
       ">
         <div class="custom-search-box" style="
           background: #f1f5f9; 
-          border-radius: 16px; 
-          padding: 12px 16px; 
+          border-radius: 14px; 
+          padding: 10px 14px; 
           display: flex; 
           align-items: center; 
-          gap: 12px;
+          gap: 10px;
           width: 100%;
           box-sizing: border-box;
         ">
-          <i data-lucide="search" style="color: #94a3b8; width: 20px; height: 20px;"></i>
+          <i data-lucide="search" style="color: #94a3b8; width: 18px; height: 18px;"></i>
           <input type="text" class="custom-search-input" placeholder="Cari nama atau barcode..." style="
             background: transparent; 
             border: none; 
             outline: none; 
             width: 100%; 
-            font-size: 14px; 
+            font-size: 13px; 
             color: #1e293b;
           " />
         </div>
       </div>
 
-      <div class="data-list product-data-list" style="width: 100%; box-sizing: border-box; margin-top: 8px;">
-        <div style="display: flex; justify-content: center; padding: 40px; color: #94a3b8; font-size: 14px;">
+      <div class="data-list product-data-list" style="
+        width: 100%; 
+        box-sizing: border-box; 
+        margin-top: 2px;
+        display: flex;
+        flex-direction: column;
+      ">
+        <div style="display: flex; justify-content: center; padding: 40px; color: #94a3b8; font-size: 13px;">
           <p>Memuat data master produk...</p>
         </div>
       </div>
@@ -206,22 +215,22 @@ export default function ProductPage() {
         style="
           position: fixed;
           bottom: 90px;
-          right: 20px;
+          right: 16px;
           background: #349a9a;
           color: #ffffff;
           border: none;
-          border-radius: 16px;
-          padding: 14px 22px;
-          font-size: 14px;
+          border-radius: 14px;
+          padding: 12px 20px;
+          font-size: 13px;
           font-weight: 600;
           display: flex;
           align-items: center;
-          gap: 8px;
-          box-shadow: 0 6px 20px rgba(52, 154, 154, 0.3);
+          gap: 6px;
+          box-shadow: 0 4px 14px rgba(52, 154, 154, 0.25);
           cursor: pointer;
           z-index: 999;
         ">
-        <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+        <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
         <span>Produk Baru</span>
       </button>
     </section>
