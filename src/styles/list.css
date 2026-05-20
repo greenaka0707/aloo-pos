@@ -29,7 +29,7 @@
 
   top: 66px;
 
-  z-index: 990;
+  z-index: 995;
 
   display: flex;
   align-items: center;
@@ -40,9 +40,13 @@
 
   padding: 0;
 
-  margin-bottom: 14px;
-
   background: transparent;
+}
+.search-box,
+.filter-date-btn,
+.download-sales-btn {
+  position: relative;
+  z-index: 996;
 }
 
 /* ==========================================================================
