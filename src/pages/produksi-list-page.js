@@ -186,7 +186,7 @@ export function ProduksiListPage() {
       // Pasang event klik simpan ID untuk dilempar ke halaman detail produksi nanti
       container.querySelectorAll(".detail-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
-          const prodId = e.target.dataset.id;
+          const prodId = e.currentTarget.dataset.id;
           localStorage.setItem("selected_production_id", prodId);
           if (window.navigate) window.navigate("produksi-detail");
         });
@@ -218,15 +218,20 @@ export function ProduksiListPage() {
 
   }, 50);
 
+  /* ==========================================================================
+     RETURN CLEAN TEMPLATE (SUDAH DISINKRONKAN DENGAN FORMULA CSS BARU)
+     ========================================================================== */
   return `
     <section class="list-page"> 
 
-      <div class="card search-box">
-        <i data-lucide="search"></i>
-        <input
-          type="text"
-          placeholder="Cari nomor produksi atau nama kopi..."
-        />
+      <div class="normal-search-row">
+        <div class="search-box">
+          <i data-lucide="search"></i>
+          <input
+            type="text"
+            placeholder="Cari nomor produksi atau nama kopi..."
+          />
+        </div>
       </div>
 
       <div class="filter-scroll">
