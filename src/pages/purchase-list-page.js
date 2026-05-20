@@ -101,7 +101,9 @@ export function PurchaseListPage() {
         return;
       }
 
-      // Render baris data kartu ke dalam DOM list sesuai visual lo
+      // ==========================================================================
+      // RENDER CARD KARTU MODERN COMPACT (SINKRON SKIN UNIVERSAL)
+      // ==========================================================================
       container.innerHTML = filtered.map(po => {
         const totalItems = po.purchase_order_items?.length || 0;
         const totalQty = po.purchase_order_items?.reduce((acc, item) => acc + (parseFloat(item.qty) || 0), 0) || 0;
@@ -114,67 +116,69 @@ export function PurchaseListPage() {
           formattedDate = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
         }
 
-        // FIXED BADGE: Pemetaan lencana status visual presisi sesuai foto bukti lo
-        let badgeClass = "badge-warning"; 
+        // Sinkronisasi class badge status visual aplikasi
+        let badgeClass = "pending"; 
         let statusText = "Pending";
         
         if (po.status === "received") { 
-          badgeClass = "badge-success"; 
+          badgeClass = "ready"; // warna ungu/sukses uniform
           statusText = "Diterima"; 
         } else if (po.status === "partial") {
-          badgeClass = "badge-info";
+          badgeClass = "diproses"; // warna biru uniform
           statusText = "Partial";
         } else if (po.status === "void") { 
-          badgeClass = "badge-danger"; 
+          badgeClass = "void"; // warna abu transparan uniform
           statusText = "Void"; 
         }
 
+        const supplierName = po.suppliers?.name || "Tanpa Nama Supplier";
+
         return `
-          <div class="card list-card" style="margin-bottom: var(--space-sm);">
-            <div class="list-card-top">
-              <div>
-                <h3 class="font-bold">${po.purchase_no}</h3>
-                <p class="text-light text-sm">${po.suppliers?.name || "Tanpa Nama Supplier"}</p>
+          <div class="list-card modern-order-card">
+            <div class="order-card-left">
+              
+              <div class="order-main-row">
+                <div class="order-title-group">
+                  <h3>${supplierName}</h3>
+                  <p class="order-ref">PO: ${po.purchase_no}</p>
+                </div>
+                <span class="modern-status ${badgeClass}">
+                  ${statusText}
+                </span>
               </div>
-              <span class="badge ${badgeClass}">${statusText}</span>
-            </div>
 
-            <div class="list-card-summary">
-              <div class="list-card-summary-item">
-                <span>Total Item</span>
-                <strong>${totalItems} Produk</strong>
-              </div>
-              <div class="list-card-summary-item">
-                <span>Qty</span>
-                <strong>${totalQty} kg</strong>
-              </div>
-            </div>
-
-            <div class="list-card-footer">
-              <div>
-                <strong style="color: var(--orange); font-size: var(--text-md); display: block; font-weight: var(--font-bold);">
+              <div style="margin-top: 2px; display: flex; align-items: center; gap: 12px;">
+                <div style="font-size: 13px; font-weight: 700; color: #0ea5e9;">
                   Rp ${(po.total_amount || 0).toLocaleString('id-ID')}
-                </strong>
-                <p class="text-light text-xs" style="margin-top: 1px;">
-                  ${formattedDate}
-                </p>
+                </div>
+                <span style="font-size: 12px; color: #94a3b8; font-weight: 500;">
+                  (${totalItems} Item • ${totalQty.toFixed(1)} kg)
+                </span>
               </div>
 
-              <button
-                class="btn btn-soft detail-btn"
-                data-id="${po.id}"
-              >
-                Detail
-              </button>
+              <div class="order-bottom-row" style="margin-top: 6px;">
+                <span style="font-size: 13px; font-weight: 600; color: #64748b;">
+                  ${formattedDate}
+                </span>
+                
+                <button 
+                  class="order-arrow-btn detail-btn" 
+                  data-id="${po.id}"
+                >
+                  <i data-lucide="arrow-up-right"></i>
+                </button>
+              </div>
+
             </div>
           </div>
         `;
       }).join('');
 
-      // Daftarkan event klik detail nota tanpa ngerusak fungsi router bawaan lo
+      // Daftarkan event klik detail nota menggunakan currentTarget agar ID tidak luput
       container.querySelectorAll(".detail-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
-          const purchaseId = e.target.dataset.id;
+          const currentTarget = e.currentTarget;
+          const purchaseId = currentTarget.dataset.id;
           localStorage.setItem("selected_purchase_id", purchaseId);
           if (window.navigate) window.navigate("purchase-detail");
         });
@@ -206,15 +210,20 @@ export function PurchaseListPage() {
 
   }, 50);
 
+  /* ==========================================================================
+     RETURN CLEAN TEMPLATE (SUDAH DISINKRONKAN DENGAN FORMULA CSS BARU)
+     ========================================================================== */
   return `
     <section class="list-page">
 
-      <div class="card search-box">
-        <i data-lucide="search"></i>
-        <input
-          type="text"
-          placeholder="Cari nomor PO atau nama supplier..."
-        />
+      <div class="normal-search-row">
+        <div class="search-box">
+          <i data-lucide="search"></i>
+          <input
+            type="text"
+            placeholder="Cari nomor PO atau nama supplier..."
+          />
+        </div>
       </div>
 
       <div class="filter-scroll">
