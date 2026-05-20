@@ -165,12 +165,6 @@
   color: var(--text);
 }
 
-.list-card-summary-item strong {
-  font-size: var(--text-sm);
-  font-weight: var(--font-bold);
-  color: var(--text);
-}
-
 .list-card-footer {
   display: flex;
   align-items: center;
@@ -222,36 +216,22 @@
 }
 
 /* ==========================================================================
-   MODUL MODIFIKASI KHUSUS: HALAMAN PRODUK MASTER (COMPACT & CLEAN)
+   MODUL MODIFIKASI KHUSUS: HALAMAN PRODUK MASTER (COMPACT)
    ========================================================================== */
 
-/* Layout Pemutus Kontainer Utama */
-.list-page-clean {
-  width: 100vw !important;
-  max-width: 100vw !important;
-  margin-left: -20px !important;
-  margin-right: -20px !important;
-  padding: 0 16px 120px 16px !important;
-  background: #f8fafc !important;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Header Sticky Search Mepet Navbar & Rapat ke Bawah */
+/* Sticky Search: Mengikuti layout dasar, posisi nempel tepat di atas */
 .sticky-search-wrapper {
   position: -webkit-sticky !important;
   position: sticky !important;
   top: 0px;
-  background: #f8fafc !important;
-  margin-top: -16px !important; /* Menarik paksa kontainer search ke atas navbar */
-  padding: 4px 0 6px 0 !important; /* Padding super tipis agar rapat ke card */
+  background: var(--bg-clean, #f8fafc) !important;
+  padding: 4px 0 8px 0 !important;
   z-index: 110;
   width: 100%;
   box-sizing: border-box;
 }
 
-/* Input Box Minimalis Menyesuaikan Gambar Referensi */
+/* Input Box Minimalis Abu-Abu */
 .custom-search-box {
   background: #f1f5f9 !important;
   border-radius: 14px !important;
@@ -274,13 +254,10 @@
   color: #1e293b;
 }
 
-/* Modifikasi Khusus List Data Produk Master */
-.product-data-list.data-list {
-  width: 100%;
-  box-sizing: border-box;
-  margin-top: 0px !important;
-  padding-top: 0px !important;
-  gap: 0px !important; /* Mematikan gap renggang universal */
+/* Penyesuaian khusus list data agar jarak antar kartu rapat */
+.product-data-list {
+  margin-top: 4px !important;
+  gap: 6px !important; /* Jarak antar kartu dibuat super rapat */
 }
 
 /* Desain Tipis, Mepet, & Rapat untuk Antar Card Produk */
@@ -290,7 +267,6 @@
   background: #ffffff;
   border-radius: 14px;
   padding: 12px 16px;
-  margin-bottom: 6px !important; /* Jarak antar card super rapat */
   box-shadow: 0 1px 2px rgba(0,0,0,0.02);
   position: relative;
   width: 100%;
