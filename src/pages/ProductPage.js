@@ -20,7 +20,6 @@ export default function ProductPage() {
     const container = document.querySelector(".product-data-list");
     const searchInput = document.querySelector(".custom-search-input");
     
-    // Pindahkan FAB ke root .app-layout agar tidak ikut tergulung/terpotong
     const fab = document.querySelector(".fab-btn-extended");
     const appLayout = document.querySelector(".app-layout");
     if (fab && appLayout && fab.parentElement !== appLayout) {
@@ -65,7 +64,7 @@ export default function ProductPage() {
                 background: #ffffff; 
                 border-radius: 14px; 
                 padding: 12px 16px; 
-                margin-bottom: 6px; /* SOLUSI PERBAIKAN 2: Jarak antar card dibuat mepet rapat */
+                margin-bottom: 6px; /* Jarak antar card rapat */
                 box-shadow: 0 1px 2px rgba(0,0,0,0.02);
                 position: relative;
                 width: 100%;
@@ -159,7 +158,7 @@ export default function ProductPage() {
       max-width: 100vw !important; 
       margin-left: -20px !important; 
       margin-right: -20px !important;
-      padding: 0 16px 120px 16px !important; 
+      padding: 60px 16px 120px 16px !important; /* Padding top 60px memberikan ruang karena search bar sekarang keluar dari flow kontainer */
       background: #f8fafc !important; 
       min-height: 100vh;
       box-sizing: border-box;
@@ -168,13 +167,13 @@ export default function ProductPage() {
     ">
       
       <div class="sticky-search-wrapper" style="
-        position: sticky;
-        top: -20px; /* Tarik paksa ke atas melewati padding container bawaan aplikasi */
-        margin-left: -16px; /* Lebarkan paksa ke kiri menembus padding */
-        margin-right: -16px; /* Lebarkan paksa ke kanan menembus padding */
-        padding: 16px 16px 12px 16px; /* Beri padding internal baru agar input tetap presisi di tengah */
-        background: #f8fafc;
-        z-index: 100;
+        position: fixed; /* Ubah ke fixed agar benar-benar lepas dari kontainer pembungkus */
+        top: 60px;       /* Sesuaikan angka ini agar pas menempel tepat di bawah navbar top kamu */
+        left: 0;
+        right: 0;
+        padding: 8px 16px;
+        background: #f8fafc; /* Menghilangkan background putih bawaan, ganti ke abu-abu aplikasi */
+        z-index: 110;
         box-sizing: border-box;
       ">
         <div class="custom-search-box" style="
@@ -202,7 +201,7 @@ export default function ProductPage() {
       <div class="data-list product-data-list" style="
         width: 100%; 
         box-sizing: border-box; 
-        margin-top: 0px; /* Pangkas jarak atas list agar mepet */
+        margin-top: 12px; /* Memberikan sedikit space di bawah search bar yang sudah fixed */
         display: flex;
         flex-direction: column;
       ">
