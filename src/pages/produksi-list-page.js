@@ -227,15 +227,28 @@ export function ProduksiListPage() {
       // ==========================================================================
       // RENDER CARD KARTU - RE-ARRANGE: NAMA CUSTOMER DI ATAS
       // ==========================================================================
+   // Render baris data kartu
       container.innerHTML = filtered.map(p => {
         const pName = p.products?.name || "Produk Tidak Diketahui";
         const pUnit = p.products?.unit || "kg";
         
-        // ✔️ Tentukan Identitas Atas: Nama Customer (MTO) atau Produksi Mandiri (MTS)
-        const topTitle = p.sales_orders?.customer_name || "Produksi Mandiri (MTS)";
-        const refText = p.sales_orders?.invoice_no ? `Ref: ${p.sales_orders.invoice_no}` : `No. Prod: ${p.production_no}`;
+        // ==========================================================================
+        // KUNCI PERBAIKAN LOGIC: Tentukan MTO (Ada SO) vs MTS (Tanpa SO)
+        // ==========================================================================
+        let topTitle = "";
+        let refText = "";
+
+        if (p.sales_order_id && p.sales_orders) {
+          // KONDISI MTO: Ada Sales Order, berarti milik customer
+          topTitle = p.sales_orders.customers?.name || "Tanpa Nama Customer";
+          refText = `Ref: ${p.sales_orders.invoice_no || p.production_no}`;
+        } else {
+          // KONDISI MTS: Tidak ada hubungan ke Sales Order, berarti produksi internal stok
+          topTitle = "Produksi Mandiri (MTS)";
+          refText = `No. Prod: ${p.production_no}`;
+        }
         
-        // Konversi format tanggal bawaan DB ke Bahasa Indonesia harian
+        // Konversi format tanggal harian
         let formattedDate = p.production_date;
         if (p.production_date) {
           const d = new Date(p.production_date);
@@ -243,7 +256,7 @@ export function ProduksiListPage() {
           formattedDate = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
         }
 
-        // Sinkronisasi class badge status visual dengan gaya uniform aplikasi
+        // Tentukan status visual penanda siklus produksi
         let badgeClass = "void";
         let statusText = "Selesai";
 
