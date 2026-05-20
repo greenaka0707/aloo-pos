@@ -34,7 +34,7 @@ export function StockPage() {
     const allItems = await getSupabaseStock();
 
     // ==========================================================================
-    // ENGINE RENDERER DENGAN TRANSISI EMOSI WARNA STATUS
+    // ENGINE RENDERER DENGAN STRUKTUR CARD UNIFORM & TOMBOL PANAH
     // ==========================================================================
     const renderList = (itemsToRender) => {
       container.classList.add("page-leave");
@@ -54,74 +54,71 @@ export function StockPage() {
             
             // Deteksi Kategori & Badge Warna Kalcer
             let categoryText = 'Lainnya';
-            let categoryBadge = 'badge-primary';
+            let categoryBadge = 'void';
             
             if (item.category === 'roastedbean' || item.category === 'kopi_bubuk') {
               categoryText = 'Barang Jadi';
-              categoryBadge = 'badge-primary'; 
+              categoryBadge = 'diproses'; 
             } else if (item.category === 'greenbean') {
               categoryText = 'Bahan Baku';
-              categoryBadge = 'badge-info';    
+              categoryBadge = 'ready';     
             }
 
             // Breakdown Evaluasi Stok
             const isHabis = stockVal <= 0;
             const isMenipis = stockVal > 0 && stockVal <= minStockVal;
 
-            let statusBadge = 'badge-success';
+            let statusBadge = 'dikirim';
             let statusText = 'Aman';
-            let cardBorderColor = '';
-            let footerText = '<span class="text-light text-xs">Stock terverifikasi aman</span>';
-            let stockBadgeStyle = 'background: var(--bg); color: var(--text);';
-            let iconBoxStyle = 'background: rgba(16, 185, 129, 0.1); color: #10B981;';
-            let iconName = item.category === 'greenbean' ? 'package' : 'coffee';
+            let stockBadgeStyle = 'background: rgba(15,23,42,0.06); color: #0f172a;';
 
             if (isHabis) {
-              statusBadge = 'badge-danger';
+              statusBadge = 'pending'; // memakai skema warna warning/danger bawaan sistem
               statusText = 'Habis';
-              cardBorderColor = 'border-color: var(--danger);'; 
-              stockBadgeStyle = 'background: var(--danger-soft); color: var(--danger); font-weight: var(--font-bold);';
-              iconBoxStyle = 'background: var(--danger-soft); color: var(--danger);';
-              iconName = 'alert-octagon'; 
-              footerText = `<span style="color: var(--danger); font-size: var(--text-xs); font-weight: var(--font-bold);">🚨 Habis total! Segera restock</span>`;
+              stockBadgeStyle = 'background: rgba(251,191,36,0.12); color: #b45309; font-weight: 700;';
             } else if (isMenipis) {
-              statusBadge = 'badge-warning'; 
+              statusBadge = 'pending';
               statusText = 'Menipis';
-              cardBorderColor = 'border-color: var(--orange);';
-              stockBadgeStyle = 'background: var(--orange-soft); color: var(--orange); font-weight: var(--font-bold);';
-              iconBoxStyle = 'background: var(--orange-soft); color: var(--orange);';
-              iconName = 'alert-triangle';
-              footerText = `<span style="color: var(--orange); font-size: var(--text-xs); font-weight: var(--font-medium);">Restock dibutuhkan</span>`;
+              stockBadgeStyle = 'background: rgba(251,191,36,0.12); color: #b45309; font-weight: 700;';
             }
 
             return `
-              <div class="card list-card" onclick="window.navigate('stock-detail')" style="cursor: pointer; ${cardBorderColor}">
-                <div class="list-card-top">
-                  <div><span class="badge ${categoryBadge}">${categoryText}</span></div>
-                  <span class="badge ${statusBadge}">${statusText}</span>
-                </div>
-
-                <div style="display: flex; align-items: flex-start; gap: var(--space-md); padding: var(--space-xs) 0;">
-                  <div class="icon-box" style="width: 42px; height: 42px; ${iconBoxStyle}">
-                    <i data-lucide="${iconName}" style="width: 18px; height: 18px;"></i>
-                  </div>
+              <div class="list-card modern-order-card detail-trigger" data-id="${item.id}" style="cursor: pointer;">
+                <div class="order-card-left">
                   
-                  <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
-                    <strong style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">${item.name}</strong>
-                    <p class="text-light text-xs" style="margin-bottom: 6px;">${item.description || 'Ready stock untuk operasional.'}</p>
-                    
-                    <div style="display: flex; gap: var(--space-md); align-items: center;">
-                      <span class="badge" style="${stockBadgeStyle} height: 22px; font-size: var(--text-xs); padding: 0 var(--space-sm);">
-                        Stock: ${stockVal.toFixed(2)} ${unitStr}
-                      </span>
-                      <span class="text-light text-xs">Min: ${minStockVal.toFixed(2)} ${unitStr}</span>
+                  <div class="order-main-row">
+                    <div class="order-title-group">
+                      <span class="modern-status ${categoryBadge}" style="height: 24px;">${categoryText}</span>
                     </div>
+                    <span class="modern-status ${statusBadge}">
+                      ${statusText}
+                    </span>
                   </div>
-                </div>
 
-                <div class="list-card-footer">
-                  ${footerText}
-                  <button class="detail-btn" onclick="event.stopPropagation(); window.navigate('stock-detail')">Detail</button>
+                  <div style="margin-top: 2px;">
+                    <strong style="font-size: 15px; font-weight: 700; color: #0f172a; display: block;">
+                      ${item.name}
+                    </strong>
+                    <p class="text-light text-xs" style="margin: 2px 0 6px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                      ${item.description || 'Ready stock untuk operasional.'}
+                    </p>
+                  </div>
+
+                  <div class="order-bottom-row" style="margin-top: 4px;">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                      <span class="modern-status" style="${stockBadgeStyle} height: 26px; padding: 0 10px; font-size: 12px; text-transform: none;">
+                        Stok: ${stockVal.toFixed(2)} ${unitStr}
+                      </span>
+                      <span style="font-size: 11px; font-weight: 600; color: #94a3b8;">
+                        Min: ${minStockVal.toFixed(2)} ${unitStr}
+                      </span>
+                    </div>
+                    
+                    <button class="order-arrow-btn">
+                      <i data-lucide="arrow-up-right"></i>
+                    </button>
+                  </div>
+
                 </div>
               </div>
             `;
@@ -129,6 +126,16 @@ export function StockPage() {
         }
 
         if (window.lucide) window.lucide.createIcons();
+
+        // Pasang kembali event click handler navigasi serempak satu kartu penuh
+        container.querySelectorAll(".detail-trigger").forEach(card => {
+          card.addEventListener("click", (e) => {
+            const currentTarget = e.currentTarget;
+            const itemId = currentTarget.dataset.id;
+            localStorage.setItem("selected_stock_id", itemId);
+            if (window.navigate) window.navigate("stock-detail");
+          });
+        });
 
         container.classList.remove("page-leave");
         container.classList.add("page-enter");
@@ -265,8 +272,7 @@ export function StockPage() {
                 <br><br><br>
                 <strong style="text-decoration: underline; color: #111827;">Staff Lapangan Gudang</strong>
               </td>
-              <td style="text-align: center; width: 50%;">
-                </td>
+              <td style="text-align: center; width: 50%;"></td>
             </tr>
           </table>
         `;
@@ -322,15 +328,20 @@ export function StockPage() {
 
   }, 50);
 
+  /* ==========================================================================
+     RETURN CLEAN TEMPLATE (SUDAH DISINKRONKAN DENGAN FORMULA CSS BARU)
+     ========================================================================== */
   return `
     <section class="list-page"> 
-      <div style="display: flex; gap: var(--space-sm); align-items: center; width: 100%;">
-        <div class="card search-box" style="flex: 1; margin: 0;"> 
+
+      <div class="normal-search-row">
+        <div class="search-box">
           <i data-lucide="search"></i>
           <input type="text" class="stock-search-input" placeholder="Cari stock..." />
         </div>
-        <button class="card download-stock-btn" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid rgba(0,0,0,0.05); cursor: pointer; color: var(--text); border-radius: var(--radius-md); padding: 0;" title="Download Laporan PDF">
-          <i data-lucide="download" style="width: 20px; height: 20px;"></i>
+        
+        <button class="download-stock-btn download-sales-btn" title="Download Laporan PDF">
+          <i data-lucide="download"></i>
         </button>
       </div>
 
@@ -346,6 +357,7 @@ export function StockPage() {
           <p>Memuat data stock dari database...</p>
         </div>
       </div>
+
     </section>
   `;
 }
