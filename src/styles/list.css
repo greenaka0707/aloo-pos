@@ -5,11 +5,14 @@
 .list-page {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  /* Kurangi gap antar baris utama agar tidak terlalu renggang */
+  gap: 12px; 
   width: 100%;
   position: relative;
-  /* Padding tambahan di atas agar konten awal tidak tertutup header bawaan */
-  padding-top: 8px;
+  
+  /* Hilangkan atau minimalkan padding-top bawaan agar konten langsung naik */
+  padding-top: 0px; 
+  
   padding-bottom: calc(
     var(--bottom-nav-height)
     + env(safe-area-inset-bottom)
@@ -36,11 +39,20 @@
 }
 
 .sticky-search-row {
+  /* Ubah menjadi static/relative agar mengikuti aliran normal */
+  position: relative;
+  top: 0; 
+  z-index: 10;
+  
+  /* Gunakan margin negatif jika ingin memaksa naik lebih nempel ke top navbar */
+  margin-top: -6px; 
+
   display: flex;
   align-items: center;
   gap: 12px;
   width: 100%;
   padding: 0;
+  background: transparent;
 }
 
 .search-box,
@@ -132,7 +144,8 @@
   gap: 10px;
   overflow-x: auto;
   scrollbar-width: none;
-  padding-bottom: 2px;
+  padding-bottom: 6px; /* Beri sedikit jarak aman sebelum menyentuh card list */
+  margin-top: -2px;    /* Sedikit merapat ke baris search box atasnya */
 }
 
 .filter-scroll::-webkit-scrollbar {
