@@ -352,47 +352,38 @@ export function OrderListPage() {
 
   }, 50);
 
- // ... (Sisa kode fungsi fetchSalesOrders, download dll tetap sama di atas)
-
+ /* ==========================================================================
+     RETURN CLEAN TEMPLATE (TAB TIDAK STICKY, POSISI NAIK)
+     ========================================================================== */
   return `
     <section class="list-page">
 
-      <div class="sticky-header-wrapper">
-        
-        <div class="sticky-search-row">
-          <button
-            class="filter-date-btn"
-            title="Filter Tanggal"
-          >
-            <i data-lucide="calendar-days"></i>
-          </button>
+      <div class="sticky-search-row">
+        <button class="filter-date-btn" title="Filter Tanggal">
+          <i data-lucide="calendar-days"></i>
+        </button>
 
-          <div class="search-box">
-            <i data-lucide="search"></i>
-            <input
-              type="text"
-              class="stock-search-input"
-              placeholder="Cari nama warung / nomor invoice..."
-            />
-          </div>
-
-          <button
-            class="download-sales-btn"
-            title="Download Rekap PDF Harian"
-          >
-            <i data-lucide="download"></i>
-          </button>
+        <div class="search-box">
+          <i data-lucide="search"></i>
+          <input
+            type="text"
+            class="stock-search-input"
+            placeholder="Cari nama warung / nomor invoice order..."
+          />
         </div>
 
-        <div class="filter-scroll">
-          <button class="filter-chip active">Semua</button>
-          <button class="filter-chip">Pending</button>
-          <button class="filter-chip">Diproses</button>
-          <button class="filter-chip">Ready</button>
-          <button class="filter-chip">Dikirim</button>
-          <button class="filter-chip">Void</button>
-        </div>
+        <button class="download-sales-btn" title="Download Rekap PDF Harian">
+          <i data-lucide="download"></i>
+        </button>
+      </div>
 
+      <div class="filter-scroll">
+        <button class="filter-chip active">Semua</button>
+        <button class="filter-chip">Pending</button>
+        <button class="filter-chip">Diproses</button>
+        <button class="filter-chip">Ready</button>
+        <button class="filter-chip">Dikirim</button>
+        <button class="filter-chip">Void</button>
       </div>
 
       <div class="data-list"></div>
@@ -406,4 +397,3 @@ export function OrderListPage() {
 
     </section>
   `;
-}
