@@ -52,7 +52,7 @@ export default function ProductPage() {
             </div>
           `;
         } else {
-          container.innerHTML = filteredItems.map(item => {
+         container.innerHTML = filteredItems.map(item => {
             let catText = 'Lainnya';
             let catBadge = 'void';
             if (item.category === 'greenbean') { catText = 'Bahan Baku'; catBadge = 'ready'; }
@@ -68,51 +68,40 @@ export default function ProductPage() {
             const isCritical = (item.stock || 0) <= (item.min_stock || 0);
             let statusBadge = 'dikirim';
             let statusText = 'Aman';
-            let stockBadgeStyle = 'background: rgba(15,23,42,0.06); color: #0f172a;';
+            let stockStyle = 'color: #0f172a; background: rgba(15,23,42,0.06);';
 
             if (isCritical) {
               statusBadge = 'pending';
               statusText = 'Kritis';
-              stockBadgeStyle = 'background: rgba(251,191,36,0.12); color: #b45309; font-weight: 700;';
+              stockStyle = 'color: #b45309; background: rgba(251,191,36,0.12); font-weight: 700;';
             }
 
             return `
-              <div class="list-card modern-order-card detail-trigger" data-id="${item.id}" style="cursor: pointer;">
-                <div class="order-card-left">
+              <div class="list-card compact-product-card detail-trigger" data-id="${item.id}" style="cursor: pointer;">
+                
+                <div class="product-info-left">
+                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <strong style="font-size: 15px; font-weight: 700; color: #0f172a;">${item.name}</strong>
+                    <span class="modern-status ${catBadge}" style="height: 18px; padding: 0 6px; font-size: 10px; text-transform: none;">${catText}</span>
+                  </div>
                   
-                  <div class="order-main-row">
-                    <div class="order-title-group">
-                      <span class="modern-status ${catBadge}" style="height: 24px;">${catText}</span>
-                    </div>
-                    <span class="modern-status ${statusBadge}">
-                      ${statusText}
+                  <span style="font-size: 13px; font-weight: 700; color: #0ea5e9;">${priceFormatted}</span>
+                  
+                  <div class="product-meta-row">
+                    <span class="modern-status" style="${stockStyle} height: 20px; padding: 0 8px; font-size: 11px; text-transform: none; border-radius: 6px;">
+                      Stok: ${(item.stock || 0).toFixed(1)} ${item.unit || 'kg'}
                     </span>
+                    <span class="modern-status ${statusBadge}" style="height: 20px; padding: 0 8px; font-size: 11px; border-radius: 6px;">${statusText}</span>
                   </div>
-
-                  <div style="margin-top: 2px;">
-                    <strong style="font-size: 15px; font-weight: 700; color: #0f172a; display: block;">
-                      ${item.name}
-                    </strong>
-                    <span style="font-size: 14px; font-weight: 700; color: #0ea5e9; display: block; margin-top: 2px;">
-                      ${priceFormatted}
-                    </span>
-                  </div>
-
-                  <div class="order-bottom-row" style="margin-top: 4px;">
-                    <span class="modern-status" style="${stockBadgeStyle} height: 26px; padding: 0 10px; font-size: 12px; text-transform: none;">
-                      Stok Fisik: ${(item.stock || 0).toFixed(1)} ${item.unit || 'kg'}
-                    </span>
-                    
-                    <button class="order-arrow-btn">
-                      <i data-lucide="arrow-up-right"></i>
-                    </button>
-                  </div>
-
                 </div>
+
+                <button class="order-arrow-btn" style="width: 36px; height: 36px;">
+                  <i data-lucide="arrow-up-right" style="width: 16px; height: 16px;"></i>
+                </button>
+
               </div>
             `;
           }).join('');
-        }
 
         if (window.lucide) window.lucide.createIcons();
 
