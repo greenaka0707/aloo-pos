@@ -155,7 +155,7 @@
 }
 
 /* ==========================================================================
-   MAIN CONTENT AREA (SINKRONISASI PADDING NAVBAR GRADASI & PULL REFRESH)
+   MAIN CONTENT AREA (OPTIMALISASI SLIDE TRANSITION MURNI GESER TOTAL)
    ========================================================================== */
 .app-content {
   flex: 1;
@@ -174,30 +174,31 @@
   box-sizing: border-box;
 
   /* ==========================================================================
-     UPDATE KUNCI UNTUK SLIDE & PULL REFRESH GESTURE
+     KUNCI AMAN TRANSISI SLIDE MURNI (GESER 100% WIDTH)
      ========================================================================== */
-  /* Diperbarui: Fokus transpasar dan pergeseran transform dioptimalkan ke 300ms */
+  /* Diperbarui: Menggunakan quintic deceleration easing agar geser horizontal super smooth 
+     tanpa efek overshoot membal kaku yang bikin pusing mata */
   transition: 
-    opacity 200ms ease-out, 
-    transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1); 
+    opacity 250ms ease-out, 
+    transform 350ms cubic-bezier(0.22, 1, 0.36, 1); 
   
   /* Hardware Acceleration: Memaksa HP pakai tenaga GPU pas ditarik biar anti-lag/patah-patah */
-  will-change: transform; 
+  will-change: transform, opacity; 
   
   opacity: 1;
   transform: translateX(0); /* Default di tengah layar */
 }
 
-/* PAGE OUT: Saat tab lama mau menghilang, dia bergeser tipis ke kiri */
+/* PAGE OUT: Saat tab lama mau menghilang, dia bergeser total keluar ke kiri layar */
 .app-content.page-leave {
   opacity: 0;
-  transform: translateX(-24px); 
+  transform: translateX(-100%) !important; 
 }
 
-/* PAGE IN: Saat tab baru masuk, dia datang meluncur halus dari kanan luar */
+/* PAGE IN: Saat tab baru masuk, dia datang meluncur utuh dari kanan luar layar */
 .app-content.page-enter {
   opacity: 0;
-  transform: translateX(24px); 
+  transform: translateX(100%) !important; 
 }
 
 /* ==========================================================================
@@ -244,4 +245,280 @@
   width: 24px;
   height: 24px;
   stroke-width: 2.5;
+}
+
+/* ==========================================================================
+   DASHBOARD UNIVERSAL COMPACT LAYOUT (Modern Skena Roastery Edition)
+   ========================================================================== */
+
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap, 22px);
+  width: 100%;
+}
+
+.section-title-row h3 {
+  font-size: var(--text-xs, 12px);
+  font-weight: var(--font-bold, 700);
+  color: var(--text-light, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+/* ==========================================
+   1. HERO SUMMARY CARD (Glass Premium Charcoal)
+   ========================================== */
+.dashboard-hero-card {
+  padding: var(--card-padding, 24px);
+  border-radius: var(--radius-lg, 24px);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); /* Premium Charcoal Matte */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 20px 35px rgba(15, 23, 42, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md, 20px);
+  color: var(--white, #ffffff);
+}
+
+.dashboard-hero-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md, 14px);
+}
+
+.hero-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm, 14px);
+  background: rgba(249, 115, 22, 0.12); /* Soft orange transparan */
+  color: var(--orange, #f97316);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-label {
+  font-size: var(--text-xs, 12px);
+  font-weight: 600;
+  color: #64748b;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.hero-value {
+  margin-top: 4px;
+  font-size: var(--text-2xl, 28px);
+  font-weight: var(--font-bold, 800);
+  letter-spacing: -0.03em;
+  color: var(--white, #ffffff);
+  line-height: var(--line-tight, 1.2);
+}
+
+/* Sub-stats pembagi horizontal di dalam Hero Card */
+.dashboard-hero-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-md, 16px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+}
+
+.hero-stat strong {
+  font-size: var(--text-md, 16px);
+  font-weight: var(--font-bold, 700);
+  color: var(--white, #ffffff);
+}
+
+.hero-stat span {
+  font-size: var(--text-xs, 11px);
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+}
+
+.hero-stat-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================
+   2. QUICK MENU (BORDERLESS ROUND ACTION GRID)
+   ========================================== */
+.quick-actions-layout {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 Kolom ramping hemat ruang vertikal */
+  gap: 16px 12px;
+  width: 100%;
+}
+
+.quick-menu-item {
+  background: transparent !important; /* Hancurkan kotak kaku bawaan lama gais */
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs, 8px);
+  cursor: pointer;
+  padding: 0;
+}
+
+.quick-menu-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full, 999px); /* Bulat penuh melayang kalcer-style */
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+  color: var(--text, #0f172a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.quick-menu-item:active .quick-menu-icon {
+  transform: scale(0.92); /* Microfeedback membal yang empuk pas di-tap */
+}
+
+.quick-menu-icon svg,
+.quick-menu-icon i {
+  width: 18px;
+  height: 18px;
+}
+
+.quick-menu-item span {
+  font-size: var(--text-xs, 12px);
+  font-weight: 600;
+  color: #475569;
+  white-space: nowrap;
+}
+
+/* ==========================================
+   3. PRIORITY CARD (Clean System Tanpa Garis Putus)
+   ========================================== */
+.dashboard-priority-card {
+  padding: var(--card-padding, 16px 18px);
+  border-radius: var(--radius-md, 20px);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md, 12px);
+  border-left: 3px solid var(--orange, #f97316); /* Garis tegas indikator oranye */
+}
+
+.priority-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md, 12px);
+}
+
+.priority-icon-box {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm, 10px);
+  background: rgba(249, 115, 22, 0.1);
+  color: var(--orange, #f97316);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.priority-head strong {
+  font-size: var(--text-sm, 14px);
+  font-weight: var(--font-bold, 700);
+  color: var(--text, #0f172a);
+}
+
+.priority-head p {
+  font-size: var(--text-xs, 12px);
+  color: var(--text-light, #64748b);
+  margin: 2px 0 0 0;
+}
+
+.priority-stock-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs, 6px);
+  padding-top: 6px;
+  border-top: none; /* Menghilangkan total garis pembatas kaku */
+}
+
+.priority-stock-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(15, 23, 42, 0.03); /* Bantalan tipis minimalis */
+  border-radius: 10px;
+}
+
+.priority-stock-item span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.priority-stock-item strong {
+  font-size: 12px;
+  color: var(--danger, #ef4444);
+  font-weight: var(--font-bold, 700);
+}
+
+/* ==========================================
+   4. SUMMARY ROW (Kapsul Stack Horizontal Inline)
+   ========================================== */
+.dashboard-summary-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.summary-inline-item {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 14px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.02);
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.summary-inline-item:active {
+  transform: scale(0.985); /* Feedback ketukan satu baris */
+}
+
+.summary-inline-item span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.summary-inline-item strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text, #0f172a);
+  background: rgba(15, 23, 42, 0.06);
+  padding: 2px 8px;
+  border-radius: 6px;
 }
