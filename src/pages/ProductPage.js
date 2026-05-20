@@ -20,6 +20,7 @@ export default function ProductPage() {
     const container = document.querySelector(".product-data-list");
     const searchInput = document.querySelector(".custom-search-input");
     
+    // Pindahkan FAB Baru ke komponen root .app-layout agar mengambang sempurna
     const fab = document.querySelector(".fab-btn-extended");
     const appLayout = document.querySelector(".app-layout");
     if (fab && appLayout && fab.parentElement !== appLayout) {
@@ -28,95 +29,64 @@ export default function ProductPage() {
 
     if (!container) return;
 
+    // 1. Ambil data terpusat dari tabel products Supabase
     const allItems = await getSupabaseInventory();
 
+    // ==========================================================================
+    // RENDER UTAMA: Membaca murni Class Modul dari list.css
+    // ==========================================================================
     const renderList = (filteredItems) => {
       container.classList.add("page-leave");
 
       setTimeout(() => {
         if (filteredItems.length === 0) {
           container.innerHTML = `
-            <div style="padding: 32px; text-align: center; color: #94a3b8; font-size: 13px;">
+            <div class="empty-state" style="padding: 32px; text-align: center; color: #94a3b8; font-size: 13px;">
               Tidak ada produk ditemukan.
             </div>
           `;
         } else {
           container.innerHTML = filteredItems.map(item => {
+            // Logika singkatan kategori untuk tag info kanan
             let catCode = 'UNSET';
             if (item.category === 'greenbean') catCode = 'GB';
             if (item.category === 'roastedbean') catCode = 'RB';
             if (item.category === 'kopi_bubuk') catCode = 'KB';
 
+            // Format Mata Uang Rupiah Indonesia (Rp xx.xxx)
             const priceFormatted = new Intl.NumberFormat('id-ID', {
               style: 'currency',
               currency: 'IDR',
               maximumFractionDigits: 0
             }).format(item.price || 0);
 
+            // Logika kelas dinamis untuk penanda stok kritis
             const isCritical = (item.stock || 0) <= (item.min_stock || 0);
-            const stockColor = isCritical ? '#ef4444' : '#6b7280'; 
-            const stockIconColor = isCritical ? '#ef4444' : '#9ca3af';
+            const stockClass = isCritical ? 'meta-item stock-critical' : 'meta-item';
 
             return `
-              <div class="compact-product-card" style="
-                display: flex; 
-                align-items: center; 
-                background: #ffffff; 
-                border-radius: 14px; 
-                padding: 12px 16px; 
-                margin-bottom: 6px; /* Jarak antar card rapat */
-                box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-                position: relative;
-                width: 100%;
-                box-sizing: border-box;
-                border: 1px solid #f1f5f9;
-              ">
-                <div class="product-avatar" style="
-                  width: 44px; 
-                  height: 44px; 
-                  background: #a5f3fc; 
-                  color: #083344; 
-                  border-radius: 10px; 
-                  display: flex; 
-                  align-items: center; 
-                  justify-content: center;
-                  margin-right: 14px;
-                  flex-shrink: 0;
-                ">
-                  <i data-lucide="box" style="width: 20px; height: 20px;"></i>
+              <div class="compact-product-card">
+                <div class="product-avatar">
+                  <i data-lucide="box"></i>
                 </div>
 
-                <div style="flex: 1; display: flex; flex-direction: column; gap: 2px; overflow: hidden;">
-                  <strong style="font-size: 14px; color: #1e293b; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    ${item.name}
-                  </strong>
+                <div class="product-details">
+                  <strong class="product-title">${item.name}</strong>
+                  <span class="product-price">${priceFormatted}</span>
                   
-                  <span style="font-size: 13px; color: #0ea5e9; font-weight: 600;">
-                    ${priceFormatted}
-                  </span>
-                  
-                  <div style="display: flex; align-items: center; gap: 12px; margin-top: 1px; font-size: 11px; color: #6b7280;">
-                    <span style="display: flex; align-items: center; gap: 4px; color: ${stockColor}; font-weight: ${isCritical ? '600' : '400'};">
-                      <i data-lucide="archive" style="width: 12px; height: 12px; color: ${stockIconColor};"></i> 
+                  <div class="product-meta">
+                    <span class="${stockClass}">
+                      <i data-lucide="archive"></i> 
                       Stok: ${(item.stock || 0).toFixed(1)}
                     </span>
-                    <span style="display: flex; align-items: center; gap: 4px;">
-                      <i data-lucide="layers" style="width: 12px; height: 12px; color: #9ca3af;"></i> 
+                    <span class="meta-item">
+                      <i data-lucide="layers"></i> 
                       ${catCode}
                     </span>
                   </div>
                 </div>
 
-                <button class="action-trigger-btn" style="
-                  background: none; 
-                  border: none; 
-                  color: #334155; 
-                  padding: 8px 0 8px 12px; 
-                  cursor: pointer;
-                  font-size: 14px;
-                  font-weight: bold;
-                  flex-shrink: 0;
-                " onclick="console.log('Menu opsional untuk produk: ${item.id}')">
+                <button class="action-trigger-btn" onclick="console.log('Menu opsional untuk produk ID: ${item.id}')">
                   •••
                 </button>
               </div>
@@ -124,6 +94,7 @@ export default function ProductPage() {
           }).join('');
         }
 
+        // Render ulang library ikon Lucide setelah elemen HTML disuntikkan ke DOM
         if (window.lucide) window.lucide.createIcons();
 
         container.classList.remove("page-leave");
@@ -138,8 +109,12 @@ export default function ProductPage() {
       }, 150);
     };
 
+    // Pemicu awal render data portofolio kopi saat halaman dimuat
     renderList(allItems);
 
+    // ==========================================================================
+    // REAL-TIME SEARCH FILTERING
+    // ==========================================================================
     if (searchInput) {
       searchInput.addEventListener("input", (e) => {
         const keyword = e.target.value.toLowerCase().trim();
@@ -152,87 +127,28 @@ export default function ProductPage() {
 
   }, 50);
 
+  // Struktur HTML bersih yang memanfaatkan utilitas kelas di modul list.css kamu
   return `
-    <section class="list-page-clean" style="
-      width: 100vw !important; 
-      max-width: 100vw !important; 
-      margin-left: -20px !important; 
-      margin-right: -20px !important;
-      padding: 60px 16px 120px 16px !important; /* Padding top 60px memberikan ruang karena search bar sekarang keluar dari flow kontainer */
-      background: #f8fafc !important; 
-      min-height: 100vh;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-    ">
+    <section class="list-page-clean">
       
-      <div class="sticky-search-wrapper" style="
-        position: fixed; /* Ubah ke fixed agar benar-benar lepas dari kontainer pembungkus */
-        top: 60px;       /* Sesuaikan angka ini agar pas menempel tepat di bawah navbar top kamu */
-        left: 0;
-        right: 0;
-        padding: 8px 16px;
-        background: #f8fafc; /* Menghilangkan background putih bawaan, ganti ke abu-abu aplikasi */
-        z-index: 110;
-        box-sizing: border-box;
-      ">
-        <div class="custom-search-box" style="
-          background: #f1f5f9; 
-          border-radius: 14px; 
-          padding: 10px 14px; 
-          display: flex; 
-          align-items: center; 
-          gap: 10px;
-          width: 100%;
-          box-sizing: border-box;
-        ">
-          <i data-lucide="search" style="color: #94a3b8; width: 18px; height: 18px;"></i>
-          <input type="text" class="custom-search-input" placeholder="Cari nama atau barcode..." style="
-            background: transparent; 
-            border: none; 
-            outline: none; 
-            width: 100%; 
-            font-size: 13px; 
-            color: #1e293b;
-          " />
+      <div class="sticky-search-wrapper">
+        <div class="custom-search-box">
+          <i data-lucide="search"></i>
+          <input type="text" class="custom-search-input" placeholder="Cari nama atau barcode..." />
         </div>
       </div>
 
-      <div class="data-list product-data-list" style="
-        width: 100%; 
-        box-sizing: border-box; 
-        margin-top: 12px; /* Memberikan sedikit space di bawah search bar yang sudah fixed */
-        display: flex;
-        flex-direction: column;
-      ">
+      <div class="data-list product-data-list">
         <div style="display: flex; justify-content: center; padding: 40px; color: #94a3b8; font-size: 13px;">
           <p>Memuat data master produk...</p>
         </div>
       </div>
 
-      <button class="fab-btn-extended" 
-        onclick="window.navigate('create-product')" 
-        style="
-          position: fixed;
-          bottom: 90px;
-          right: 16px;
-          background: #349a9a;
-          color: #ffffff;
-          border: none;
-          border-radius: 14px;
-          padding: 12px 20px;
-          font-size: 13px;
-          font-weight: 600;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          box-shadow: 0 4px 14px rgba(52, 154, 154, 0.25);
-          cursor: pointer;
-          z-index: 999;
-        ">
-        <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+      <button class="fab-btn-extended" onclick="window.navigate('create-product')">
+        <i data-lucide="plus"></i>
         <span>Produk Baru</span>
       </button>
+
     </section>
   `;
 }
