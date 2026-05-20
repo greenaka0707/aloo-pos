@@ -5,11 +5,11 @@ export function DashboardPage() {
     const container = document.querySelector(".dashboard-page");
     if (!container) return;
 
-    // Capture seluruh elemen angka/list statis di dasbor gais
+    // Capture seluruh elemen angka/list statis berdasarkan CSS barumu gais
     const heroValueEl = container.querySelector(".hero-value");
-    const statOrderEl = container.querySelector(".hero-stats-click:nth-child(1) strong");
-    const statProdEl = container.querySelector(".hero-stats-click:nth-child(3) strong");
-    const statPendingEl = container.querySelector(".hero-stats-click:nth-child(5) strong");
+    const statOrderEl = container.querySelector(".hero-stats-order strong");
+    const statProdEl = container.querySelector(".hero-stats-prod strong");
+    const statPendingEl = container.querySelector(".hero-stats-pending strong");
     
     const stockMenipisDescEl = container.querySelector(".priority-head p");
     const stockListArea = container.querySelector(".priority-stock-list");
@@ -111,13 +111,18 @@ export function DashboardPage() {
             return `
               <div class="priority-stock-item">
                 <span>${item.name}</span>
-                <strong style="color: var(--danger);">${sQty.toFixed(1)} ${item.unit || 'kg'}</strong>
+                <strong>${sQty.toFixed(1)} ${item.unit || 'kg'}</strong>
               </div>
             `;
           }).join('');
         } else {
           if (stockMenipisDescEl) stockMenipisDescEl.textContent = "Aman! Semua stok rak gudang mencukupi";
-          stockListArea.innerHTML = `<p class="text-xs text-light" style="padding:4px 0; font-style:italic;">Tidak ada bahan kritis.</p>`;
+          stockListArea.innerHTML = `
+            <div class="priority-stock-item">
+              <span style="font-style: italic;">Tidak ada bahan kritis.</span>
+              <strong style="color: var(--success);">OK</strong>
+            </div>
+          `;
         }
 
         if (window.lucide) window.lucide.createIcons();
@@ -132,6 +137,9 @@ export function DashboardPage() {
 
   }, 50);
 
+  /* ==========================================================================
+     RETURN TEMPLATE (SINKRON 100% DENGAN CSS ORANGE & PREMIUM CHARCOAL LU)
+     ========================================================================== */
   return `
     <section class="dashboard-page">
 
@@ -147,19 +155,19 @@ export function DashboardPage() {
         </div>
 
         <div class="dashboard-hero-stats">
-          <div class="hero-stats-click" style="flex:1; text-align:center;">
+          <div class="hero-stat hero-stats-order">
             <strong>0</strong>
-            <span style="display:block; font-size:var(--text-xs); color:rgba(255,255,255,0.7);">Order</span>
+            <span>Order</span>
           </div>
           <div class="hero-stat-divider"></div>
-          <div class="hero-stats-click" style="flex:1; text-align:center;" onclick="event.stopPropagation(); window.navigate('produksi')">
+          <div class="hero-stat hero-stats-prod" onclick="event.stopPropagation(); window.navigate('produksi')">
             <strong>0</strong>
-            <span style="display:block; font-size:var(--text-xs); color:rgba(255,255,255,0.7);">Produksi</span>
+            <span>Produksi</span>
           </div>
           <div class="hero-stat-divider"></div>
-          <div class="hero-stats-click" style="flex:1; text-align:center;">
+          <div class="hero-stat hero-stats-pending">
             <strong>0</strong>
-            <span style="display:block; font-size:var(--text-xs); color:rgba(255,255,255,0.7);">Pending</span>
+            <span>Pending</span>
           </div>
         </div>
       </div>
@@ -170,45 +178,45 @@ export function DashboardPage() {
         </div>
         
         <div class="quick-actions-layout">
-          <button class="quick-menu-item" onclick="window.navigate('pembelian')">
+          <div class="quick-menu-item" onclick="window.navigate('pembelian')">
             <div class="quick-menu-icon"><i data-lucide="shopping-bag"></i></div>
             <span>Pembelian</span>
-          </button>
+          </div>
 
-          <button class="quick-menu-item" onclick="window.navigate('order')">
+          <div class="quick-menu-item" onclick="window.navigate('order')">
             <div class="quick-menu-icon"><i data-lucide="shopping-cart"></i></div>
             <span>Penjualan</span>
-          </button>
+          </div>
 
-          <button class="quick-menu-item" onclick="window.navigate('produksi')">
+          <div class="quick-menu-item" onclick="window.navigate('produksi')">
             <div class="quick-menu-icon"><i data-lucide="factory"></i></div>
             <span>Produksi</span>
-          </button>
+          </div>
 
-          <button class="quick-menu-item" onclick="window.navigate('stok')">
+          <div class="quick-menu-item" onclick="window.navigate('stok')">
             <div class="quick-menu-icon"><i data-lucide="package"></i></div>
             <span>Stock</span>
-          </button>
+          </div>
 
-          <button class="quick-menu-item" onclick="window.navigate('penyesuaian-stok')">
-            <div class="quick-menu-icon" style="color:#06B6D4; background:#ECFEFF;"><i data-lucide="sliders"></i></div>
-            <span style="font-weight: var(--font-semibold);">Adj Stok</span>
-          </button>
+          <div class="quick-menu-item" onclick="window.navigate('penyesuaian-stok')">
+            <div class="quick-menu-icon"><i data-lucide="sliders"></i></div>
+            <span>Adj Stok</span>
+          </div>
 
-          <button class="quick-menu-item" onclick="window.navigate('produk')">
+          <div class="quick-menu-item" onclick="window.navigate('produk')">
             <div class="quick-menu-icon"><i data-lucide="boxes"></i></div>
             <span>Produk</span>
-          </button>
+          </div>
 
-          <button class="quick-menu-item" onclick="window.navigate('piutang')">
-            <div class="quick-menu-icon" style="color: var(--orange); background: var(--orange-soft);"><i data-lucide="credit-card"></i></div>
+          <div class="quick-menu-item" onclick="window.navigate('piutang')">
+            <div class="quick-menu-icon"><i data-lucide="credit-card"></i></div>
             <span>Piutang</span>
-          </button>
+          </div>
 
-          <button class="quick-menu-item" onclick="window.navigate('laporan')">
+          <div class="quick-menu-item" onclick="window.navigate('laporan')">
             <div class="quick-menu-icon"><i data-lucide="bar-chart-3"></i></div>
             <span>Laporan</span>
-          </button>
+          </div>
         </div>
       </div>
 
@@ -220,7 +228,7 @@ export function DashboardPage() {
         <div class="card dashboard-priority-card">
           <div class="priority-head">
             <div class="priority-icon-box">
-              <i data-lucide="triangle-alert"></i>
+              <i data-lucide="alert-triangle"></i>
             </div>
             <div>
               <strong>Stock Menipis</strong>
