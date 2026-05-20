@@ -9,7 +9,7 @@
   width: 100%;
   position: relative;
   
-  /* Dipaksa 0 agar konten langsung mepet ke top navbar bawaan */
+  /* Dipaksa 0 agar konten langsung menempel ke top navbar bawaan */
   padding-top: 0px !important; 
   
   padding-bottom: calc(
@@ -19,33 +19,33 @@
   );
 }
 
-
 /* ==========================================================================
-   NORMAL SEARCH ROW (POLOS, IKUT KE-SCROLL KE ATAS)
+   STICKY SEARCH ROW (HANYA BARIS INI YANG STICKY & NAIK)
    ========================================================================== */
 
 .normal-search-row {
-  position: relative !important;
-  top: 0 !important; 
-  z-index: 10;
+  /* KUNCI: Dipaksa sticky hanya untuk baris ini gais */
+  position: sticky !important;
+  top: 0px !important; 
+  z-index: 995;
   
-  /* Menarik posisi ke atas agar lebih rapat menempel ke top navbar */
+  /* Menarik posisi ke atas agar benar-benar mepet memotong sisa ruang kosong navbar */
   margin-top: -14px !important; 
 
   display: flex;
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 0;
+  padding: 8px 0 !important; /* Beri padding vertikal tipis agar efek blur transparan pas di-scroll terlihat halus */
   background: transparent;
 }
 
-/* Pastikan elemen di dalamnya juga mengikuti aturan posisi normal */
+/* Elemen fungsional di dalam row pencarian */
 .search-box,
 .filter-date-btn,
 .download-sales-btn {
   position: relative !important;
-  z-index: 11;
+  z-index: 996;
 }
 
 /* ==========================================================================
@@ -122,10 +122,12 @@
 }
 
 /* ==========================================================================
-   FILTER TABS (TIDAK STICKY)
+   FILTER TABS (MURNI TIDAK STICKY, IKUT HANYUT KE SCROLL)
    ========================================================================== */
 
 .filter-scroll {
+  position: relative !important; /* Diubah ke relative agar ikut hanyut ter-scroll ke atas */
+  z-index: 10;
   display: flex;
   gap: 10px;
   overflow-x: auto;
