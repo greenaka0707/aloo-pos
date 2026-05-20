@@ -6,16 +6,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--section-gap);
-  /* Bantalan bawah dinamis agar kartu terakhir tidak tenggelam di bawah menu navigasi */
   padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 24px);
   position: relative; 
   width: 100%;
 }
 
-/* =========================
-   HEADER
-========================= */
-
+/* ==========================================================================
+   HEADER SECTION
+   ========================================================================== */
 .page-header {
   display: flex;
   align-items: center;
@@ -28,10 +26,9 @@
   color: var(--text-light);
 }
 
-/* =========================
-   SEARCH
-========================= */
-
+/* ==========================================================================
+   UNIVERSAL SEARCH BOX
+   ========================================================================== */
 .search-box {
   height: var(--input-height);
   padding: 0 var(--space-md);
@@ -60,10 +57,9 @@
   color: #9CA3AF;
 }
 
-/* =========================
+/* ==========================================================================
    FILTER CHIPS (Swipeable)
-========================= */
-
+   ========================================================================== */
 .filter-scroll {
   display: flex;
   gap: var(--space-xs);
@@ -96,32 +92,24 @@
   border-color: transparent;
 }
 
-/* =========================
-   LIST CONTAINER & CARD (Ditambah Efek Geser Tab Horizontal)
-========================= */
-
-.product-data-list,
+/* ==========================================================================
+   UNIVERSAL DATA LIST & CARD OLD STYLE
+   ========================================================================== */
 .data-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-
-  /* UPDATE TRANSIStI TAB: Efek meluncur halus saat ganti filter tab */
   transition: opacity 180ms ease-out, transform 250ms cubic-bezier(0.215, 0.610, 0.355, 1);
   will-change: transform, opacity;
   opacity: 1;
   transform: translateX(0);
 }
 
-/* Kondisi saat data lama keluar (Geser tipis ke kiri) */
-.product-data-list.page-leave,
 .data-list.page-leave {
   opacity: 0;
   transform: translateX(-16px);
 }
 
-/* Kondisi saat data baru masuk (Meluncur dari kanan) */
-.product-data-list.page-enter,
 .data-list.page-enter {
   opacity: 0;
   transform: translateX(16px);
@@ -134,7 +122,6 @@
   gap: var(--space-md);
 }
 
-/* CARD TOP SECTION */
 .list-card-top {
   display: flex;
   align-items: flex-start;
@@ -153,7 +140,6 @@
   color: var(--text-light);
 }
 
-/* CARD GRID SUMMARY */
 .list-card-summary {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -179,7 +165,6 @@
   color: var(--text);
 }
 
-/* CARD FOOTER SECTION */
 .list-card-footer {
   display: flex;
   align-items: center;
@@ -198,14 +183,12 @@
   border-radius: var(--radius-sm);
 }
 
-/* =========================
-   FAB (Floating Action Button)
-========================= */
-
+/* ==========================================================================
+   UNIVERSAL FAB
+   ========================================================================== */
 .fab-btn {
   position: fixed;
   right: 16px;
-  /* Terangkat mutlak di atas bottom-nav baru untuk menghindari benturan scroll */
   bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 16px);
   width: 48px;
   height: 48px;
@@ -217,7 +200,6 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 6px 16px rgba(249,115,22,0.25);
-  /* Lapisan tumpukan tertinggi agar kartu pesanan meluncur di belakang FAB */
   z-index: 999; 
   transition: var(--transition);
 }
@@ -231,4 +213,70 @@
   width: 20px;
   height: 20px;
   stroke-width: 2.2;
+}
+
+/* ==========================================================================
+   MODUL MODIFIKASI KHUSUS: HALAMAN PRODUK MASTER (COMPACT & CLEAN)
+   ========================================================================== */
+
+/* Layout Pemutus Kontainer Utama */
+.list-page-clean {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  margin-left: -20px !important;
+  margin-right: -20px !important;
+  padding: 0 16px 120px 16px !important;
+  background: #f8fafc !important;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Sticky Search Tanpa Kontainer Kotak Putih */
+.sticky-search-wrapper {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  top: 0px;
+  background: #f8fafc !important;
+  padding: 8px 0 10px 0 !important;
+  z-index: 110;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Input Box Minimalis Menyesuaikan Gambar Referensi */
+.custom-search-box {
+  background: #f1f5f9 !important;
+  border-radius: 14px !important;
+  padding: 10px 14px !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Modifikasi Khusus List Data Produk Master */
+.product-data-list.data-list {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 0px !important;
+  gap: 0px !important; /* Mematikan gap renggang universal */
+}
+
+/* Desain Tipis, Mepet, & Rapat untuk Antar Card Produk */
+.compact-product-card {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin-bottom: 6px !important; /* Jarak antar card super rapat */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #f1f5f9;
 }
