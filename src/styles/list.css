@@ -1,18 +1,18 @@
 /* ==========================================================================
-   LIST LAYOUT & CONTAINER (Universal untuk Semua Halaman List)
+   LIST LAYOUT (Universal untuk Sales Order, Produksi, Stok, & Pembelian)
    ========================================================================== */
 
 .list-page {
   display: flex;
   flex-direction: column;
+  gap: var(--section-gap);
+  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 24px);
   position: relative; 
   width: 100%;
-  /* Jarak bawah agar kartu terakhir tidak tenggelam di bawah menu navigasi */
-  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 32px) !important;
 }
 
 /* ==========================================================================
-   HEADER & FILTER CHIPS SECTION
+   HEADER SECTION
    ========================================================================== */
 .page-header {
   display: flex;
@@ -26,13 +26,58 @@
   color: var(--text-light);
 }
 
+/* ==========================================================================
+   STICKY SEARCH BOX (Seragam & Mepet Ke Atas Tanpa Container)
+   ========================================================================== */
+.search-box {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  top: 0px; /* Menempel pas di bawah navbar top */
+  background: var(--bg, #f8fafc) !important;
+  
+  /* Memotong padding-top global .app-content (96px) agar kotak search naik mepet */
+  margin-top: -16px !important; 
+  padding: 4px 0 12px 0 !important;
+  z-index: 990;
+  
+  height: var(--input-height);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.search-box svg,
+.search-box i {
+  width: 18px;
+  height: 18px;
+  color: var(--text-light);
+}
+
+.search-box input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: var(--text-md);
+  color: var(--text);
+  width: 100%;
+}
+
+.search-box input::placeholder {
+  color: #9CA3AF;
+}
+
+/* ==========================================================================
+   FILTER CHIPS (Swipeable)
+   ========================================================================== */
 .filter-scroll {
   display: flex;
   gap: var(--space-xs);
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding-bottom: 4px;
   scrollbar-width: none;
-  background: var(--bg, #f8fafc);
 }
 
 .filter-scroll::-webkit-scrollbar {
@@ -60,64 +105,15 @@
 }
 
 /* ==========================================================================
-   STICKY SEARCH BOX (Sekarang Murni Bersih & Mepet Ke Navbar)
-   ========================================================================== */
-.search-box {
-  position: -webkit-sticky !important;
-  position: sticky !important;
-  top: 0px;
-  background: var(--bg, #f8fafc) !important;
-  
-  /* Tarik paksa ke atas menembus padding-top .app-content (96px) bawaan layout global */
-  margin-top: -16px !important;
-  padding: 4px 0 12px 0 !important;
-  z-index: 990;
-  width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-}
-
-/* Kotak Input Minimalis Sesuai Gambar POS */
-.custom-search-container {
-  background: #f1f5f9 !important;
-  border-radius: 14px !important;
-  padding: 10px 14px !important;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.custom-search-container svg,
-.custom-search-container i {
-  width: 18px;
-  height: 18px;
-  color: #94a3b8;
-}
-
-.custom-search-container input {
-  flex: 1;
-  border: none !important;
-  outline: none !important;
-  background: transparent !important;
-  font-size: 13px;
-  color: var(--text);
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-/* ==========================================================================
-   DATA LIST & COMPACT CARD LAYOUT
+   DATA LIST & CARD (Seragam & Mengunci Posisi Menyamping)
    ========================================================================== */
 .data-list {
   display: flex;
   flex-direction: column;
-  gap: 6px !important; /* Jarak antar kartu seragam super rapat */
+  gap: 6px !important; /* Jarak antar card super rapat sesuai permintaan */
   margin-top: 0px !important;
   padding-top: 0px !important;
-  
+
   transition: opacity 180ms ease-out, transform 250ms cubic-bezier(0.215, 0.610, 0.355, 1);
   will-change: transform, opacity;
   opacity: 1;
@@ -134,21 +130,23 @@
   transform: translateX(16px);
 }
 
-/* Desain Card Baru: Tipis, Padat, Modern Tanpa Kontainer Luar */
+/* FIX UTAMA CARD: Dipaksa menyamping (row) secara seragam agar item di dalamnya tidak pecah vertikal */
 .list-card {
-  display: flex;
-  align-items: center;
   background: #ffffff;
   border-radius: 14px;
   padding: 12px 16px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  border: 1px solid #f1f5f9;
   position: relative;
   width: 100%;
   box-sizing: border-box;
-  border: 1px solid #f1f5f9;
+  
+  display: flex !important;
+  flex-direction: row !important; 
+  align-items: center !important;
 }
 
-/* Komponen internal avatar kiri */
+/* Komponen Internal Card Produk */
 .product-avatar {
   width: 44px;
   height: 44px;
@@ -168,7 +166,6 @@
   height: 20px;
 }
 
-/* Komponen internal detail tengah */
 .product-details {
   flex: 1;
   display: flex;
@@ -214,7 +211,6 @@
   color: #9ca3af;
 }
 
-/* Kondisi Stok Kritis / Habis */
 .meta-item.stock-critical {
   color: #ef4444 !important;
   font-weight: 600;
@@ -225,7 +221,6 @@
   color: #ef4444 !important;
 }
 
-/* Tombol Menu Aksi Tiga Titik Kanan */
 .action-trigger-btn {
   background: none;
   border: none;
@@ -238,17 +233,17 @@
 }
 
 /* ==========================================================================
-   UNIVERSAL STICKY FLOATING ACTION BUTTON (FAB)
+   UNIVERSAL FAB
    ========================================================================== */
 .fab-btn {
-  position: fixed; 
-  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 24px); 
-  right: 24px; 
+  position: fixed;
+  right: 24px;
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 24px);
   width: 56px;
   height: 56px;
   border-radius: var(--radius-full, 50%);
-  background-color: #349a9a; /* Menyeragamkan warna toska POS */
-  color: #ffffff;
+  background-color: #349a9a; /* Warna toska POS seragam */
+  color: var(--white, #ffffff);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -256,7 +251,7 @@
   padding: 0;
   cursor: pointer;
   z-index: 995; 
-  box-shadow: 0 4px 16px rgba(52, 154, 154, 0.3), 
+  box-shadow: 0 4px 16px rgba(52, 154, 154, 0.35), 
               0 2px 6px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
