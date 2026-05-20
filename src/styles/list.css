@@ -165,6 +165,12 @@
   color: var(--text);
 }
 
+.list-card-summary-item strong {
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  color: var(--text);
+}
+
 .list-card-footer {
   display: flex;
   align-items: center;
@@ -232,13 +238,14 @@
   flex-direction: column;
 }
 
-/* Header Sticky Search Tanpa Kontainer Kotak Putih */
+/* Header Sticky Search Mepet Navbar & Rapat ke Bawah */
 .sticky-search-wrapper {
   position: -webkit-sticky !important;
   position: sticky !important;
   top: 0px;
   background: #f8fafc !important;
-  padding: 8px 0 10px 0 !important;
+  margin-top: -16px !important; /* Menarik paksa kontainer search ke atas navbar */
+  padding: 4px 0 6px 0 !important; /* Padding super tipis agar rapat ke card */
   z-index: 110;
   width: 100%;
   box-sizing: border-box;
@@ -272,6 +279,7 @@
   width: 100%;
   box-sizing: border-box;
   margin-top: 0px !important;
+  padding-top: 0px !important;
   gap: 0px !important; /* Mematikan gap renggang universal */
 }
 
