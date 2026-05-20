@@ -355,20 +355,33 @@ export function OrderListPage() {
   return `
     <section class="list-page">
 
-      <div style="display: flex; gap: var(--space-sm); align-items: center; width: 100%;">
-        <div class="card search-box" style="flex: 1; margin: 0;">
-          <i data-lucide="search"></i>
-          <input type="text" class="stock-search-input" placeholder="Cari nama warung / nomor invoice order..." />
-        </div>
-        
-        <button 
-          class="card download-sales-btn" 
-          style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid rgba(0,0,0,0.05); cursor: pointer; color: var(--text); border-radius: var(--radius-md); padding: 0;"
-          title="Download Rekap PDF Harian"
-        >
-          <i data-lucide="download" style="width: 20px; height: 20px;"></i>
-        </button>
-      </div>
+     <div class="sticky-search-row">
+
+  <button
+    class="filter-date-btn"
+    title="Filter Tanggal"
+  >
+    <i data-lucide="calendar-days"></i>
+  </button>
+
+  <div class="card search-box">
+    <i data-lucide="search"></i>
+
+    <input
+      type="text"
+      class="stock-search-input"
+      placeholder="Cari nama warung / nomor invoice order..."
+    />
+  </div>
+
+  <button
+    class="card download-sales-btn"
+    title="Download Rekap PDF Harian"
+  >
+    <i data-lucide="download"></i>
+  </button>
+
+</div>
 
       <div class="filter-scroll">
         <button class="filter-chip active">Semua</button>
