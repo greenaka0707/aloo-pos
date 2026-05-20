@@ -25,7 +25,7 @@ export function ProduksiListPage() {
     const filterChips = listPage.querySelectorAll(".filter-chip");
 
     // ==========================================================================
-    // 2. CORE ENGINE DATA: FETCH REAL PRODUCTION DATA (+ CUSTOMER NAME)
+    // 2. CORE ENGINE DATA: FETCH REAL PRODUCTION DATA (FIXED RELATION)
     // ==========================================================================
     async function fetchProductions() {
       try {
@@ -35,7 +35,7 @@ export function ProduksiListPage() {
           </p>
         `;
 
-        // ✔️ UPDATE: Ambil customer_name dari relasi sales_orders
+        // ✔️ SINKRONISASI TOTAL: Ambil nama customer lewat join relasi customers(name) yang bener
         const { data: productions, error } = await supabase
           .from("productions")
           .select(`
@@ -45,7 +45,11 @@ export function ProduksiListPage() {
             qty_produced,
             notes,
             sales_order_id,
-            sales_orders ( invoice_no, status, customer_name ),
+            sales_orders ( 
+              invoice_no, 
+              status,
+              customers ( name )
+            ),
             products ( name, unit )
           `)
           .order("created_at", { ascending: false });
@@ -61,6 +65,125 @@ export function ProduksiListPage() {
           </p>
         `;
       }
+    }
+
+    // ==========================================================================
+    // 3. LOGIKA FILTER TAB STATUS & LIVE SEARCH (FIXED CUSTOMER NAME)
+    // ==========================================================================
+    function renderFilteredList() {
+      let filtered = allProductions;
+
+      // Filter berdasarkan Tab Chip operasional harian lo
+      if (currentTab !== "Semua") {
+        filtered = filtered.filter(p => {
+          let soStatus = p.sales_orders?.status?.toLowerCase() || "";
+          
+          if (currentTab === "Pending") return p.sales_order_id && soStatus === "butuh produksi";
+          if (currentTab === "Diproses") return p.sales_order_id && soStatus === "proses produksi";
+          if (currentTab === "Ready") return soStatus === "ready";
+          if (currentTab === "Selesai") return soStatus === "selesai" || (!p.sales_order_id);
+          return false;
+        });
+      }
+
+      // Filter berdasarkan nomor produksi, nama customer, nama kopi, atau nomor invoice
+      if (searchQuery) {
+        filtered = filtered.filter(p => 
+          p.production_no?.toLowerCase().includes(searchQuery) || 
+          p.products?.name?.toLowerCase().includes(searchQuery) ||
+          p.sales_orders?.customers?.name?.toLowerCase().includes(searchQuery) || // ✔️ FIXED LIVE SEARCH NAMA CUSTOMER
+          p.sales_orders?.invoice_no?.toLowerCase().includes(searchQuery)
+        );
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <p class="text-light text-xs" style="text-align: center; padding: var(--space-xl);">
+            Tidak ada riwayat aktivitas produksi yang cocok.
+          </p>
+        `;
+        return;
+      }
+
+      // Render baris data kartu
+      container.innerHTML = filtered.map(p => {
+        const pName = p.products?.name || "Produk Tidak Diketahui";
+        const pUnit = p.products?.unit || "kg";
+        
+        // ✔️ FIXED MAPPING: Ambil data nama customer dari p.sales_orders.customers.name
+        const topTitle = p.sales_orders?.customers?.name || "Produksi Mandiri (MTS)";
+        const refText = p.sales_orders?.invoice_no ? `Ref: ${p.sales_orders.invoice_no}` : `No. Prod: ${p.production_no}`;
+        
+        // Konversi format tanggal harian
+        let formattedDate = p.production_date;
+        if (p.production_date) {
+          const d = new Date(p.production_date);
+          const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+          formattedDate = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+        }
+
+        // Tentukan status visual penanda siklus produksi
+        let badgeClass = "void";
+        let statusText = "Selesai";
+
+        if (p.sales_orders?.status) {
+          const soStatus = p.sales_orders.status.toLowerCase();
+          if (soStatus === "butuh produksi") { badgeClass = "pending"; statusText = "Pending"; }
+          else if (soStatus === "proses produksi") { badgeClass = "diproses"; statusText = "Diproses"; }
+          else if (soStatus === "ready") { badgeClass = "ready"; statusText = "Ready"; }
+        }
+
+        return `
+          <div class="list-card modern-order-card">
+            <div class="order-card-left">
+              
+              <div class="order-main-row">
+                <div class="order-title-group">
+                  <h3>${topTitle}</h3>
+                  <p class="order-ref">${refText}</p>
+                </div>
+                <span class="modern-status ${badgeClass}">
+                  ${statusText}
+                </span>
+              </div>
+
+              <div style="margin-top: 2px;">
+                <strong style="font-size: 14px; font-weight: 700; color: #0f172a; display: block;">
+                  ${pName}
+                </strong>
+                <span style="font-size: 12px; color: #64748b; font-weight: 500;">
+                  Produksi ${p.qty_produced} ${pUnit}
+                </span>
+              </div>
+
+              <div class="order-bottom-row" style="margin-top: 6px;">
+                <span style="font-size: 13px; font-weight: 600; color: #64748b;">
+                  ${formattedDate}
+                </span>
+                <button 
+                  class="order-arrow-btn detail-btn" 
+                  data-id="${p.id}"
+                >
+                  <i data-lucide="arrow-up-right"></i>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Pasang event klik simpan ID untuk dilempar ke halaman detail produksi
+      container.querySelectorAll(".detail-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          const currentTarget = e.currentTarget;
+          const prodId = currentTarget.dataset.id;
+          localStorage.setItem("selected_production_id", prodId);
+          if (window.navigate) window.navigate("produksi-detail");
+        });
+      });
+
+      if (window.lucide) window.lucide.createIcons();
     }
 
     // ==========================================================================
