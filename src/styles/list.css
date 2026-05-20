@@ -27,18 +27,18 @@
 }
 
 /* ==========================================================================
-   STICKY SEARCH BOX (Seragam & Mepet Ke Atas Tanpa Container)
+   UNIVERSAL SEARCH BOX (Sticky Murni Pas di Bawah Navbar Global)
    ========================================================================== */
 .search-box {
   position: -webkit-sticky !important;
   position: sticky !important;
-  top: 0px; /* Menempel pas di bawah navbar top */
+  top: 76px; /* Mengunci tepat di bawah tinggi navbar fisik 76px */
   background: var(--bg, #f8fafc) !important;
   
-  /* Memotong padding-top global .app-content (96px) agar kotak search naik mepet */
-  margin-top: -16px !important; 
-  padding: 4px 0 12px 0 !important;
-  z-index: 990;
+  /* Tarik paksa ke atas menembus area padding-top 96px dari .app-content */
+  margin-top: -96px !important; 
+  padding: 8px 0 12px 0 !important;
+  z-index: 990; /* Berada di bawah lapisan z-index navbar global */
   
   height: var(--input-height);
   display: flex;
@@ -57,9 +57,9 @@
 
 .search-box input {
   flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
   font-size: var(--text-md);
   color: var(--text);
   width: 100%;
@@ -105,14 +105,15 @@
 }
 
 /* ==========================================================================
-   DATA LIST & CARD (Seragam & Mengunci Posisi Menyamping)
+   UNIVERSAL DATA LIST & CARD DESIGN
    ========================================================================== */
 .data-list {
   display: flex;
   flex-direction: column;
-  gap: 6px !important; /* Jarak antar card super rapat sesuai permintaan */
+  gap: 6px !important; /* KUNCI: Jarak antar kartu diseragamkan rapat & mepet */
   margin-top: 0px !important;
   padding-top: 0px !important;
+  width: 100%;
 
   transition: opacity 180ms ease-out, transform 250ms cubic-bezier(0.215, 0.610, 0.355, 1);
   will-change: transform, opacity;
@@ -130,7 +131,7 @@
   transform: translateX(16px);
 }
 
-/* FIX UTAMA CARD: Dipaksa menyamping (row) secara seragam agar item di dalamnya tidak pecah vertikal */
+/* Kembalikan ke bentuk dasar vertikal agar layout Sales Order tidak rusak */
 .list-card {
   background: #ffffff;
   border-radius: 14px;
@@ -140,13 +141,83 @@
   position: relative;
   width: 100%;
   box-sizing: border-box;
-  
-  display: flex !important;
-  flex-direction: row !important; 
-  align-items: center !important;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
 }
 
-/* Komponen Internal Card Produk */
+/* CARD INTERNAL DATA UNTUK SALES ORDER */
+.list-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.list-card-top h3 {
+  font-size: var(--text-md);
+  font-weight: var(--font-bold);
+  color: var(--text);
+}
+
+.list-card-top p {
+  margin-top: 2px;
+  font-size: var(--text-xs);
+  color: var(--text-light);
+}
+
+.list-card-summary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border);
+}
+
+.list-card-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.list-card-summary-item span {
+  font-size: var(--text-xs);
+  color: var(--text-light);
+}
+
+.list-card-summary-item strong {
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  color: var(--text);
+}
+
+.list-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.list-card-footer span {
+  font-size: var(--text-xs);
+  color: var(--text-light);
+}
+
+.detail-btn {
+  height: 32px;
+  padding: 0 var(--space-md);
+  font-size: var(--text-xs);
+  border-radius: var(--radius-sm);
+}
+
+/* ==========================================================================
+   STRUKTUR INTERNAL KHUSUS: SUB-ISI CARD MASTER PRODUK (MENYAMPING RATAL)
+   ========================================================================== */
+.product-card-body {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .product-avatar {
   width: 44px;
   height: 44px;
@@ -233,7 +304,7 @@
 }
 
 /* ==========================================================================
-   UNIVERSAL FAB
+   UNIVERSAL FLOATING ACTION BUTTON (FAB)
    ========================================================================== */
 .fab-btn {
   position: fixed;
@@ -242,7 +313,7 @@
   width: 56px;
   height: 56px;
   border-radius: var(--radius-full, 50%);
-  background-color: #349a9a; /* Warna toska POS seragam */
+  background-color: #349a9a; /* Menyeragamkan warna tema toska POS */
   color: var(--white, #ffffff);
   display: flex;
   align-items: center;
