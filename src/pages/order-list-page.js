@@ -355,44 +355,37 @@ export function OrderListPage() {
   return `
     <section class="list-page">
 
-     <div class="sticky-search-row">
+<section class="list-page">
 
-  <button
-    class="filter-date-btn"
-    title="Filter Tanggal"
-  >
-    <i data-lucide="calendar-days"></i>
-  </button>
+  <div class="sticky-search-row">
 
- <div class="sticky-search-row">
+    <button
+      class="filter-date-btn"
+      title="Filter Tanggal"
+    >
+      <i data-lucide="calendar-days"></i>
+    </button>
 
-  <button
-    class="filter-date-btn"
-    title="Filter Tanggal"
-  >
-    <i data-lucide="calendar-days"></i>
-  </button>
+    <div class="search-box">
+      <i data-lucide="search"></i>
 
-  <div class="search-box">
-    <i data-lucide="search"></i>
+      <input
+        type="text"
+        class="stock-search-input"
+        placeholder="Cari nama warung / nomor invoice order..."
+      />
+    </div>
 
-    <input
-      type="text"
-      class="stock-search-input"
-      placeholder="Cari nama warung / nomor invoice order..."
-    />
+    <button
+      class="download-sales-btn"
+      title="Download Rekap PDF Harian"
+    >
+      <i data-lucide="download"></i>
+    </button>
+
   </div>
 
-  <button
-    class="download-sales-btn"
-    title="Download Rekap PDF Harian"
-  >
-    <i data-lucide="download"></i>
-  </button>
-
-</div>
-
-      <div class="filter-scroll">
+  <div class="filter-scroll">
         <button class="filter-chip active">Semua</button>
         <button class="filter-chip">Pending</button>
         <button class="filter-chip">Diproses</button>
