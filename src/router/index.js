@@ -1,4 +1,4 @@
-import StockAdjustmentPage from "../pages/StockAdjustmentPage.js";
+import StockAdjustmentPage from "../pages/StockAdjustmentPage.js"; // ✔️ FIX: Mengubah 'Import' menjadi 'import' huruf kecil
 
 import { DashboardPage } from "../pages/dashboard.js";
 
