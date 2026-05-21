@@ -1,14 +1,48 @@
 import { supabase } from "../supabaseClient.js";
 
 export function OrderDetailPage() {
-  const orderId = localStorage.getItem("selected_order_id");
+ const orderId = Number(
+  localStorage.getItem("selected_order_id")
+);
+
+// VALIDASI SUPER AMAN
+if (!orderId || isNaN(orderId)) {
+
+  console.error(
+    "ID Order invalid dari localStorage:",
+    orderId
+  );
+
+  return `
+    <section
+      class="detail-page"
+      style="
+        padding:40px;
+        text-align:center;
+      "
+    >
+      <h3>ID Order tidak valid</h3>
+    </section>
+  `;
+}
   let orderDataLocal = null;
   let orderItemsLocal = [];
   let dbBomItemsLocal = []; 
 
   setTimeout(async () => {
     const container = document.querySelector(".detail-page");
-    if (!container || !orderId) return;
+    if (
+  !container ||
+  !orderId ||
+  isNaN(orderId)
+) {
+
+  console.error(
+    "Container / Order ID invalid"
+  );
+
+  return;
+}
 
     // Capture area render komponen dinamis di DOM
     const statusCardArea = container.querySelector(".detail-status-card");
