@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: 100% OPERATIONAL - AUTO-ADD PRODUCT ON CLICK (NO BUTTON) SECURED! 🚀
+// STATUS: 100% OPERATIONAL - EDITABLE MODAL CUSTOMER NAME SECURED! 🚀
 // ==========================================================================
 
 import { supabase } from "../supabaseClient.js";
@@ -39,7 +39,7 @@ export function CreateOrderPage() {
 
     // Modal DOM Capture
     const modal = container.querySelector("#customer-modal-overlay");
-    const modalTitleName = container.querySelector("#modal-target-cust-name");
+    const modalCustNameInput = container.querySelector("#modal-cust-name"); // SEKARANG JADI INPUT JALUR EDITABLE 🎯
     const modalPhone = container.querySelector("#modal-cust-phone");
     const modalAddress = container.querySelector("#modal-cust-address");
     const modalCancel = container.querySelector("#btn-modal-cancel");
@@ -132,8 +132,9 @@ export function CreateOrderPage() {
           const newName = evt.currentTarget.dataset.name;
           customerFloat.style.display = "none";
           
+          // Buka Pop-up Modal & Injeksi nama ke kolom input agar bisa diedit 🎯
           if (modal) {
-            modalTitleName.textContent = newName;
+            modalCustNameInput.value = newName;
             modalPhone.value = "";
             modalAddress.value = "";
             modal.style.display = "flex";
@@ -144,15 +145,20 @@ export function CreateOrderPage() {
 
     modalCancel?.addEventListener("click", () => { modal.style.display = "none"; });
     modalSave?.addEventListener("click", () => {
-      const currentName = modalTitleName.textContent;
+      const finalName = modalCustNameInput.value.trim(); // Ambil nama final dari input modal
+      if (!finalName) {
+        alert("⚠️ Nama customer tidak boleh kosong!");
+        return;
+      }
+
       selectedCustomer = { 
         id: 'NEW_CUSTOMER', 
-        name: currentName,
+        name: finalName,
         phone: modalPhone.value.trim() || null,
         address: modalAddress.value.trim() || null
       };
       
-      customerInput.value = currentName;
+      customerInput.value = finalName;
       const label = customerGroup.querySelector(".form-label");
       if (label) {
         label.innerHTML = `Customer <span style="color: var(--orange, #F97316); font-size: 11px; font-weight: 600; margin-left: 2px;">(Baru)</span>`;
@@ -216,7 +222,7 @@ export function CreateOrderPage() {
       });
     }
 
-    // --- PRODUCT LIVE SEARCH (AUTO ADD ON CLICK FIXED) 🎯 ---
+    // --- PRODUCT LIVE SEARCH ---
     if (productInput) {
       productInput.addEventListener("input", async (e) => {
         const val = e.target.value.trim();
@@ -243,7 +249,6 @@ export function CreateOrderPage() {
               const target = evt.currentTarget;
               const prodId = parseInt(target.dataset.id);
               
-              // Cek duplikasi barang di keranjang belanja
               if (cart.some(item => item.id === prodId)) {
                 alert("⚠️ Produk sudah dimasukkan ke dalam keranjang!");
                 productInput.value = "";
@@ -251,7 +256,6 @@ export function CreateOrderPage() {
                 return;
               }
 
-              // Masukkan otomatis ke array cart gais
               cart.push({
                 id: prodId,
                 name: target.dataset.name,
@@ -263,7 +267,7 @@ export function CreateOrderPage() {
 
               productInput.value = "";
               productFloat.style.display = "none";
-              renderCartStructure(); // Update visual list keranjang
+              renderCartStructure(); 
             });
           });
         }
@@ -280,7 +284,7 @@ export function CreateOrderPage() {
     });
 
     // ==========================================================================
-    // 3. RENDER STRUKTUR ROW ITEM DI CART (DECIMAL MOBILE READY)
+    // 3. RENDER STRUKTUR ROW ITEM DI CART
     // ==========================================================================
     function renderCartStructure() {
       if (cart.length === 0) {
@@ -481,7 +485,10 @@ export function CreateOrderPage() {
         <div class="card create-card" style="background: var(--white); border-radius: var(--radius-sm); width: 100%; max-width: 400px; padding: var(--space-lg); box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: var(--space-md);">
           <div style="border-bottom: 1px solid var(--border); padding-bottom: var(--space-xs);">
             <strong style="font-size: var(--text-md); color: var(--text);">Lengkapi Customer Baru</strong>
-            <p id="modal-target-cust-name" style="color: var(--orange, #F97316); font-size: var(--text-sm); font-weight: 600; margin-top: 2px;"></p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nama Customer</label>
+            <input type="text" id="modal-cust-name" class="input" style="border-color: var(--orange); font-weight: 600;" placeholder="Masukkan nama..." />
           </div>
           <div class="form-group">
             <label class="form-label">No. Telepon</label>
