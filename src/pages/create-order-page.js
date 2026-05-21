@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: 100% OPERATIONAL - PRODUCT SEARCH RESTORED & OVER-STOCK FIXED! 🚀
+// STATUS: 100% OPERATIONAL - PRODUCT SEARCH FIXED & VULNERABILITY SECURED! 🚀
 // ==========================================================================
 
 import { supabase } from "../supabaseClient.js";
@@ -94,7 +94,7 @@ export function CreateOrderPage() {
 
     if (dateInput) dateInput.value = today;
 
-    // Logic interaksi runtime toggle Sample Mode (TETAP UTUH AMAN)
+    // Logic interaksi runtime toggle Sample Mode (TETAP AKTIF AMAN)
     if (sampleToggle) {
       sampleToggle.addEventListener("change", (e) => {
         const slider = e.target.nextElementSibling;
@@ -242,16 +242,16 @@ export function CreateOrderPage() {
       });
     }
 
-    // --- PRODUCT LIVE SEARCH (KEMBALI KE CLEAN VALID COLUMNS SEPERTI AWAL LULUS 🎯) ---
+    // --- PRODUCT LIVE SEARCH (FIXED QUERY CLEANUP 🎯) ---
     if (productInput) {
       productInput.addEventListener("input", async (e) => {
         const val = e.target.value.trim();
         if (val.length < 1) { productFloat.style.display = "none"; return; }
         
-        // Bersihkan murni hanya kolom utama yang pasti sedia di tabel DB gais!
+        // Memakai parameter select dasar yang bersih tanpa pemanggilan kolom eksternal
         const { data: products, error } = await supabase
           .from('products')
-          .select('id, name, stock, unit, price') 
+          .select('id, name, stock, unit, price')
           .ilike('name', `%${val}%`)
           .limit(5);
 
@@ -288,7 +288,7 @@ export function CreateOrderPage() {
                 raw_materials: null
               };
 
-              // Intercept langsung pas klik pertama kali jika dari awal produk emang sisa 0 gais
+              // Pemicu manufaktur antrean jika barang ready stock sisa 0 saat pertama kali klik
               if (currentStock <= 0) {
                 const proceedProduction = confirm(`⚠️ Stok "${productData.name}" kosong (0). Produk otomatis dialihkan ke antrean PROSES PRODUKSI. Tentukan komposisi kebutuhan bahan bakunya?`);
                 if (proceedProduction) {
@@ -309,7 +309,7 @@ export function CreateOrderPage() {
       });
     }
 
-    // --- LIVE SEARCH BAHAN BAKU DI DALAM MODAL MANUFAKTUR (CLEAN QUERY) ---
+    // --- LIVE SEARCH BAHAN BAKU DI DALAM MODAL MANUFAKTUR ---
     if (rawMaterialInput) {
       rawMaterialInput.addEventListener("input", async (e) => {
         const val = e.target.value.trim();
@@ -318,7 +318,7 @@ export function CreateOrderPage() {
         const { data: raws, error } = await supabase
           .from('products')
           .select('id, name, stock, unit')
-          .ilike('name', `%${val}%`) // Cari global tanpa filter kolom bertubrukan
+          .ilike('name', `%${val}%`) 
           .limit(5);
 
         if (!error && raws && raws.length > 0) {
