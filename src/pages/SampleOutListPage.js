@@ -162,15 +162,6 @@ export function SampleOutListPage() {
         const status =
           item.status?.toLowerCase() || "released";
 
-        
-
-       
-
-        else if (status === "void") {
-
-          cardStyle =
-            "background:#F9FAFB;opacity:.6;border-left:4px solid #9CA3AF;";
-        }
 
         return `
           <div
