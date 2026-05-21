@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: 100% OPERATIONAL - SAMPLE MODE FIXED & CENTER SMOOTH MODAL SECURED! 🚀
+// STATUS: 100% OPERATIONAL - SAMPLE MODE & MANUFACTURING WORKFLOW MERGED! 🚀
 // ==========================================================================
 
 import { supabase } from "../supabaseClient.js";
@@ -10,6 +10,10 @@ export function CreateOrderPage() {
   let selectedSales = null;
   let cart = [];
   let isSubmitting = false;
+
+  // State internal manajemen antrean manufaktur produk kosong
+  let manufacturingItems = [];
+  let currentActiveProductionProduct = null;
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -37,13 +41,22 @@ export function CreateOrderPage() {
     const catatanInput = container.querySelector(".textarea");
     const sampleToggle = container.querySelector("#sample-order-toggle");
 
-    // Modal DOM Capture
+    // Modal Customer DOM Capture
     const modal = container.querySelector("#customer-modal-overlay");
     const modalCustNameInput = container.querySelector("#modal-cust-name"); 
     const modalPhone = container.querySelector("#modal-cust-phone");
     const modalAddress = container.querySelector("#modal-cust-address");
     const modalCancel = container.querySelector("#btn-modal-cancel");
     const modalSave = container.querySelector("#btn-modal-save");
+
+    // ⚙️ Modal Produksi / Manufaktur Bahan Baku DOM Capture
+    const prodModal = container.querySelector("#production-modal-overlay");
+    const prodModalTitle = container.querySelector("#prod-modal-title");
+    const rawMaterialInput = container.querySelector("#search-raw-material");
+    const rawMaterialFloat = container.querySelector("#raw-material-dropdown-float");
+    const rawMaterialCart = container.querySelector("#production-cart-container");
+    const btnProdModalCancel = container.querySelector("#btn-prod-modal-cancel");
+    const btnProdModalSave = container.querySelector("#btn-prod-modal-save");
 
     // Dropdown initialization
     const customerGroup = customerInput.closest(".form-group");
@@ -81,7 +94,7 @@ export function CreateOrderPage() {
 
     if (dateInput) dateInput.value = today;
 
-    // Logic interaksi runtime toggle gais
+    // Logic interaksi runtime toggle Sample Mode
     if (sampleToggle) {
       sampleToggle.addEventListener("change", (e) => {
         const slider = e.target.nextElementSibling;
@@ -116,7 +129,6 @@ export function CreateOrderPage() {
           .from('customers').select('id, name, phone, address').ilike('name', `%${val}%`).limit(5);
 
         let htmlContent = "";
-
         if (!error && customers && customers.length > 0) {
           htmlContent = customers.map(c => `
             <div class="float-row-item customer-item" data-id="${c.id}" data-name="${c.name}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer;">
@@ -141,7 +153,6 @@ export function CreateOrderPage() {
             selectedCustomer = { id: parseInt(target.dataset.id), name: target.dataset.name };
             customerInput.value = target.dataset.name;
             customerFloat.style.display = "none";
-            
             const label = customerGroup.querySelector(".form-label");
             if (label) label.innerHTML = `Customer`; 
           });
@@ -150,7 +161,6 @@ export function CreateOrderPage() {
         customerFloat.querySelector("#dropdown-add-customer-trigger")?.addEventListener("click", (evt) => {
           const newName = evt.currentTarget.dataset.name;
           customerFloat.style.display = "none";
-          
           if (modal) {
             modalCustNameInput.value = newName;
             modalPhone.value = "";
@@ -163,36 +173,19 @@ export function CreateOrderPage() {
     }
 
     modalCancel?.addEventListener("click", () => { 
-      if (modal) {
-        modal.style.opacity = "0";
-        modal.style.visibility = "hidden";
-      }
+      if (modal) { modal.style.opacity = "0"; modal.style.visibility = "hidden"; }
     });
 
     modalSave?.addEventListener("click", () => {
       const finalName = modalCustNameInput.value.trim(); 
-      if (!finalName) {
-        alert("⚠️ Nama customer tidak boleh kosong!");
-        return;
-      }
-
-      selectedCustomer = { 
-        id: 'NEW_CUSTOMER', 
-        name: finalName,
-        phone: modalPhone.value.trim() || null,
-        address: modalAddress.value.trim() || null
-      };
-      
+      if (!finalName) { alert("⚠️ Nama customer tidak boleh kosong!"); return; }
+      selectedCustomer = { id: 'NEW_CUSTOMER', name: finalName, phone: modalPhone.value.trim() || null, address: modalAddress.value.trim() || null };
       customerInput.value = finalName;
       const label = customerGroup.querySelector(".form-label");
       if (label) {
         label.innerHTML = `Customer <span style="color: var(--orange, #F97316); font-size: 11px; font-weight: 600; margin-left: 2px;">(Baru)</span>`;
       }
-      
-      if (modal) {
-        modal.style.opacity = "0";
-        modal.style.visibility = "hidden";
-      }
+      if (modal) { modal.style.opacity = "0"; modal.style.visibility = "hidden"; }
     });
 
     // --- SALESMEN LIVE SEARCH ---
@@ -207,7 +200,6 @@ export function CreateOrderPage() {
           .from('salesmen').select('id, name, sales_code, area_tugas').ilike('name', `%${val}%`).limit(5);
 
         let htmlContent = "";
-
         if (!error && salesmen && salesmen.length > 0) {
           htmlContent = salesmen.map(s => `
             <div class="float-row-item sales-item" data-id="${s.id}" data-name="${s.name}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer;">
@@ -241,7 +233,6 @@ export function CreateOrderPage() {
           const newName = evt.currentTarget.dataset.name;
           selectedSales = { id: 'NEW_SALES', name: newName };
           salesInput.value = newName;
-
           const label = salesGroup.querySelector(".form-label");
           if (label) {
             label.innerHTML = `Salesman <span style="color: var(--orange, #F97316); font-size: 11px; font-weight: 600; margin-left: 2px;">(Baru)</span>`;
@@ -251,20 +242,17 @@ export function CreateOrderPage() {
       });
     }
 
-    // --- PRODUCT LIVE SEARCH ---
+    // --- PRODUCT LIVE SEARCH (DENGAN SKEMA INTERCEPT PRODUKSI SEPAKAT) 🎯 ---
     if (productInput) {
       productInput.addEventListener("input", async (e) => {
         const val = e.target.value.trim();
-        if (val.length < 1) {
-          productFloat.style.display = "none";
-          return;
-        }
+        if (val.length < 1) { productFloat.style.display = "none"; return; }
         const { data: products, error } = await supabase
-          .from('products').select('id, name, stock, unit, price').ilike('name', `%${val}%`).limit(5);
+          .from('products').select('id, name, stock, unit, price, category').ilike('name', `%${val}%`).limit(5);
 
         if (!error && products && products.length > 0) {
           productFloat.innerHTML = products.map(p => `
-            <div class="product-row-item" data-id="${p.id}" data-name="${p.name}" data-stock="${p.stock || 0}" data-unit="${p.unit || 'pcs'}" data-price="${p.price || 0}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+            <div class="product-row-item" data-id="${p.id}" data-name="${p.name}" data-stock="${p.stock || 0}" data-unit="${p.unit || 'pcs'}" data-price="${p.price || 0}" data-category="${p.category || ''}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
               <div>
                 <strong style="font-size: var(--text-sm); color: var(--text);">${p.name}</strong>
                 <span class="text-xs text-light" style="display: block;">Stok: ${p.stock || 0} ${p.unit} | Rp ${(p.price || 0).toLocaleString('id-ID')}</span>
@@ -277,25 +265,43 @@ export function CreateOrderPage() {
             row.addEventListener("click", (evt) => {
               const target = evt.currentTarget;
               const prodId = parseInt(target.dataset.id);
-              
+              const currentStock = parseFloat(target.dataset.stock) || 0;
+              const isRawMaterial = target.dataset.category?.toLowerCase() === 'bahan baku';
+
               if (cart.some(item => item.id === prodId)) {
                 alert("⚠️ Produk sudah dimasukkan ke dalam keranjang!");
-                productInput.value = "";
-                productFloat.style.display = "none";
-                return;
+                productInput.value = ""; productFloat.style.display = "none"; return;
               }
 
-              cart.push({
+              const productData = {
                 id: prodId,
                 name: target.dataset.name,
-                stock: parseFloat(target.dataset.stock),
+                stock: currentStock,
                 unit: target.dataset.unit,
                 price: parseFloat(target.dataset.price) || 0,
-                qty: 1
-              });
+                qty: 1,
+                needs_production: false
+              };
 
-              productInput.value = "";
-              productFloat.style.display = "none";
+              // ⚙️ LOGIC SPLIT MANUFAKTUR: Jika bukan kategori bahan baku dan stoknya kosong (<= 0)
+              if (!isRawMaterial && currentStock <= 0) {
+                const proceedProduction = confirm(`⚠️ Stok "${productData.name}" kosong. Produk otomatis dialihkan ke antrean PROSES PRODUKSI. Tentukan komposisi bahan baku pendukungnya gais?`);
+                if (proceedProduction) {
+                  currentActiveProductionProduct = productData;
+                  manufacturingItems = []; // reset array draft modal
+                  if (prodModal) {
+                    prodModalTitle.textContent = productData.name;
+                    rawMaterialInput.value = "";
+                    rawMaterialCart.innerHTML = `<div style="text-align: center; color: var(--text-light); font-size: var(--text-xs); font-style: italic; padding: var(--space-md);">Belum ada bahan baku yang dipilih</div>`;
+                    prodModal.style.opacity = "1";
+                    prodModal.style.visibility = "visible";
+                  }
+                  productInput.value = ""; productFloat.style.display = "none"; return;
+                }
+              }
+
+              cart.push(productData);
+              productInput.value = ""; productFloat.style.display = "none";
               renderCartStructure(); 
             });
           });
@@ -303,13 +309,112 @@ export function CreateOrderPage() {
       });
     }
 
-    ongkirInput?.addEventListener("input", calculateTotalsOnly);
-    bayarInput?.addEventListener("input", calculateTotalsOnly);
+    // --- LIVE SEARCH BAHAN BAKU DI DALAM MODAL MANUFAKTUR ---
+    if (rawMaterialInput) {
+      rawMaterialInput.addEventListener("input", async (e) => {
+        const val = e.target.value.trim();
+        if (val.length < 1) { rawMaterialFloat.style.display = "none"; return; }
+        
+        const { data: raws, error } = await supabase
+          .from('products')
+          .select('id, name, stock, unit')
+          .eq('category', 'bahan baku') // Ambil mutlak hanya yang kategori bahan baku
+          .ilike('name', `%${val}%`)
+          .limit(5);
 
+        if (!error && raws && raws.length > 0) {
+          rawMaterialFloat.innerHTML = raws.map(r => `
+            <div class="raw-item-row" data-id="${r.id}" data-name="${r.name}" data-unit="${r.unit || 'kg'}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer;">
+              <strong style="font-size: var(--text-sm); display: block; color: var(--text);">${r.name}</strong>
+              <span class="text-xs text-light">Stok Gudang: ${r.stock || 0} ${r.unit}</span>
+            </div>
+          `).join('');
+          rawMaterialFloat.style.display = "block";
+
+          rawMaterialFloat.querySelectorAll(".raw-item-row").forEach(row => {
+            row.onclick = (evt) => {
+              const t = evt.currentTarget;
+              const rId = parseInt(t.dataset.id);
+
+              if (manufacturingItems.some(i => i.id === rId)) {
+                alert("⚠️ Bahan baku ini sudah dimasukkan ke list!");
+                rawMaterialInput.value = ""; rawMaterialFloat.style.display = "none"; return;
+              }
+
+              manufacturingItems.push({
+                id: rId,
+                name: t.dataset.name,
+                unit: t.dataset.unit,
+                qty: 1
+              });
+
+              rawMaterialInput.value = "";
+              rawMaterialFloat.style.display = "none";
+              renderProductionCart();
+            };
+          });
+        }
+      });
+    }
+
+    function renderProductionCart() {
+      if (manufacturingItems.length === 0) {
+        rawMaterialCart.innerHTML = `<div style="text-align: center; color: var(--text-light); font-size: var(--text-xs); font-style: italic; padding: var(--space-md);">Belum ada bahan baku yang dipilih</div>`;
+        return;
+      }
+      rawMaterialCart.innerHTML = manufacturingItems.map((item, idx) => `
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); padding: var(--space-xs) 0; border-bottom: 1px dashed var(--border);">
+          <span style="font-size: var(--text-xs); font-weight: 600; color: var(--text); flex: 1;">${item.name}</span>
+          <div style="width: 90px;">
+            <input type="number" step="any" inputmode="decimal" class="input input-raw-qty" data-idx="${idx}" value="${item.qty}" style="height: 32px; text-align: center; font-size: var(--text-xs); padding: 0 4px;" />
+          </div>
+          <span style="font-size: var(--text-xs); color: var(--text-light); width: 30px;">${item.unit}</span>
+          <button type="button" class="btn-remove-raw" data-idx="${idx}" style="background:none; border:none; color:var(--danger, #EF4444); font-size:var(--text-xs); cursor:pointer;">✕</button>
+        </div>
+      `).join('');
+
+      rawMaterialCart.querySelectorAll(".input-raw-qty").forEach(inp => {
+        inp.addEventListener("input", (e) => {
+          const idx = parseInt(e.target.dataset.idx);
+          manufacturingItems[idx].qty = parseFloat(e.target.value.replace(/,/g, '.')) || 0;
+        });
+      });
+
+      rawMaterialCart.querySelectorAll(".btn-remove-raw").forEach(btn => {
+        btn.onclick = (e) => {
+          const idx = parseInt(e.target.dataset.idx);
+          manufacturingItems.splice(idx, 1);
+          renderProductionCart();
+        };
+      });
+    }
+
+    btnProdModalCancel?.addEventListener("click", () => {
+      prodModal.style.opacity = "0"; prodModal.style.visibility = "hidden";
+      currentActiveProductionProduct = null;
+    });
+
+    btnProdModalSave?.addEventListener("click", () => {
+      if (manufacturingItems.length === 0) {
+        alert("⚠️ Masukkan minimal 1 jenis bahan baku untuk kebutuhan produksi!"); return;
+      }
+      if (currentActiveProductionProduct) {
+        currentActiveProductionProduct.needs_production = true;
+        currentActiveProductionProduct.raw_materials = [...manufacturingItems];
+        
+        cart.push(currentActiveProductionProduct);
+        currentActiveProductionProduct = null;
+        prodModal.style.opacity = "0"; prodModal.style.visibility = "hidden";
+        renderCartStructure();
+      }
+    });
+
+    // Close elements globally on body click
     document.addEventListener("click", (e) => {
       if (!customerInput.contains(e.target) && !customerFloat.contains(e.target)) customerFloat.style.display = "none";
       if (!salesInput.contains(e.target) && !salesFloat.contains(e.target)) salesFloat.style.display = "none";
       if (!productInput.contains(e.target) && !productFloat.contains(e.target)) productFloat.style.display = "none";
+      if (rawMaterialInput && !rawMaterialInput.contains(e.target) && !rawMaterialFloat.contains(e.target)) rawMaterialFloat.style.display = "none";
     });
 
     // ==========================================================================
@@ -320,16 +425,22 @@ export function CreateOrderPage() {
         cartContainer.innerHTML = `
           <div style="text-align: center; padding: var(--space-md); color: var(--text-light); font-style: italic; font-size: var(--text-xs);">Belum ada produk di keranjang</div>
         `;
-        calculateTotalsOnly();
-        return;
+        calculateTotalsOnly(); return;
       }
 
       cartContainer.innerHTML = cart.map((item, idx) => {
         const itemSubtotal = item.qty * item.price;
+        const prodBadge = item.needs_production 
+          ? `<span style="background: #FFF7ED; color: var(--orange, #F97316); font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight:600; border: 1px solid rgba(249,115,22,0.25); display: inline-block; margin-top:2px;">⚙️ ANTRIAN PRODUKSI (${item.raw_materials.length} Bahan)</span>`
+          : `<span style="background: #ECFDF5; color: #10B981; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight:600; display: inline-block; margin-top:2px;">📦 Ready Stock</span>`;
+
         return `
           <div class="card create-card item-cart-row" data-idx="${idx}" style="background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--space-md); display: flex; flex-direction: column; gap: var(--space-sm);">
-            <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 6px; border-bottom: 1px solid var(--border);">
-              <strong style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">${item.name}</strong>
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; padding-bottom: 6px; border-bottom: 1px solid var(--border);">
+              <div style="display: flex; flex-direction: column;">
+                <strong style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">${item.name}</strong>
+                <div>${prodBadge}</div>
+              </div>
               <button type="button" class="btn-remove-cart" data-idx="${idx}" style="background: none; border: none; color: var(--danger, #EF4444); font-size: var(--text-xs); font-weight: var(--font-semibold); cursor: pointer;">Hapus</button>
             </div>
 
@@ -408,7 +519,7 @@ export function CreateOrderPage() {
     }
 
     // ==========================================================================
-    // 4. ACTION SUBMIT (DRAFT & SIMPAN)
+    // 4. PARALEL MULTI-TABLE TRANSACTION SUBMIT (SO & PRODUCTION) 🚀
     // ==========================================================================
     const submitBtn = container.querySelector(".primary-action");
     const draftBtn = container.querySelector(".action-btn:not(.primary-action)");
@@ -416,14 +527,8 @@ export function CreateOrderPage() {
     const executeOrderSubmit = async (statusType) => {
       if (isSubmitting) return;
 
-      if (!selectedCustomer) {
-        alert("⚠️ Harap tentukan customer transaksi terlebih dahulu!");
-        return;
-      }
-      if (cart.length === 0) {
-        alert("⚠️ Keranjang belanja produk penjualan masih kosong!");
-        return;
-      }
+      if (!selectedCustomer) { alert("⚠️ Harap tentukan customer transaksi terlebih dahulu!"); return; }
+      if (cart.length === 0) { alert("⚠️ Keranjang belanja produk penjualan masih kosong!"); return; }
 
       isSubmitting = true;
       submitBtn.disabled = true;
@@ -440,13 +545,7 @@ export function CreateOrderPage() {
         let finalCustomerId = selectedCustomer.id;
         if (finalCustomerId === 'NEW_CUSTOMER') {
           const { data: newCust, error: cErr } = await supabase
-            .from('customers')
-            .insert([{ 
-              name: selectedCustomer.name,
-              phone: selectedCustomer.phone,
-              address: selectedCustomer.address
-            }])
-            .select();
+            .from('customers').insert([{ name: selectedCustomer.name, phone: selectedCustomer.phone, address: selectedCustomer.address }]).select();
           if (cErr) throw cErr;
           finalCustomerId = newCust[0].id;
         }
@@ -454,13 +553,12 @@ export function CreateOrderPage() {
         let finalSalesId = selectedSales ? selectedSales.id : null;
         if (finalSalesId === 'NEW_SALES') {
           const { data: newSl, error: sErr } = await supabase
-            .from('salesmen')
-            .insert([{ name: selectedSales.name, area_tugas: 'Tim Lapangan / Salesman', status: 'aktif' }])
-            .select();
+            .from('salesmen').insert([{ name: selectedSales.name, area_tugas: 'Tim Lapangan / Salesman', status: 'aktif' }]).select();
           if (sErr) throw sErr;
           finalSalesId = newSl[0].id;
         }
 
+        // A. Insert data ke tabel orders induk
         const { data: orderData, error: orderError } = await supabase
           .from('orders')
           .insert([{
@@ -481,8 +579,9 @@ export function CreateOrderPage() {
         if (orderError) throw orderError;
         const orderId = orderData[0].id;
 
+        // B. Looping insert child item ke tabel detail `order_items` + Pemicu Alur Produksi
         for (const item of cart) {
-          const { error: itemErr } = await supabase
+          const { data: insertedItem, error: itemErr } = await supabase
             .from('order_items')
             .insert([{
               order_id: orderId,
@@ -490,11 +589,43 @@ export function CreateOrderPage() {
               qty: item.qty,
               unit_price: item.price,
               subtotal: item.qty * item.price
-            }]);
+            }])
+            .select();
           if (itemErr) throw itemErr;
+
+          // ⚙️ MANUFAKTUR TRIGGER LOGIC: Jika berstatus produksi, otomatis masukkan antrean
+          if (item.needs_production && item.raw_materials) {
+            const prodNo = 'PRD-' + Date.now().toString().slice(-6);
+            
+            // 1. Masukkan ke data produksi induk (production_orders)
+            const { data: productionInduk, error: prodIndukErr } = await supabase
+              .from('production_orders') 
+              .insert([{
+                production_no: prodNo,
+                order_item_id: insertedItem[0].id,
+                product_id: item.id,
+                target_qty: item.qty,
+                status: 'pending' 
+              }])
+              .select();
+
+            if (prodIndukErr) throw prodIndukErr;
+
+            // 2. Breakdown detail bahan baku pendukung ke production_materials
+            for (const raw of item.raw_materials) {
+              const { error: rawErr } = await supabase
+                .from('production_materials') 
+                .insert([{
+                  production_order_id: productionInduk[0].id,
+                  raw_material_id: raw.id,
+                  required_qty: raw.qty * item.qty // Akumulasi total kebutuhan bahan dikalikan qty order
+                }]);
+              if (rawErr) throw rawErr;
+            }
+          }
         }
 
-        alert(`🎉 Transaksi Penjualan ${orderNo} [${statusType.toUpperCase()}] Berhasil Disimpan!`);
+        alert(`🎉 Transaksi ${orderNo} [${statusType.toUpperCase()}] Berhasil Disimpan! Item stok kosong otomatis didaftarkan ke Antrean Produksi Manufaktur ⚙️`);
         if (window.navigate) window.navigate('sales');
 
       } catch (err) {
@@ -536,6 +667,28 @@ export function CreateOrderPage() {
           <div style="display: flex; gap: var(--space-sm); justify-content: flex-end; margin-top: var(--space-xs);">
             <button type="button" id="btn-modal-cancel" class="btn" style="background: #E2E8F0; color: var(--text); border: none; height: 38px; padding: 0 var(--space-md); border-radius: var(--radius-sm); cursor: pointer; font-size: var(--text-xs); font-weight: 600;">Batal</button>
             <button type="button" id="btn-modal-save" class="btn" style="background: var(--orange, #F97316); color: #fff; border: none; height: 38px; padding: 0 var(--space-md); border-radius: var(--radius-sm); cursor: pointer; font-size: var(--text-xs); font-weight: 600;">Konfirmasi</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="production-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 9998; display: flex; justify-content: center; align-items: center; padding: var(--space-md); box-sizing: border-box; opacity: 0; visibility: hidden; transition: opacity 0.25s ease, visibility 0.25s ease;">
+        <div class="card create-card" style="background: var(--white); border-radius: var(--radius-sm); width: 100%; max-width: 440px; padding: var(--space-lg); box-shadow: 0 12px 30px rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: var(--space-md); box-sizing: border-box;">
+          <div style="border-bottom: 1px solid var(--border); padding-bottom: var(--space-xs);">
+            <span style="font-size: 11px; font-weight: 700; color: var(--orange, #F97316); letter-spacing: 0.5px; display:block;">MANUFACTURING COMPOSITION</span>
+            <strong id="prod-modal-title" style="font-size: var(--text-md); color: var(--text); margin-top: 2px; display:block;">Nama Produk Habis</strong>
+          </div>
+          <div class="form-group" style="position: relative;">
+            <label class="form-label" style="font-weight: 600;">Pilih Kebutuhan Bahan Baku</label>
+            <input type="text" id="search-raw-material" class="input" placeholder="Ketik nama kopi mentah, pack, botol, cup..." autocomplete="off" style="border-color: #CBD5E1;" />
+            <div id="raw-material-dropdown-float" class="card" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 1020; display: none; max-height: 150px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0; background: var(--white);"></div>
+          </div>
+          <div style="background: #F8FAFC; border: 1px dashed var(--border); border-radius: var(--radius-sm); padding: var(--space-sm); max-height: 180px; overflow-y: auto;">
+            <span style="font-size: 11px; font-weight: 600; color: var(--text-light); display:block; margin-bottom: 6px;">Komposisi / Kebutuhan Bahan:</span>
+            <div id="production-cart-container" style="display:flex; flex-direction:column; gap:6px;"></div>
+          </div>
+          <div style="display: flex; gap: var(--space-sm); justify-content: flex-end; margin-top: var(--space-xs);">
+            <button type="button" id="btn-prod-modal-cancel" class="btn" style="background: #E2E8F0; color: var(--text); border: none; height: 38px; padding: 0 var(--space-md); border-radius: var(--radius-sm); cursor: pointer; font-size: var(--text-xs); font-weight: 600;">Batal</button>
+            <button type="button" id="btn-prod-modal-save" class="btn" style="background: var(--orange, #F97316); color: #fff; border: none; height: 38px; padding: 0 var(--space-md); border-radius: var(--radius-sm); cursor: pointer; font-size: var(--text-xs); font-weight: 600;">Gunakan & Antrekan</button>
           </div>
         </div>
       </div>
