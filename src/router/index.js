@@ -2,7 +2,7 @@ import StockAdjustmentPage from "../pages/StockAdjustmentPage.js"; // ✔️ FIX
 
 import { DashboardPage } from "../pages/dashboard.js";
 
-import { SampleOutListPage } from "../pages/sample-out-list-page.js";
+import { SampleOutListPage } from "../pages/SampleOutListPage.js";
 
 import { OrderListPage } from "../pages/order-list-page.js";
 import { OrderDetailPage } from "../pages/order-detail-page.js";
