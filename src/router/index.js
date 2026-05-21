@@ -1,5 +1,5 @@
 // ==========================================================================
-// FILE: src/router/index.js (FULL FIXED VERSION)
+// FILE: src/router/index.js (FULL FIXED VERSION - NO MORE UNDEFINED)
 // ==========================================================================
 
 import StockAdjustmentPage from "../pages/StockAdjustmentPage.js"; 
@@ -32,7 +32,6 @@ import { supabase } from "../supabaseClient.js";
 // Mendapatkan root element aplikasi tunggal (SPA) gais
 // ==========================================================================
 function getAppContainer() {
-  // Mencari id="app", jika tidak ada gunakan id="content", atau fallback ke body
   return document.getElementById("app") || document.getElementById("content") || document.body;
 }
 
@@ -57,86 +56,109 @@ export function renderRoute(route) {
   const container = getAppContainer();
 
   // ==========================================================================
-  // CORE APP ROUTER MAP - DENGAN SUNTIKAN CONTAINER AMAN 🚀
+  // CORE APP ROUTER MAP - AMAN DARI BOCORAN TEKS UNDEFINED 🚀
   // ==========================================================================
+  let pageContent;
+
   switch (route) {
     
     /* =========================
        🛠️ INVENTORY ADJUSTMENT
     ========================= */
     case "penyesuaian-stok":
-      return StockAdjustmentPage(container);
+      pageContent = StockAdjustmentPage(container);
+      break;
 
     /* =========================
        DASHBOARD
     ========================= */
     case "dashboard":
-      return DashboardPage(container);
+      pageContent = DashboardPage(container);
+      break;
 
     /* =========================
        ORDER & SAMPEL
     ========================= */
     case "order":
-      return OrderListPage(container);
+      pageContent = OrderListPage(container);
+      break;
 
     case "sample-out":
-      return SampleOutListPage(container);
+      pageContent = SampleOutListPage(container);
+      break;
 
     case "sample-out-detail":
-      return SampleOutDetailPage(container);
+      pageContent = SampleOutDetailPage(container);
+      break;
 
     case "order-detail":
-      return OrderDetailPage(container);
+      pageContent = OrderDetailPage(container);
+      break;
 
     case "create-order":
-      // ✔️ FIX UTAMA: Sekarang container aman disuntikkan ke dalam kurung fungsi gais!
-      return CreateOrderPage(container); 
+      // Fungsi ini merender langsung ke container, nilai baliknya adalah undefined
+      pageContent = CreateOrderPage(container); 
+      break;
 
     /* =========================
        PRODUKSI
     ========================= */
     case "produksi":
-      return ProduksiListPage(container);
+      pageContent = ProduksiListPage(container);
+      break;
 
     case "produksi-detail":
-      return ProduksiDetailPage(container);
+      pageContent = ProduksiDetailPage(container);
+      break;
 
     /* =========================
        STOCK
     ========================= */
     case "stok":
-      return StockPage(container);
+      pageContent = StockPage(container);
+      break;
 
     case "stock-detail":
-      return StockDetailPage(container);
+      pageContent = StockDetailPage(container);
+      break;
 
     /* =========================
        PURCHASE
     ========================= */
     case "pembelian":
-      return PurchaseListPage(container);
+      pageContent = PurchaseListPage(container);
+      break;
 
     case "purchase-detail":
-      return PurchaseDetailPage(container);
+      pageContent = PurchaseDetailPage(container);
+      break;
 
     case "create-purchase":
-      return CreatePurchasePage(container);
+      pageContent = CreatePurchasePage(container);
+      break;
 
     /* =========================
        MASTER PRODUK
     ========================= */
     case "produk":
-      return ProductPage(container);
+      pageContent = ProductPage(container);
+      break;
 
     /* =========================
        💸 ACCOUNTS RECEIVABLE (PIUTANG)
     ========================= */
     case "piutang":
-      return DebtsPage(container);
+      pageContent = DebtsPage(container);
+      break;
 
     default:
-      return DashboardPage(container);
+      pageContent = DashboardPage(container);
+      break;
   }
+
+  // JARING PENGAMAN: Jika fungsi halaman bertipe void / memanipulasi DOM langsung (return undefined),
+  // kembalikan string kosong agar template penampung luar tidak mencetak tulisan "undefined".
+  return (pageContent === undefined || pageContent === null) ? "" : pageContent;
 }
 
 // ==========================================================================
