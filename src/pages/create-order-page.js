@@ -5,8 +5,6 @@
 
 // ==========================================================================
 // 1. STATE
-// CARI:
-// let isSubmitting = false;
 // ==========================================================================
 
 let isSubmitting = false;
@@ -14,8 +12,6 @@ let isSampleOrder = false;
 
 // ==========================================================================
 // 2. ELEMENT
-// CARI:
-// const catatanInput = ...
 // ==========================================================================
 
 const catatanInput =
@@ -33,8 +29,6 @@ const manufacturingCard =
 
 // ==========================================================================
 // 3. INIT
-// CARI:
-// if (dateInput) dateInput.value = today;
 // ==========================================================================
 
 if (dateInput)
@@ -58,8 +52,7 @@ if (sampleToggle) {
 
 // ==========================================================================
 // 4. UPDATE SAMPLE MODE
-// TARUH DI ATAS:
-// function calculateTotalsOnly()
+// TARUH DI ATAS calculateTotalsOnly()
 // ==========================================================================
 
 function updateSampleMode() {
@@ -105,9 +98,7 @@ function updateSampleMode() {
 }
 
 // ==========================================================================
-// 5. REPLACE FULL FUNCTION
-// CARI:
-// function calculateTotalsOnly() {
+// 5. REPLACE FULL FUNCTION calculateTotalsOnly()
 // ==========================================================================
 
 function calculateTotalsOnly() {
@@ -214,8 +205,7 @@ function calculateTotalsOnly() {
 
 // ==========================================================================
 // 6. VALIDASI
-// CARI:
-// if (!selectedCustomer) {
+// TARUH DI SUBMIT FUNCTION
 // ==========================================================================
 
 if (!selectedCustomer) {
@@ -239,11 +229,7 @@ if (!selectedSalesman) {
 }
 
 // ==========================================================================
-// 7. REPLACE FULL INSERT BLOCK
-// CARI:
-// const finalOrderStatus =
-// sampai:
-// if (orderError) throw orderError;
+// 7. REPLACE INSERT BLOCK
 // ==========================================================================
 
 const finalOrderStatus =
@@ -290,14 +276,14 @@ const {
         ? subtotalTotal
         : finalNetAmount,
 
-   payment_method:
-  isSampleOrder
-    ? 'Cash'
-    : (
-        payAmount >= finalNetAmount
-          ? 'QRIS'
-          : 'Cash'
-      ),
+    payment_method:
+      isSampleOrder
+        ? 'Cash'
+        : (
+            payAmount >= finalNetAmount
+              ? 'QRIS'
+              : 'Cash'
+          ),
 
     status:
       finalOrderStatus,
@@ -314,89 +300,3 @@ const {
 
 if (orderError)
   throw orderError;
-
-// ==========================================================================
-// 8. TOGGLE HTML
-// TARUH TEPAT DI BAWAH:
-// <section class="create-page">
-// ==========================================================================
-
-<div
-  class="card create-card"
-  style="
-    padding:
-      var(--space-md);
-  "
->
-
-  <label
-    style="
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      cursor:pointer;
-    "
-  >
-
-    <div>
-
-      <strong>
-        Transaksi Sample
-      </strong>
-
-      <p
-        class="text-xs text-light"
-        style="margin-top:2px;"
-      >
-        Tidak masuk omzet
-      </p>
-
-    </div>
-
-    <input
-      type="checkbox"
-      id="sample-order-toggle"
-      style="
-        width:20px;
-        height:20px;
-      "
-    />
-
-  </label>
-
-</div>
-
-// ==========================================================================
-// 9. SUMMARY CARD
-// CARI:
-// <div class="card create-card">
-// YANG ADA:
-// Subtotal / Bayar / Sisa Tagihan
-// ==========================================================================
-
-<div
-  class="card create-card"
-  id="summary-card"
->
-
-// ==========================================================================
-// 10. PAYMENT CARD
-// CARI:
-// <div class="card create-card">
-// YANG ADA:
-// Nominal Pembayaran
-// ==========================================================================
-
-<div
-  class="card create-card"
-  id="payment-card"
->
-
-// ==========================================================================
-// 11. SQL
-// RUN SEKALI DI SUPABASE
-// ==========================================================================
-
-alter table sales_orders
-add column if not exists
-is_sample boolean default false;
