@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: 100% OPERATIONAL - SYNCHRONIZED WITH 'salesmen' TABLE SCHEMA! 🚀
+// STATUS: 100% OPERATIONAL - IN-DROPDOWN DYNAMIC ADD BUTTON SECURED! 🚀
 // ==========================================================================
 
 import { supabase } from "../supabaseClient.js";
@@ -55,7 +55,7 @@ export function CreateOrderPage() {
       customerFloat = document.createElement("div");
       customerFloat.id = "customer-dropdown-float";
       customerFloat.className = "card";
-      customerFloat.style = "position: absolute; top: 100%; left: 0; right: 0; z-index: 1010; display: none; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0; background: var(--white);";
+      customerFloat.style = "position: absolute; top: 100%; left: 0; right: 0; z-index: 1010; display: none; max-height: 220px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0; background: var(--white);";
       customerGroup.appendChild(customerFloat);
     }
 
@@ -66,7 +66,7 @@ export function CreateOrderPage() {
       salesFloat = document.createElement("div");
       salesFloat.id = "sales-dropdown-float";
       salesFloat.className = "card";
-      salesFloat.style = "position: absolute; top: 100%; left: 0; right: 0; z-index: 1010; display: none; max-height: 150px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0; background: var(--white);";
+      salesFloat.style = "position: absolute; top: 100%; left: 0; right: 0; z-index: 1010; display: none; max-height: 180px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0; background: var(--white);";
       salesGroup.appendChild(salesFloat);
     }
 
@@ -83,26 +83,11 @@ export function CreateOrderPage() {
 
     if (dateInput) dateInput.value = today;
 
-    // Tambah Manual Prompt
-    container.querySelector("#btn-add-customer")?.addEventListener("click", () => {
-      const name = prompt("Masukkan nama Customer / Warung baru:");
-      if (name) {
-        selectedCustomer = { id: 'NEW_CUSTOMER', name: name };
-        customerInput.value = name + " (Baru)";
-      }
-    });
-
-    container.querySelector("#btn-add-sales")?.addEventListener("click", () => {
-      const name = prompt("Masukkan nama Salesman baru:");
-      if (name) {
-        selectedSales = { id: 'NEW_SALES', name: name };
-        salesInput.value = name + " (Baru)";
-      }
-    });
-
     // ==========================================================================
-    // 2. LIVE SEARCH LISTENERS
+    // 2. LIVE SEARCH LISTENERS & IN-DROPDOWN ADD ACTION
     // ==========================================================================
+    
+    // --- CUSTOMER LIVE SEARCH ---
     if (customerInput) {
       customerInput.addEventListener("input", async (e) => {
         const val = e.target.value.trim();
@@ -113,27 +98,48 @@ export function CreateOrderPage() {
         const { data: customers, error } = await supabase
           .from('customers').select('id, name, phone, address').ilike('name', `%${val}%`).limit(5);
 
+        let htmlContent = "";
+
         if (!error && customers && customers.length > 0) {
-          customerFloat.innerHTML = customers.map(c => `
-            <div class="float-row-item" data-id="${c.id}" data-name="${c.name}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer;">
+          htmlContent = customers.map(c => `
+            <div class="float-row-item customer-item" data-id="${c.id}" data-name="${c.name}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer;">
               <strong style="font-size: var(--text-sm); display: block; color: var(--text);">${c.name}</strong>
               <span class="text-xs text-light">${c.phone || 'No Phone'} - ${c.address || 'No Address'}</span>
             </div>
           `).join('');
-          customerFloat.style.display = "block";
-
-          customerFloat.querySelectorAll(".float-row-item").forEach(row => {
-            row.addEventListener("click", (evt) => {
-              const target = evt.currentTarget;
-              selectedCustomer = { id: parseInt(target.dataset.id), name: target.dataset.name };
-              customerInput.value = target.dataset.name;
-              customerFloat.style.display = "none";
-            });
-          });
         }
+
+        // Selalu sisipkan opsi "Tambah Baru" di paling bawah dropdown jika nama tidak pas 100%
+        htmlContent += `
+          <div id="dropdown-add-customer-trigger" data-name="${val}" style="padding: var(--space-sm); background: #F0F9FF; color: #0284C7; cursor: pointer; border-top: 1px solid var(--border); font-size: var(--text-sm); font-weight: var(--font-medium); text-align: center;">
+            + Tambah "${val}" Sebagai Customer Baru
+          </div>
+        `;
+
+        customerFloat.innerHTML = htmlContent;
+        customerFloat.style.display = "block";
+
+        // Bind event click data existing
+        customerFloat.querySelectorAll(".customer-item").forEach(row => {
+          row.addEventListener("click", (evt) => {
+            const target = evt.currentTarget;
+            selectedCustomer = { id: parseInt(target.dataset.id), name: target.dataset.name };
+            customerInput.value = target.dataset.name;
+            customerFloat.style.display = "none";
+          });
+        });
+
+        // Bind event click tambah baru dari dalam dropdown
+        customerFloat.querySelector("#dropdown-add-customer-trigger")?.addEventListener("click", (evt) => {
+          const newName = evt.currentTarget.dataset.name;
+          selectedCustomer = { id: 'NEW_CUSTOMER', name: newName };
+          customerInput.value = newName + " (Baru)";
+          customerFloat.style.display = "none";
+        });
       });
     }
 
+    // --- SALESMEN LIVE SEARCH ---
     if (salesInput) {
       salesInput.addEventListener("input", async (e) => {
         const val = e.target.value.trim();
@@ -141,35 +147,51 @@ export function CreateOrderPage() {
           salesFloat.style.display = "none";
           return;
         }
-        
-        // 🛠️ FIX TABEL: Tembak tabel 'salesmen' sesuai database asli lo gais!
         const { data: salesmen, error } = await supabase
-          .from('salesmen')
-          .select('id, name, sales_code, area_tugas')
-          .ilike('name', `%${val}%`)
-          .limit(5);
+          .from('salesmen').select('id, name, sales_code, area_tugas').ilike('name', `%${val}%`).limit(5);
+
+        let htmlContent = "";
 
         if (!error && salesmen && salesmen.length > 0) {
-          salesFloat.innerHTML = salesmen.map(s => `
-            <div class="float-row-item" data-id="${s.id}" data-name="${s.name}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer;">
+          htmlContent = salesmen.map(s => `
+            <div class="float-row-item sales-item" data-id="${s.id}" data-name="${s.name}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer;">
               <strong style="font-size: var(--text-sm); display: block; color: var(--text);">${s.name}</strong>
               <span class="text-xs text-light">${s.sales_code || 'No Code'} - ${s.area_tugas || 'Sales Team'}</span>
             </div>
           `).join('');
-          salesFloat.style.display = "block";
-
-          salesFloat.querySelectorAll(".float-row-item").forEach(row => {
-            row.addEventListener("click", (evt) => {
-              const target = evt.currentTarget;
-              selectedSales = { id: parseInt(target.dataset.id), name: target.dataset.name };
-              salesInput.value = target.dataset.name;
-              salesFloat.style.display = "none";
-            });
-          });
         }
+
+        // Selalu sisipkan opsi "Tambah Baru" di paling bawah dropdown salesmen
+        htmlContent += `
+          <div id="dropdown-add-sales-trigger" data-name="${val}" style="padding: var(--space-sm); background: #F0F9FF; color: #0284C7; cursor: pointer; border-top: 1px solid var(--border); font-size: var(--text-sm); font-weight: var(--font-medium); text-align: center;">
+            + Tambah "${val}" Sebagai Salesman Baru
+          </div>
+        `;
+
+        salesFloat.innerHTML = htmlContent;
+        salesFloat.style.display = "block";
+
+        // Bind event click data existing
+        salesFloat.querySelectorAll(".sales-item").forEach(row => {
+          row.addEventListener("click", (evt) => {
+            const target = evt.currentTarget;
+            selectedSales = { id: parseInt(target.dataset.id), name: target.dataset.name };
+            salesInput.value = target.dataset.name;
+            salesFloat.style.display = "none";
+          });
+        });
+
+        // Bind event click tambah baru dari dalam dropdown
+        salesFloat.querySelector("#dropdown-add-sales-trigger")?.addEventListener("click", (evt) => {
+          const newName = evt.currentTarget.dataset.name;
+          selectedSales = { id: 'NEW_SALES', name: newName };
+          salesInput.value = newName + " (Baru)";
+          salesFloat.style.display = "none";
+        });
       });
     }
 
+    // --- PRODUCT LIVE SEARCH ---
     if (productInput) {
       productInput.addEventListener("input", async (e) => {
         const val = e.target.value.trim();
@@ -368,7 +390,6 @@ export function CreateOrderPage() {
 
         let finalSalesId = selectedSales ? selectedSales.id : null;
         if (finalSalesId === 'NEW_SALES') {
-          // 🛠️ FIX SCHEMA: Insert baru ke tabel 'salesmen' dengan kolom 'area_tugas'
           const { data: newSl, error: sErr } = await supabase
             .from('salesmen')
             .insert([{ name: selectedSales.name, area_tugas: 'Tim Lapangan / Salesman', status: 'aktif' }])
@@ -448,17 +469,11 @@ export function CreateOrderPage() {
           <input type="date" class="input" />
         </div>
         <div class="form-group">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <label class="form-label">Customer</label>
-            <button type="button" id="btn-add-customer" style="background: none; border: none; color: #3B82F6; font-size: var(--text-xs); font-weight: var(--font-medium); cursor: pointer; padding: 0;">+ Tambah Baru</button>
-          </div>
+          <label class="form-label">Customer</label>
           <input type="text" id="search-customer" class="input" placeholder="Cari nama warung / customer..." autocomplete="off" />
         </div>
         <div class="form-group">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <label class="form-label">Salesman</label>
-            <button type="button" id="btn-add-sales" style="background: none; border: none; color: #3B82F6; font-size: var(--text-xs); font-weight: var(--font-medium); cursor: pointer; padding: 0;">+ Tambah Baru</button>
-          </div>
+          <label class="form-label">Salesman</label>
           <input type="text" id="search-sales" class="input" placeholder="Pilih nama sales..." autocomplete="off" />
         </div>
       </div>
@@ -505,7 +520,7 @@ export function CreateOrderPage() {
             <label class="form-label">Nominal Bayar (Rp)</label>
             <input type="number" id="input-payment" class="input" placeholder="0" style="text-align: right;" />
           </div>
-          <div class="form-group">
+          <div class="form-grid-2 .form-group">
             <label class="form-label">Ongkir (Rp)</label>
             <input type="number" id="input-shipping" class="input" placeholder="0" style="text-align: right;" />
           </div>
