@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: 100% OPERATIONAL - EDITABLE MODAL CUSTOMER NAME SECURED! 🚀
+// STATUS: 100% OPERATIONAL - PERFECT CENTER SCREEN MODAL & SMOOTH FADE-IN SECURED! 🚀
 // ==========================================================================
 
 import { supabase } from "../supabaseClient.js";
@@ -39,7 +39,7 @@ export function CreateOrderPage() {
 
     // Modal DOM Capture
     const modal = container.querySelector("#customer-modal-overlay");
-    const modalCustNameInput = container.querySelector("#modal-cust-name"); // SEKARANG JADI INPUT JALUR EDITABLE 🎯
+    const modalCustNameInput = container.querySelector("#modal-cust-name"); 
     const modalPhone = container.querySelector("#modal-cust-phone");
     const modalAddress = container.querySelector("#modal-cust-address");
     const modalCancel = container.querySelector("#btn-modal-cancel");
@@ -82,7 +82,7 @@ export function CreateOrderPage() {
     if (dateInput) dateInput.value = today;
 
     // ==========================================================================
-    // 2. LIVE SEARCH & MODAL INTERACTION LISTENERS
+    // 2. LIVE SEARCH & MODAL INTERACTION LISTENERS (SMOOTH TOGGLE)
     // ==========================================================================
     
     // --- CUSTOMER LIVE SEARCH ---
@@ -132,20 +132,28 @@ export function CreateOrderPage() {
           const newName = evt.currentTarget.dataset.name;
           customerFloat.style.display = "none";
           
-          // Buka Pop-up Modal & Injeksi nama ke kolom input agar bisa diedit 🎯
+          // Buka Pop-up Modal dengan transisi CSS halus gais 🎯
           if (modal) {
             modalCustNameInput.value = newName;
             modalPhone.value = "";
             modalAddress.value = "";
-            modal.style.display = "flex";
+            modal.style.opacity = "1";
+            modal.style.visibility = "visible";
           }
         });
       });
     }
 
-    modalCancel?.addEventListener("click", () => { modal.style.display = "none"; });
+    // Event Tutup & Simpan di Dalam Modal Customer (Smooth Close)
+    modalCancel?.addEventListener("click", () => { 
+      if (modal) {
+        modal.style.opacity = "0";
+        modal.style.visibility = "hidden";
+      }
+    });
+
     modalSave?.addEventListener("click", () => {
-      const finalName = modalCustNameInput.value.trim(); // Ambil nama final dari input modal
+      const finalName = modalCustNameInput.value.trim(); 
       if (!finalName) {
         alert("⚠️ Nama customer tidak boleh kosong!");
         return;
@@ -163,7 +171,11 @@ export function CreateOrderPage() {
       if (label) {
         label.innerHTML = `Customer <span style="color: var(--orange, #F97316); font-size: 11px; font-weight: 600; margin-left: 2px;">(Baru)</span>`;
       }
-      modal.style.display = "none";
+      
+      if (modal) {
+        modal.style.opacity = "0";
+        modal.style.visibility = "hidden";
+      }
     });
 
     // --- SALESMEN LIVE SEARCH ---
@@ -479,10 +491,10 @@ export function CreateOrderPage() {
   }, 50);
 
   return `
-    <section class="create-order-page" style="display: flex; flex-direction: column; gap: var(--space-md);">
+    <section class="create-order-page" style="display: flex; flex-direction: column; gap: var(--space-md); position: relative;">
       
-      <div id="customer-modal-overlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 5000; justify-content: center; align-items: center; padding: var(--space-md);">
-        <div class="card create-card" style="background: var(--white); border-radius: var(--radius-sm); width: 100%; max-width: 400px; padding: var(--space-lg); box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: var(--space-md);">
+      <div id="customer-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: var(--space-md); box-sizing: border-box; opacity: 0; visibility: hidden; transition: opacity 0.25s ease, visibility 0.25s ease;">
+        <div class="card create-card" style="background: var(--white); border-radius: var(--radius-sm); width: 100%; max-width: 400px; padding: var(--space-lg); box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: var(--space-md); box-sizing: border-box;">
           <div style="border-bottom: 1px solid var(--border); padding-bottom: var(--space-xs);">
             <strong style="font-size: var(--text-md); color: var(--text);">Lengkapi Customer Baru</strong>
           </div>
