@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: 100% OPERATIONAL - POP-UP MODAL & MOBILE DECIMAL COMPACT CART SECURED! 🚀
+// STATUS: 100% OPERATIONAL - AUTO-ADD PRODUCT ON CLICK (NO BUTTON) SECURED! 🚀
 // ==========================================================================
 
 import { supabase } from "../supabaseClient.js";
@@ -10,7 +10,6 @@ export function CreateOrderPage() {
   let selectedSales = null;
   let cart = [];
   let isSubmitting = false;
-  let temporarySelectedProduct = null; 
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -25,7 +24,6 @@ export function CreateOrderPage() {
     const customerInput = container.querySelector("#search-customer");
     const salesInput = container.querySelector("#search-sales");
     const productInput = container.querySelector("#search-product");
-    const addProductBtn = container.querySelector(".btn-soft");
     const cartContainer = container.querySelector("#dynamic-cart-container");
     
     const detailRows = container.querySelectorAll(".detail-info .detail-row-item strong");
@@ -134,7 +132,6 @@ export function CreateOrderPage() {
           const newName = evt.currentTarget.dataset.name;
           customerFloat.style.display = "none";
           
-          // Buka Pop-up Modal Extended Fields
           if (modal) {
             modalTitleName.textContent = newName;
             modalPhone.value = "";
@@ -145,7 +142,6 @@ export function CreateOrderPage() {
       });
     }
 
-    // Event Tutup & Simpan di Dalam Modal Customer
     modalCancel?.addEventListener("click", () => { modal.style.display = "none"; });
     modalSave?.addEventListener("click", () => {
       const currentName = modalTitleName.textContent;
@@ -220,7 +216,7 @@ export function CreateOrderPage() {
       });
     }
 
-    // --- PRODUCT LIVE SEARCH ---
+    // --- PRODUCT LIVE SEARCH (AUTO ADD ON CLICK FIXED) 🎯 ---
     if (productInput) {
       productInput.addEventListener("input", async (e) => {
         const val = e.target.value.trim();
@@ -245,37 +241,32 @@ export function CreateOrderPage() {
           productFloat.querySelectorAll(".product-row-item").forEach(row => {
             row.addEventListener("click", (evt) => {
               const target = evt.currentTarget;
-              temporarySelectedProduct = {
-                id: parseInt(target.dataset.id),
+              const prodId = parseInt(target.dataset.id);
+              
+              // Cek duplikasi barang di keranjang belanja
+              if (cart.some(item => item.id === prodId)) {
+                alert("⚠️ Produk sudah dimasukkan ke dalam keranjang!");
+                productInput.value = "";
+                productFloat.style.display = "none";
+                return;
+              }
+
+              // Masukkan otomatis ke array cart gais
+              cart.push({
+                id: prodId,
                 name: target.dataset.name,
                 stock: parseFloat(target.dataset.stock),
                 unit: target.dataset.unit,
-                price: parseFloat(target.dataset.price) || 0
-              };
-              productInput.value = target.dataset.name;
+                price: parseFloat(target.dataset.price) || 0,
+                qty: 1
+              });
+
+              productInput.value = "";
               productFloat.style.display = "none";
+              renderCartStructure(); // Update visual list keranjang
             });
           });
         }
-      });
-    }
-
-    if (addProductBtn) {
-      addProductBtn.addEventListener("click", () => {
-        if (!temporarySelectedProduct) {
-          alert("⚠️ Pilih produk dari daftar pencarian terlebih dahulu!");
-          return;
-        }
-        if (cart.some(item => item.id === temporarySelectedProduct.id)) {
-          alert("⚠️ Produk sudah dimasukkan ke dalam keranjang!");
-          productInput.value = "";
-          temporarySelectedProduct = null;
-          return;
-        }
-        cart.push({ ...temporarySelectedProduct, qty: 1, price: temporarySelectedProduct.price || 0 });
-        productInput.value = "";
-        temporarySelectedProduct = null;
-        renderCartStructure();
       });
     }
 
@@ -289,7 +280,7 @@ export function CreateOrderPage() {
     });
 
     // ==========================================================================
-    // 3. RENDER STRUKTUR ROW ITEM DI CART (DECIMAL MOBILE READY) 🎯
+    // 3. RENDER STRUKTUR ROW ITEM DI CART (DECIMAL MOBILE READY)
     // ==========================================================================
     function renderCartStructure() {
       if (cart.length === 0) {
@@ -534,14 +525,8 @@ export function CreateOrderPage() {
       </div>
 
       <div class="card create-card" style="background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px;">
-          <div>
-            <h3 style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text); margin: 0;">Pilih Produk</h3>
-          </div>
-          <button class="btn-soft" style="height: 32px; padding: 0 var(--space-md); border-radius: var(--radius-sm); font-size: var(--text-xs); display: flex; align-items: center; gap: var(--space-xs); border: none; font-weight: var(--font-semibold); color: var(--orange, #F97316); background: rgba(249,115,22,0.1); cursor: pointer;">
-            <i data-lucide="plus" style="width: 14px; height: 14px;"></i>
-            Tambah ke Cart
-          </button>
+        <div style="margin-bottom: var(--space-xs);">
+          <h3 style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text); margin: 0;">Pilih Produk</h3>
         </div>
         <div class="form-group">
           <input type="text" id="search-product" class="input" placeholder="Cari kopi, roastbean, pack..." autocomplete="off" />
