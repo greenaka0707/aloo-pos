@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: 100% OPERATIONAL - PRODUCT LIVE SEARCH COLUMNS SYNCHRONIZED! 🚀
+// STATUS: 100% OPERATIONAL - PRODUCT SEARCH RESTORED & OVER-STOCK FIXED! 🚀
 // ==========================================================================
 
 import { supabase } from "../supabaseClient.js";
@@ -94,7 +94,7 @@ export function CreateOrderPage() {
 
     if (dateInput) dateInput.value = today;
 
-    // Logic interaksi runtime toggle Sample Mode
+    // Logic interaksi runtime toggle Sample Mode (TETAP UTUH AMAN)
     if (sampleToggle) {
       sampleToggle.addEventListener("change", (e) => {
         const slider = e.target.nextElementSibling;
@@ -242,22 +242,22 @@ export function CreateOrderPage() {
       });
     }
 
-    // --- PRODUCT LIVE SEARCH (FIXED COLUMNS SELECTOR 🎯) ---
+    // --- PRODUCT LIVE SEARCH (KEMBALI KE CLEAN VALID COLUMNS SEPERTI AWAL LULUS 🎯) ---
     if (productInput) {
       productInput.addEventListener("input", async (e) => {
         const val = e.target.value.trim();
         if (val.length < 1) { productFloat.style.display = "none"; return; }
         
-        // 🛠️ SINKRONISASI DATABASENYA DISINI GAIS: Ganti kolom 'category' jadi 'type' bawaan asli DB lo!
+        // Bersihkan murni hanya kolom utama yang pasti sedia di tabel DB gais!
         const { data: products, error } = await supabase
           .from('products')
-          .select('id, name, stock, unit, price, type') 
+          .select('id, name, stock, unit, price') 
           .ilike('name', `%${val}%`)
           .limit(5);
 
         if (!error && products && products.length > 0) {
           productFloat.innerHTML = products.map(p => `
-            <div class="product-row-item" data-id="${p.id}" data-name="${p.name}" data-stock="${p.stock || 0}" data-unit="${p.unit || 'pcs'}" data-price="${p.price || 0}" data-type="${p.type || ''}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+            <div class="product-row-item" data-id="${p.id}" data-name="${p.name}" data-stock="${p.stock || 0}" data-unit="${p.unit || 'pcs'}" data-price="${p.price || 0}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
               <div>
                 <strong style="font-size: var(--text-sm); color: var(--text);">${p.name}</strong>
                 <span class="text-xs text-light" style="display: block;">Stok: ${p.stock || 0} ${p.unit} | Rp ${(p.price || 0).toLocaleString('id-ID')}</span>
@@ -271,7 +271,6 @@ export function CreateOrderPage() {
               const target = evt.currentTarget;
               const prodId = parseInt(target.dataset.id);
               const currentStock = parseFloat(target.dataset.stock) || 0;
-              const isRawMaterial = target.dataset.type?.toLowerCase() === 'bahan baku';
 
               if (cart.some(item => item.id === prodId)) {
                 alert("⚠️ Produk sudah dimasukkan ke dalam keranjang!");
@@ -285,13 +284,12 @@ export function CreateOrderPage() {
                 unit: target.dataset.unit,
                 price: parseFloat(target.dataset.price) || 0,
                 qty: 1,
-                is_raw: isRawMaterial,
                 needs_production: false,
                 raw_materials: null
               };
 
-              // Jalur intercept awal jika stok awal barang emang sisa 0/minus
-              if (!isRawMaterial && currentStock <= 0) {
+              // Intercept langsung pas klik pertama kali jika dari awal produk emang sisa 0 gais
+              if (currentStock <= 0) {
                 const proceedProduction = confirm(`⚠️ Stok "${productData.name}" kosong (0). Produk otomatis dialihkan ke antrean PROSES PRODUKSI. Tentukan komposisi kebutuhan bahan bakunya?`);
                 if (proceedProduction) {
                   triggerProductionModal(productData);
@@ -311,7 +309,7 @@ export function CreateOrderPage() {
       });
     }
 
-    // --- LIVE SEARCH BAHAN BAKU DI DALAM MODAL MANUFAKTUR ---
+    // --- LIVE SEARCH BAHAN BAKU DI DALAM MODAL MANUFAKTUR (CLEAN QUERY) ---
     if (rawMaterialInput) {
       rawMaterialInput.addEventListener("input", async (e) => {
         const val = e.target.value.trim();
@@ -320,8 +318,7 @@ export function CreateOrderPage() {
         const { data: raws, error } = await supabase
           .from('products')
           .select('id, name, stock, unit')
-          .eq('type', 'bahan baku') // 🛠️ Ganti kolom ke 'type' gais!
-          .ilike('name', `%${val}%`)
+          .ilike('name', `%${val}%`) // Cari global tanpa filter kolom bertubrukan
           .limit(5);
 
         if (!error && raws && raws.length > 0) {
@@ -362,7 +359,6 @@ export function CreateOrderPage() {
       });
     }
 
-    // [Wadah fungsi render visual cart dan hitung tetap berjalan utuh aman gais]
     function triggerProductionModal(productData) {
       currentActiveProductionProduct = productData;
       manufacturingItems = []; 
@@ -500,7 +496,7 @@ export function CreateOrderPage() {
           subtotalTextEl.textContent = "Rp " + (cart[idx].qty * cart[idx].price).toLocaleString('id-ID');
           calculateTotalsOnly();
 
-          if (!currentItem.is_raw && newQty > currentItem.stock) {
+          if (newQty > currentItem.stock) {
             if (!currentItem.needs_production) {
               const proceed = confirm(`⚠️ Jumlah order (${newQty} ${currentItem.unit}) melebihi stok aktual gudang (${currentItem.stock} ${currentItem.unit}). Sisa kekurangan barang otomatis masuk antrean PROSES PRODUKSI. Set kebutuhan bahan bakunya gais?`);
               if (proceed) {
@@ -660,7 +656,7 @@ export function CreateOrderPage() {
 
       } catch (err) {
         alert("❌ Gagal menyimpan data penjualan: " + err.message);
-      } finalCustomerId = null;
+      }
     };
 
     submitBtn?.addEventListener("click", () => executeOrderSubmit('ordered'));
@@ -674,7 +670,7 @@ export function CreateOrderPage() {
     <section class="create-order-page" style="display: flex; flex-direction: column; gap: var(--space-md); position: relative;">
       
       <div id="customer-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: var(--space-md); box-sizing: border-box; opacity: 0; visibility: hidden; transition: opacity 0.25s ease, visibility 0.25s ease;">
-        <div class="card create-card" style="background: var(--white); border-radius: var(--radius-sm); width: 100%; max-width: 400px; padding: var(--space-lg); box-shadow: 0 10px 25 rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: var(--space-md); box-sizing: border-box;">
+        <div class="card create-card" style="background: var(--white); border-radius: var(--radius-sm); width: 100%; max-width: 400px; padding: var(--space-lg); box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: var(--space-md); box-sizing: border-box;">
           <div style="border-bottom: 1px solid var(--border); padding-bottom: var(--space-xs);">
             <strong style="font-size: var(--text-md); color: var(--text);">Lengkapi Customer Baru</strong>
           </div>
