@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: 100% OPERATIONAL - NEW CUSTOMER EXTENDED FIELDS & ORANGE BADGE SECURED! 🚀
+// STATUS: 100% OPERATIONAL - POP-UP MODAL & MOBILE DECIMAL COMPACT CART SECURED! 🚀
 // ==========================================================================
 
 import { supabase } from "../supabaseClient.js";
@@ -26,12 +26,8 @@ export function CreateOrderPage() {
     const salesInput = container.querySelector("#search-sales");
     const productInput = container.querySelector("#search-product");
     const addProductBtn = container.querySelector(".btn-soft");
+    const cartContainer = container.querySelector("#dynamic-cart-container");
     
-    // Dynamic Fields for New Customer
-    const newCustFields = container.querySelector("#new-customer-fields");
-    const custPhoneInput = container.querySelector("#new-customer-phone");
-    const custAddressInput = container.querySelector("#new-customer-address");
-
     const detailRows = container.querySelectorAll(".detail-info .detail-row-item strong");
     const summarySubtotal = detailRows[0];
     const summaryOngkir = detailRows[1];
@@ -43,14 +39,13 @@ export function CreateOrderPage() {
     const catatanInput = container.querySelector(".textarea");
     const sampleToggle = container.querySelector("#sample-order-toggle");
 
-    const subtotalCard = container.querySelector(".detail-info").closest(".create-card");
-    
-    let cartContainer = container.querySelector("#dynamic-cart-container");
-    if (!cartContainer) {
-      cartContainer = document.createElement("div");
-      cartContainer.id = "dynamic-cart-container";
-      subtotalCard.parentNode.insertBefore(cartContainer, subtotalCard);
-    }
+    // Modal DOM Capture
+    const modal = container.querySelector("#customer-modal-overlay");
+    const modalTitleName = container.querySelector("#modal-target-cust-name");
+    const modalPhone = container.querySelector("#modal-cust-phone");
+    const modalAddress = container.querySelector("#modal-cust-address");
+    const modalCancel = container.querySelector("#btn-modal-cancel");
+    const modalSave = container.querySelector("#btn-modal-save");
 
     // Dropdown initialization
     const customerGroup = customerInput.closest(".form-group");
@@ -71,7 +66,7 @@ export function CreateOrderPage() {
       salesFloat = document.createElement("div");
       salesFloat.id = "sales-dropdown-float";
       salesFloat.className = "card";
-      salesFloat.style = "position: absolute; top: 100%; left: 0; right: 0; z-index: 1010; display: none; max-height: 180px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0; background: var(--white);";
+      salesFloat.style = "position: absolute; top: 100%; left: 0; right: 0; z-index: 1010; display: none; max-height: 150px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0; background: var(--white);";
       salesGroup.appendChild(salesFloat);
     }
 
@@ -89,7 +84,7 @@ export function CreateOrderPage() {
     if (dateInput) dateInput.value = today;
 
     // ==========================================================================
-    // 2. LIVE SEARCH LISTENERS & IN-DROPDOWN ADD ACTION
+    // 2. LIVE SEARCH & MODAL INTERACTION LISTENERS
     // ==========================================================================
     
     // --- CUSTOMER LIVE SEARCH ---
@@ -129,26 +124,45 @@ export function CreateOrderPage() {
             selectedCustomer = { id: parseInt(target.dataset.id), name: target.dataset.name };
             customerInput.value = target.dataset.name;
             customerFloat.style.display = "none";
-            if (newCustFields) newCustFields.style.display = "none"; // Sembunyikan field tambahan jika pilih data lama
+            
+            const label = customerGroup.querySelector(".form-label");
+            if (label) label.innerHTML = `Customer`; 
           });
         });
 
         customerFloat.querySelector("#dropdown-add-customer-trigger")?.addEventListener("click", (evt) => {
           const newName = evt.currentTarget.dataset.name;
-          selectedCustomer = { id: 'NEW_CUSTOMER', name: newName };
-          customerInput.value = newName; 
-          
-          // Memunculkan info badge baru kecil warna orange di sebelah label input secara dinamis
-          const label = customerGroup.querySelector(".form-label");
-          if (label) {
-            label.innerHTML = `Customer <span style="color: var(--orange, #F97316); font-size: 11px; font-weight: 600; margin-left: 4px;">(Baru)</span>`;
-          }
-
           customerFloat.style.display = "none";
-          if (newCustFields) newCustFields.style.display = "block"; // Munculkan form no telp & alamat
+          
+          // Buka Pop-up Modal Extended Fields
+          if (modal) {
+            modalTitleName.textContent = newName;
+            modalPhone.value = "";
+            modalAddress.value = "";
+            modal.style.display = "flex";
+          }
         });
       });
     }
+
+    // Event Tutup & Simpan di Dalam Modal Customer
+    modalCancel?.addEventListener("click", () => { modal.style.display = "none"; });
+    modalSave?.addEventListener("click", () => {
+      const currentName = modalTitleName.textContent;
+      selectedCustomer = { 
+        id: 'NEW_CUSTOMER', 
+        name: currentName,
+        phone: modalPhone.value.trim() || null,
+        address: modalAddress.value.trim() || null
+      };
+      
+      customerInput.value = currentName;
+      const label = customerGroup.querySelector(".form-label");
+      if (label) {
+        label.innerHTML = `Customer <span style="color: var(--orange, #F97316); font-size: 11px; font-weight: 600; margin-left: 2px;">(Baru)</span>`;
+      }
+      modal.style.display = "none";
+    });
 
     // --- SALESMEN LIVE SEARCH ---
     if (salesInput) {
@@ -187,6 +201,8 @@ export function CreateOrderPage() {
             selectedSales = { id: parseInt(target.dataset.id), name: target.dataset.name };
             salesInput.value = target.dataset.name;
             salesFloat.style.display = "none";
+            const label = salesGroup.querySelector(".form-label");
+            if (label) label.innerHTML = `Salesman`;
           });
         });
 
@@ -197,9 +213,8 @@ export function CreateOrderPage() {
 
           const label = salesGroup.querySelector(".form-label");
           if (label) {
-            label.innerHTML = `Salesman <span style="color: var(--orange, #F97316); font-size: 11px; font-weight: 600; margin-left: 4px;">(Baru)</span>`;
+            label.innerHTML = `Salesman <span style="color: var(--orange, #F97316); font-size: 11px; font-weight: 600; margin-left: 2px;">(Baru)</span>`;
           }
-
           salesFloat.style.display = "none";
         });
       });
@@ -274,11 +289,13 @@ export function CreateOrderPage() {
     });
 
     // ==========================================================================
-    // 3. RENDER STRUKTUR ROW ITEM DI CART
+    // 3. RENDER STRUKTUR ROW ITEM DI CART (DECIMAL MOBILE READY) 🎯
     // ==========================================================================
     function renderCartStructure() {
       if (cart.length === 0) {
-        cartContainer.innerHTML = "";
+        cartContainer.innerHTML = `
+          <div style="text-align: center; padding: var(--space-md); color: var(--text-light); font-style: italic; font-size: var(--text-xs);">Belum ada produk di keranjang</div>
+        `;
         calculateTotalsOnly();
         return;
       }
@@ -286,32 +303,26 @@ export function CreateOrderPage() {
       cartContainer.innerHTML = cart.map((item, idx) => {
         const itemSubtotal = item.qty * item.price;
         return `
-          <div class="card create-card item-cart-row" data-idx="${idx}" style="margin-bottom: var(--space-sm); background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm);">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-sm); padding-bottom: 4px; border-bottom: 1px solid var(--border);">
-              <strong style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">
-                ${item.name}
-              </strong>
-              <button type="button" class="btn-remove-cart" data-idx="${idx}" style="background: none; border: none; color: var(--danger, #EF4444); font-size: var(--text-xs); font-weight: var(--font-semibold); cursor: pointer;">
-                Hapus
-              </button>
+          <div class="card create-card item-cart-row" data-idx="${idx}" style="background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--space-md); display: flex; flex-direction: column; gap: var(--space-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 6px; border-bottom: 1px solid var(--border);">
+              <strong style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">${item.name}</strong>
+              <button type="button" class="btn-remove-cart" data-idx="${idx}" style="background: none; border: none; color: var(--danger, #EF4444); font-size: var(--text-xs); font-weight: var(--font-semibold); cursor: pointer;">Hapus</button>
             </div>
 
             <div class="form-grid-2">
               <div class="form-group">
                 <label class="form-label">Qty (${item.unit})</label>
-                <input type="number" class="input input-qty" value="${item.qty}" min="1" style="text-align: center;" />
+                <input type="number" step="any" inputmode="decimal" pattern="[0-9]*([\.,][0-9]*)?" class="input input-qty" value="${item.qty}" style="text-align: center;" />
               </div>
               <div class="form-group">
                 <label class="form-label">Harga Jual (Rp)</label>
-                <input type="number" class="input input-price" value="${item.price}" min="0" style="text-align: right;" />
+                <input type="number" step="any" inputmode="decimal" pattern="[0-9]*([\.,][0-9]*)?" class="input input-price" value="${item.price}" style="text-align: right;" />
               </div>
             </div>
 
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: var(--space-sm); padding-top: 4px; border-top: 1px dashed var(--border);">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 6px; border-top: 1px dashed var(--border);">
               <span class="text-light text-xs">Subtotal Item</span>
-              <strong class="row-subtotal-text" style="font-size: var(--text-sm); color: var(--text);">
-                Rp ${itemSubtotal.toLocaleString('id-ID')}
-              </strong>
+              <strong class="row-subtotal-text" style="font-size: var(--text-sm); color: var(--text);">Rp ${itemSubtotal.toLocaleString('id-ID')}</strong>
             </div>
           </div>
         `;
@@ -324,13 +335,15 @@ export function CreateOrderPage() {
         const subtotalTextEl = row.querySelector(".row-subtotal-text");
 
         qtyEl.addEventListener("input", (e) => {
-          cart[idx].qty = parseFloat(e.target.value) || 0;
+          let cleanVal = e.target.value.replace(/,/g, '.');
+          cart[idx].qty = parseFloat(cleanVal) || 0;
           subtotalTextEl.textContent = "Rp " + (cart[idx].qty * cart[idx].price).toLocaleString('id-ID');
           calculateTotalsOnly();
         });
 
         priceEl.addEventListener("input", (e) => {
-          cart[idx].price = parseFloat(e.target.value) || 0;
+          let cleanVal = e.target.value.replace(/,/g, '.');
+          cart[idx].price = parseFloat(cleanVal) || 0;
           subtotalTextEl.textContent = "Rp " + (cart[idx].qty * cart[idx].price).toLocaleString('id-ID');
           calculateTotalsOnly();
         });
@@ -400,8 +413,8 @@ export function CreateOrderPage() {
             .from('customers')
             .insert([{ 
               name: selectedCustomer.name,
-              phone: custPhoneInput?.value || null,
-              address: custAddressInput?.value || null
+              phone: selectedCustomer.phone,
+              address: selectedCustomer.address
             }])
             .select();
           if (cErr) throw cErr;
@@ -471,7 +484,29 @@ export function CreateOrderPage() {
   }, 50);
 
   return `
-    <section class="create-order-page">
+    <section class="create-order-page" style="display: flex; flex-direction: column; gap: var(--space-md);">
+      
+      <div id="customer-modal-overlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 5000; justify-content: center; align-items: center; padding: var(--space-md);">
+        <div class="card create-card" style="background: var(--white); border-radius: var(--radius-sm); width: 100%; max-width: 400px; padding: var(--space-lg); box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: var(--space-md);">
+          <div style="border-bottom: 1px solid var(--border); padding-bottom: var(--space-xs);">
+            <strong style="font-size: var(--text-md); color: var(--text);">Lengkapi Customer Baru</strong>
+            <p id="modal-target-cust-name" style="color: var(--orange, #F97316); font-size: var(--text-sm); font-weight: 600; margin-top: 2px;"></p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">No. Telepon</label>
+            <input type="number" inputmode="tel" id="modal-cust-phone" class="input" placeholder="08xxxxxxxx" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Alamat Lengkap</label>
+            <input type="text" id="modal-cust-address" class="input" placeholder="Nama jalan, kota, atau daerah..." />
+          </div>
+          <div style="display: flex; gap: var(--space-sm); justify-content: flex-end; margin-top: var(--space-xs);">
+            <button type="button" id="btn-modal-cancel" class="btn" style="background: #E2E8F0; color: var(--text); border: none; height: 38px; padding: 0 var(--space-md); border-radius: var(--radius-sm); cursor: pointer; font-size: var(--text-xs); font-weight: 600;">Batal</button>
+            <button type="button" id="btn-modal-save" class="btn" style="background: var(--orange, #F97316); color: #fff; border: none; height: 38px; padding: 0 var(--space-md); border-radius: var(--radius-sm); cursor: pointer; font-size: var(--text-xs); font-weight: 600;">Konfirmasi</button>
+          </div>
+        </div>
+      </div>
+
       <div class="card create-card" style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm);">
         <div>
           <label style="font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--text); display: block;">Sample Order Mode</label>
@@ -488,26 +523,10 @@ export function CreateOrderPage() {
           <label class="form-label">Tanggal Transaksi</label>
           <input type="date" class="input" />
         </div>
-        
         <div class="form-group">
           <label class="form-label">Customer</label>
           <input type="text" id="search-customer" class="input" placeholder="Cari nama warung / customer..." autocomplete="off" />
         </div>
-
-        <div id="new-customer-fields" style="display: none; background: #FFF7ED; border: 1px dashed var(--orange, #F97316); padding: var(--space-sm); border-radius: var(--radius-sm); margin-bottom: var(--space-sm);">
-          <span style="font-size: 11px; font-weight: 600; color: var(--orange, #F97316); display: block; margin-bottom: var(--space-xs);">LENGKAPI DATA CUSTOMER BARU:</span>
-          <div class="form-grid-2">
-            <div class="form-group" style="margin: 0;">
-              <label class="form-label" style="font-size: var(--text-xs);">No. Telepon</label>
-              <input type="text" id="new-customer-phone" class="input" placeholder="08xxxxxxxx" style="height: 34px; font-size: var(--text-sm);" />
-            </div>
-            <div class="form-group" style="margin: 0;">
-              <label class="form-label" style="font-size: var(--text-xs);">Alamat Lengkap</label>
-              <input type="text" id="new-customer-address" class="input" placeholder="Nama jalan, kota..." style="height: 34px; font-size: var(--text-sm);" />
-            </div>
-          </div>
-        </div>
-
         <div class="form-group">
           <label class="form-label">Salesman</label>
           <input type="text" id="search-sales" class="input" placeholder="Pilih nama sales..." autocomplete="off" />
@@ -527,6 +546,10 @@ export function CreateOrderPage() {
         <div class="form-group">
           <input type="text" id="search-product" class="input" placeholder="Cari kopi, roastbean, pack..." autocomplete="off" />
         </div>
+      </div>
+
+      <div id="dynamic-cart-container" style="display: flex; flex-direction: column; gap: var(--space-sm);">
+        <div style="text-align: center; padding: var(--space-md); color: var(--text-light); font-style: italic; font-size: var(--text-xs);">Belum ada produk di keranjang</div>
       </div>
 
       <div class="card create-card" style="background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm);">
@@ -554,11 +577,11 @@ export function CreateOrderPage() {
         <div class="form-grid-2">
           <div class="form-group">
             <label class="form-label">Nominal Bayar (Rp)</label>
-            <input type="number" id="input-payment" class="input" placeholder="0" style="text-align: right;" />
+            <input type="number" step="any" inputmode="decimal" id="input-payment" class="input" placeholder="0" style="text-align: right;" />
           </div>
-          <div class="form-grid-2 .form-group">
+          <div class="form-group">
             <label class="form-label">Ongkir (Rp)</label>
-            <input type="number" id="input-shipping" class="input" placeholder="0" style="text-align: right;" />
+            <input type="number" step="any" inputmode="decimal" id="input-shipping" class="input" placeholder="0" style="text-align: right;" />
           </div>
         </div>
       </div>
@@ -570,7 +593,7 @@ export function CreateOrderPage() {
         </div>
       </div>
 
-      <div class="detail-actions" style="display: flex; gap: var(--space-sm); justify-content: flex-end; margin-top: var(--space-md);">
+      <div class="detail-actions" style="display: flex; gap: var(--space-sm); justify-content: flex-end; margin-top: var(--space-md); margin-bottom: var(--space-lg);">
         <button type="button" class="action-btn" style="background: #64748B; color: #fff; padding: 0 var(--space-lg); height: 40px; border: none; border-radius: var(--radius-sm); font-weight: var(--font-medium); cursor: pointer;">
           Draft
         </button>
