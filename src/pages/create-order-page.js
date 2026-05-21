@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: 100% OPERATIONAL - PERFECT CENTER SCREEN MODAL & SMOOTH FADE-IN SECURED! 🚀
+// STATUS: 100% OPERATIONAL - SAMPLE MODE FIXED & CENTER SMOOTH MODAL SECURED! 🚀
 // ==========================================================================
 
 import { supabase } from "../supabaseClient.js";
@@ -81,8 +81,27 @@ export function CreateOrderPage() {
 
     if (dateInput) dateInput.value = today;
 
+    // Logic interaksi runtime toggle gais
+    if (sampleToggle) {
+      sampleToggle.addEventListener("change", (e) => {
+        const slider = e.target.nextElementSibling;
+        if (e.target.checked) {
+          slider.style.backgroundColor = "var(--orange, #F97316)";
+          if (ongkirInput) ongkirInput.value = 0;
+          if (bayarInput) bayarInput.value = 0;
+          if (ongkirInput) ongkirInput.disabled = true;
+          if (bayarInput) bayarInput.disabled = true;
+        } else {
+          slider.style.backgroundColor = "#E2E8F0";
+          if (ongkirInput) ongkirInput.disabled = false;
+          if (bayarInput) bayarInput.disabled = false;
+        }
+        calculateTotalsOnly();
+      });
+    }
+
     // ==========================================================================
-    // 2. LIVE SEARCH & MODAL INTERACTION LISTENERS (SMOOTH TOGGLE)
+    // 2. LIVE SEARCH & MODAL INTERACTION LISTENERS
     // ==========================================================================
     
     // --- CUSTOMER LIVE SEARCH ---
@@ -132,7 +151,6 @@ export function CreateOrderPage() {
           const newName = evt.currentTarget.dataset.name;
           customerFloat.style.display = "none";
           
-          // Buka Pop-up Modal dengan transisi CSS halus gais 🎯
           if (modal) {
             modalCustNameInput.value = newName;
             modalPhone.value = "";
@@ -144,7 +162,6 @@ export function CreateOrderPage() {
       });
     }
 
-    // Event Tutup & Simpan di Dalam Modal Customer (Smooth Close)
     modalCancel?.addEventListener("click", () => { 
       if (modal) {
         modal.style.opacity = "0";
@@ -368,10 +385,11 @@ export function CreateOrderPage() {
     }
 
     function calculateTotalsOnly() {
+      const isSample = sampleToggle?.checked || false;
       const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
-      const shippingCost = parseFloat(ongkirInput?.value) || 0;
-      const grandTotal = subtotalTotal + shippingCost;
-      const paymentAmount = parseFloat(bayarInput?.value) || 0;
+      const shippingCost = isSample ? 0 : (parseFloat(ongkirInput?.value) || 0);
+      const grandTotal = isSample ? 0 : (subtotalTotal + shippingCost);
+      const paymentAmount = isSample ? 0 : (parseFloat(bayarInput?.value) || 0);
       const sisaKembalian = paymentAmount - grandTotal;
 
       if (summarySubtotal) summarySubtotal.textContent = "Rp " + subtotalTotal.toLocaleString('id-ID');
@@ -379,9 +397,13 @@ export function CreateOrderPage() {
       if (summaryTotal) summaryTotal.textContent = "Rp " + grandTotal.toLocaleString('id-ID');
       
       if (summaryChange) {
-        summaryChange.textContent = sisaKembalian >= 0 
-          ? "Rp " + sisaKembalian.toLocaleString('id-ID') + " (Kembalian)" 
-          : "Rp " + Math.abs(sisaKembalian).toLocaleString('id-ID') + " (Kurang)";
+        if (isSample) {
+          summaryChange.textContent = "Rp 0 (Sample Mode)";
+        } else {
+          summaryChange.textContent = sisaKembalian >= 0 
+            ? "Rp " + sisaKembalian.toLocaleString('id-ID') + " (Kembalian)" 
+            : "Rp " + Math.abs(sisaKembalian).toLocaleString('id-ID') + " (Kurang)";
+        }
       }
     }
 
@@ -410,9 +432,10 @@ export function CreateOrderPage() {
       try {
         const orderNo = 'SO-' + today.replace(/-/g, '') + '-' + Date.now().toString().slice(-4);
         const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
-        const shippingCost = parseFloat(ongkirInput?.value) || 0;
-        const grandTotal = subtotalTotal + shippingCost;
-        const payAmount = parseFloat(bayarInput?.value) || 0;
+        const isSample = sampleToggle?.checked || false;
+        const shippingCost = isSample ? 0 : (parseFloat(ongkirInput?.value) || 0);
+        const grandTotal = isSample ? 0 : (subtotalTotal + shippingCost);
+        const payAmount = isSample ? 0 : (parseFloat(bayarInput?.value) || 0);
 
         let finalCustomerId = selectedCustomer.id;
         if (finalCustomerId === 'NEW_CUSTOMER') {
@@ -449,7 +472,7 @@ export function CreateOrderPage() {
             shipping_cost: shippingCost,
             grand_total: grandTotal,
             payment_amount: payAmount,
-            is_sample: sampleToggle?.checked || false,
+            is_sample: isSample,
             status: statusType, 
             notes: catatanInput?.value || null
           }])
@@ -522,10 +545,10 @@ export function CreateOrderPage() {
           <label style="font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--text); display: block;">Sample Order Mode</label>
           <span style="font-size: var(--text-xs); color: var(--text-light); display: block; margin-top: 2px;">Aktifkan untuk pesanan contoh gratis / warung</span>
         </div>
-        <div class="toggle-wrapper" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+        <label class="toggle-wrapper" style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer;">
           <input type="checkbox" id="sample-order-toggle" class="toggle-checkbox" style="position: absolute; opacity: 0; width: 0; height: 0;" />
-          <label for="sample-order-toggle" class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #E2E8F0; transition: .3s; border-radius: 24px;"></label>
-        </div>
+          <span class="toggle-slider" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #E2E8F0; transition: .3s; border-radius: 24px; display: block; pointer-events: none;"></span>
+        </label>
       </div>
 
       <div class="card create-card" style="background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm);">
