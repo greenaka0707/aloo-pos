@@ -50,19 +50,26 @@ export function SampleOutListPage() {
         `;
 
         const { data, error } = await supabase
-          .from("sample_outflows")
-          .select(`
-            id,
-            reference_no,
-            date,
-            customer_name,
-            status,
-            total_amount,
-            created_at
-          `)
-          .order("created_at", {
-            ascending: false
-          });
+
+            .from("sales_orders")
+          
+            .select(`
+              id,
+              invoice_no,
+              order_date,
+              status,
+              net_amount,
+              created_at,
+              customers (
+                name
+              )
+            `)
+          
+            .eq("is_sample", true)
+          
+            .order("created_at", {
+              ascending: false
+            });
 
         if (error) throw error;
 
@@ -110,10 +117,10 @@ export function SampleOutListPage() {
         filtered = filtered.filter(item => {
 
           const customer =
-            item.customer_name?.toLowerCase() || "";
+            item.customers?.name?.toLowerCase() || "";
 
           const ref =
-            item.reference_no?.toLowerCase() || "";
+           item.invoice_no?.toLowerCase() || "";
 
           return (
             customer.includes(searchQuery) ||
@@ -143,24 +150,25 @@ export function SampleOutListPage() {
       // CARD LIST
       container.innerHTML = filtered.map(item => {
 
-        let formattedDate = "-";
+       let formattedDate = "-";
 
-        if (item.date) {
-
-          const d = new Date(item.date);
-
+        if (item.order_date) {
+        
+          const d = new Date(item.order_date);
+        
           const months = [
             "Jan","Feb","Mar","Apr",
             "Mei","Jun","Jul","Agu",
             "Sep","Okt","Nov","Des"
           ];
-
+        
           formattedDate =
             `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+        
         }
 
         const status =
-          item.status?.toLowerCase() || "released";
+           item.status?.toLowerCase() || "sample";
 
 
         return `
@@ -176,7 +184,7 @@ export function SampleOutListPage() {
                 <div class="order-title-group">
 
                   <h3>
-                    ${item.customer_name || "Tanpa Customer"}
+                    ${item.customers?.name || "Tanpa Customer"}
                   </h3>
 
                 </div>
@@ -184,7 +192,7 @@ export function SampleOutListPage() {
                 <span
                   class="modern-status ${status}"
                 >
-                  ${item.status || "Released"}
+                  ${item.status || "Sample"}
                 </span>
 
               </div>
@@ -200,7 +208,7 @@ export function SampleOutListPage() {
                 "
               >
                 <span>
-                  ${item.reference_no || "-"}
+                 ${item.invoice_no || "-"}
                 </span>
               
                 <span>•</span>
@@ -215,7 +223,7 @@ export function SampleOutListPage() {
               <div class="order-bottom-row">
 
                 <strong class="order-total">
-                  Rp ${Number(item.total_amount || 0)
+                  Rp ${Number(item.net_amount || 0)
                     .toLocaleString("id-ID")}
                 </strong>
 
@@ -250,13 +258,13 @@ export function SampleOutListPage() {
             }
 
             localStorage.setItem(
-              "selected_sample_out_id",
+              "selected_order_id",
               sampleId.toString()
             );
 
             if (window.navigate) {
               window.navigate(
-                "sample-out-detail"
+                "order-detail"
               );
             }
 
@@ -345,22 +353,24 @@ export function SampleOutListPage() {
         <button class="filter-chip active">
           Semua
         </button>
-
+      
         <button class="filter-chip">
-          Released
+          Sample
         </button>
-
-        <button class="filter-chip">
-          Void
-        </button>
-
+      
       </div>
 
       <div class="data-list"></div>
 
       <button
         class="fab-btn"
-        onclick="window.navigate('create-sample-out')"
+        onclick="
+            localStorage.setItem(
+              'auto_sample_mode',
+              'true'
+            );
+              window.navigate('create-order');
+            "
       >
         <i data-lucide="plus"></i>
       </button>
