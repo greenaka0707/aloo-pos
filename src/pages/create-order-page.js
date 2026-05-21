@@ -1,13 +1,20 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
+// STATUS: FULL FIXED & PROTECTED
 // ==========================================================================
 
-// 1. PASTIKAN EXPORT FUNCTION INI MEMBUNGKUS KODE KAMU
 export function CreateOrderPage(container) {
+  
+  // ==========================================================================
+  // RUNTIME SAFE GUARD (Mencegah Error 'querySelector of undefined')
+  // ==========================================================================
+  if (!container) {
+    console.error("Gagal memuat halaman: Elemen 'container' tidak ditemukan atau undefined!");
+    return; // Berhenti dengan aman tanpa merusak aplikasi
+  }
 
   // ==========================================================================
   // DEPENDENCIES & GLOBAL VARIABLES CHECK
-  // (Pastikan variabel di bawah ini sudah di-define di luar atau gunakan nilai yang ada)
   // ==========================================================================
   const today = new Date().toISOString().split('T')[0];
   const dateInput = container.querySelector("#order-date");
@@ -59,6 +66,7 @@ export function CreateOrderPage(container) {
     } else {
       if (summaryCard) summaryCard.style.display = "block";
       if (paymentCard) paymentCard.style.display = "block";
+      // Tampilan manufacturingCard dikembalikan pengaturannya ke calculateTotalsOnly()
     }
   }
 
@@ -68,29 +76,32 @@ export function CreateOrderPage(container) {
   function calculateTotalsOnly() {
     let needsProduction = false;
 
-    cart.forEach((item) => {
-      const validQty = parseFloat(item.qty) || 0;
-      if (
-        !isSampleOrder &&
-        item.category !== "greenbean" &&
-        validQty > item.stock
-      ) {
-        needsProduction = true;
-      }
-    });
+    // Pastikan variabel array 'cart' tersedia secara global
+    if (typeof cart !== "undefined" && Array.isArray(cart)) {
+      cart.forEach((item) => {
+        const validQty = parseFloat(item.qty) || 0;
+        if (
+          !isSampleOrder &&
+          item.category !== "greenbean" &&
+          validQty > item.stock
+        ) {
+          needsProduction = true;
+        }
+      });
+    }
 
     if (manufacturingCard) {
       manufacturingCard.style.display = (needsProduction && !isSampleOrder) ? "block" : "none";
     }
 
     if (!needsProduction) {
-      bomCart = [];
+      if (typeof bomCart !== "undefined") bomCart = [];
       if (typeof renderBomCartStructure === "function") renderBomCartStructure();
     }
 
-    const subtotalTotal = cart.reduce((acc, item) => {
-      return acc + ((parseFloat(item.qty) || 0) * (parseFloat(item.price) || 0));
-    }, 0);
+    const subtotalTotal = (typeof cart !== "undefined") 
+      ? cart.reduce((acc, item) => acc + ((parseFloat(item.qty) || 0) * (parseFloat(item.price) || 0)), 0)
+      : 0;
 
     const ongkirVal = parseFloat(ongkirInput?.value || 0);
     const payVal = parseFloat(bayarInput?.value || 0);
@@ -117,7 +128,7 @@ export function CreateOrderPage(container) {
   async function handleSubmitOrder() {
     if (isSubmitting) return;
     
-    if (cart.length === 0) {
+    if (typeof cart === "undefined" || cart.length === 0) {
       alert("Keranjang masih kosong!");
       return;
     }
@@ -137,8 +148,11 @@ export function CreateOrderPage(container) {
       const finalBayar = isSampleOrder ? 0 : (parseFloat(bayarInput?.value) || 0);
       const finalTotal = isSampleOrder ? 0 : cart.reduce((acc, item) => acc + ((parseFloat(item.qty) || 0) * (parseFloat(item.price) || 0)), 0);
 
+      // Ambil objek customer global jika ada
+      const currentCustomer = typeof selectedCustomer !== "undefined" ? selectedCustomer : null;
+
       const orderPayload = {
-        customer_id: selectedCustomer?.id || null,
+        customer_id: currentCustomer?.id || null,
         order_date: dateInput?.value || today,
         note: catatanInput?.value || "",
         is_sample: isSampleOrder, 
@@ -147,6 +161,11 @@ export function CreateOrderPage(container) {
         amount_paid: finalBayar,
         status: isSampleOrder ? "completed" : "pending" 
       };
+
+      // Pastikan objek koneksi 'supabase' di-import/tersedia secara global
+      if (typeof supabase === "undefined") {
+        throw new Error("Koneksi database (Supabase) tidak ditemukan!");
+      }
 
       const { data: orderData, error: orderError } = await supabase
         .from("orders")
@@ -172,7 +191,7 @@ export function CreateOrderPage(container) {
 
       alert("Pesanan berhasil disimpan!");
       
-      cart = [];
+      if (typeof cart !== "undefined") cart = [];
       isSampleOrder = false;
       if (sampleToggle) sampleToggle.checked = false;
       
@@ -186,7 +205,7 @@ export function CreateOrderPage(container) {
     }
   }
 
-  // Bind fungsi submit ke tombol eksternal kamu jika diperlukan
+  // Bind fungsi submit ke tombol aksi simpan order
   const submitBtn = container.querySelector("#btn-simpan-order");
   if (submitBtn) {
     submitBtn.addEventListener("click", handleSubmitOrder);
