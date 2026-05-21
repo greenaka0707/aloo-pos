@@ -162,13 +162,9 @@ export function SampleOutListPage() {
         const status =
           item.status?.toLowerCase() || "released";
 
-        let cardStyle = "";
+        
 
-        if (status === "released") {
-
-          cardStyle =
-            "background:#FFF7ED;border-left:4px solid #F97316;";
-        }
+       
 
         else if (status === "void") {
 
@@ -178,8 +174,7 @@ export function SampleOutListPage() {
 
         return `
           <div
-            class="list-card modern-order-card"
-            style="${cardStyle}"
+           class="list-card modern-order-card"
           >
 
             <div class="order-card-left">
@@ -209,16 +204,15 @@ export function SampleOutListPage() {
               </p>
 
               <!-- DATE -->
-              <p
-                class="text-xs text-light"
+             <p
+                class="order-ref"
                 style="
-                  margin-top:4px;
+                  margin-top:2px;
                   font-size:11px;
                 "
               >
                 ${formattedDate}
               </p>
-
               <!-- BOTTOM -->
               <div class="order-bottom-row">
 
