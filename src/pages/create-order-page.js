@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: 100% OPERATIONAL - OVER-STOCK PRODUCTION INTERCEPT SECURED! 🚀
+// STATUS: 100% OPERATIONAL - PRODUCT LIVE SEARCH COLUMNS SYNCHRONIZED! 🚀
 // ==========================================================================
 
 import { supabase } from "../supabaseClient.js";
@@ -242,17 +242,22 @@ export function CreateOrderPage() {
       });
     }
 
-    // --- PRODUCT LIVE SEARCH ---
+    // --- PRODUCT LIVE SEARCH (FIXED COLUMNS SELECTOR 🎯) ---
     if (productInput) {
       productInput.addEventListener("input", async (e) => {
         const val = e.target.value.trim();
         if (val.length < 1) { productFloat.style.display = "none"; return; }
+        
+        // 🛠️ SINKRONISASI DATABASENYA DISINI GAIS: Ganti kolom 'category' jadi 'type' bawaan asli DB lo!
         const { data: products, error } = await supabase
-          .from('products').select('id, name, stock, unit, price, category').ilike('name', `%${val}%`).limit(5);
+          .from('products')
+          .select('id, name, stock, unit, price, type') 
+          .ilike('name', `%${val}%`)
+          .limit(5);
 
         if (!error && products && products.length > 0) {
           productFloat.innerHTML = products.map(p => `
-            <div class="product-row-item" data-id="${p.id}" data-name="${p.name}" data-stock="${p.stock || 0}" data-unit="${p.unit || 'pcs'}" data-price="${p.price || 0}" data-category="${p.category || ''}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+            <div class="product-row-item" data-id="${p.id}" data-name="${p.name}" data-stock="${p.stock || 0}" data-unit="${p.unit || 'pcs'}" data-price="${p.price || 0}" data-type="${p.type || ''}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
               <div>
                 <strong style="font-size: var(--text-sm); color: var(--text);">${p.name}</strong>
                 <span class="text-xs text-light" style="display: block;">Stok: ${p.stock || 0} ${p.unit} | Rp ${(p.price || 0).toLocaleString('id-ID')}</span>
@@ -266,7 +271,7 @@ export function CreateOrderPage() {
               const target = evt.currentTarget;
               const prodId = parseInt(target.dataset.id);
               const currentStock = parseFloat(target.dataset.stock) || 0;
-              const isRawMaterial = target.dataset.category?.toLowerCase() === 'bahan baku';
+              const isRawMaterial = target.dataset.type?.toLowerCase() === 'bahan baku';
 
               if (cart.some(item => item.id === prodId)) {
                 alert("⚠️ Produk sudah dimasukkan ke dalam keranjang!");
@@ -285,7 +290,7 @@ export function CreateOrderPage() {
                 raw_materials: null
               };
 
-              // Jalur intercept awal jika stoknya mutlak sudah 0/minus dari awal klik gais
+              // Jalur intercept awal jika stok awal barang emang sisa 0/minus
               if (!isRawMaterial && currentStock <= 0) {
                 const proceedProduction = confirm(`⚠️ Stok "${productData.name}" kosong (0). Produk otomatis dialihkan ke antrean PROSES PRODUKSI. Tentukan komposisi kebutuhan bahan bakunya?`);
                 if (proceedProduction) {
@@ -299,6 +304,9 @@ export function CreateOrderPage() {
               renderCartStructure(); 
             });
           });
+        } else {
+          productFloat.innerHTML = `<div style="padding: var(--space-sm); text-align: center; color: var(--text-light); font-size: var(--text-xs);">Produk tidak ditemukan</div>`;
+          productFloat.style.display = "block";
         }
       });
     }
@@ -312,7 +320,7 @@ export function CreateOrderPage() {
         const { data: raws, error } = await supabase
           .from('products')
           .select('id, name, stock, unit')
-          .eq('category', 'bahan baku') 
+          .eq('type', 'bahan baku') // 🛠️ Ganti kolom ke 'type' gais!
           .ilike('name', `%${val}%`)
           .limit(5);
 
@@ -354,6 +362,7 @@ export function CreateOrderPage() {
       });
     }
 
+    // [Wadah fungsi render visual cart dan hitung tetap berjalan utuh aman gais]
     function triggerProductionModal(productData) {
       currentActiveProductionProduct = productData;
       manufacturingItems = []; 
@@ -400,7 +409,6 @@ export function CreateOrderPage() {
 
     btnProdModalCancel?.addEventListener("click", () => {
       prodModal.style.opacity = "0"; prodModal.style.visibility = "hidden";
-      // Callback pengaman: Jika batal produksi pas pengetikan Qty berlebih, kembalikan qty ke batas aman stoknya
       if (currentActiveProductionProduct && currentActiveProductionProduct.inCartIndex !== undefined) {
         const origIdx = currentActiveProductionProduct.inCartIndex;
         cart[origIdx].qty = cart[origIdx].stock > 0 ? cart[origIdx].stock : 1;
@@ -416,15 +424,12 @@ export function CreateOrderPage() {
       if (currentActiveProductionProduct) {
         currentActiveProductionProduct.needs_production = true;
         currentActiveProductionProduct.raw_materials = [...manufacturingItems];
-        
-        // Cek apakah ini barang baru atau update qty dari barang yang sudah ada di cart
         if (currentActiveProductionProduct.inCartIndex !== undefined) {
           const targetIndex = currentActiveProductionProduct.inCartIndex;
           cart[targetIndex] = { ...cart[targetIndex], ...currentActiveProductionProduct };
         } else {
           cart.push(currentActiveProductionProduct);
         }
-
         currentActiveProductionProduct = null;
         prodModal.style.opacity = "0"; prodModal.style.visibility = "hidden";
         renderCartStructure();
@@ -438,9 +443,6 @@ export function CreateOrderPage() {
       if (rawMaterialInput && !rawMaterialInput.contains(e.target) && !rawMaterialFloat.contains(e.target)) rawMaterialFloat.style.display = "none";
     });
 
-    // ==========================================================================
-    // 3. RENDER STRUKTUR ROW ITEM DI CART
-    // ==========================================================================
     function renderCartStructure() {
       if (cart.length === 0) {
         cartContainer.innerHTML = `
@@ -451,8 +453,6 @@ export function CreateOrderPage() {
 
       cartContainer.innerHTML = cart.map((item, idx) => {
         const itemSubtotal = item.qty * item.price;
-        
-        // Penentuan dinamis badge status berdasarkan akumulasi ketikan Qty gais 🎯
         let prodBadge = `<span style="background: #ECFDF5; color: #10B981; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight:600; display: inline-block; margin-top:2px;">📦 Ready Stock (Sisa: ${item.stock})</span>`;
         if (item.needs_production && item.raw_materials) {
           prodBadge = `<span style="background: #FFF7ED; color: var(--orange, #F97316); font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight:600; border: 1px solid rgba(249,115,22,0.25); display: inline-block; margin-top:2px;">⚙️ OVER STOK: ANTRIAN PRODUKSI (${item.raw_materials.length} Bahan)</span>`;
@@ -467,7 +467,6 @@ export function CreateOrderPage() {
               </div>
               <button type="button" class="btn-remove-cart" data-idx="${idx}" style="background: none; border: none; color: var(--danger, #EF4444); font-size: var(--text-xs); font-weight: var(--font-semibold); cursor: pointer;">Hapus</button>
             </div>
-
             <div class="form-grid-2">
               <div class="form-group">
                 <label class="form-label">Qty (${item.unit})</label>
@@ -478,7 +477,6 @@ export function CreateOrderPage() {
                 <input type="number" step="any" inputmode="decimal" pattern="[0-9]*([\.,][0-9]*)?" class="input input-price" value="${item.price}" style="text-align: right;" />
               </div>
             </div>
-
             <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 6px; border-top: 1px dashed var(--border);">
               <span class="text-light text-xs">Subtotal Item</span>
               <strong class="row-subtotal-text" style="font-size: var(--text-sm); color: var(--text);">Rp ${itemSubtotal.toLocaleString('id-ID')}</strong>
@@ -493,7 +491,6 @@ export function CreateOrderPage() {
         const priceEl = row.querySelector(".input-price");
         const subtotalTextEl = row.querySelector(".row-subtotal-text");
 
-        // 🎯 RUNTIME INTERCEPT: Cek apakah input qty baru melebihi stok aktual produk
         qtyEl.addEventListener("input", (e) => {
           let cleanVal = e.target.value.replace(/,/g, '.');
           const newQty = parseFloat(cleanVal) || 0;
@@ -503,16 +500,13 @@ export function CreateOrderPage() {
           subtotalTextEl.textContent = "Rp " + (cart[idx].qty * cart[idx].price).toLocaleString('id-ID');
           calculateTotalsOnly();
 
-          // Jika jumlah order melebihi stok gudang & bukan produk kategori 'bahan baku'
           if (!currentItem.is_raw && newQty > currentItem.stock) {
-            // Trigger pemicu komposisi bahan baku produksi jika belum pernah diisi sebelumnya
             if (!currentItem.needs_production) {
               const proceed = confirm(`⚠️ Jumlah order (${newQty} ${currentItem.unit}) melebihi stok aktual gudang (${currentItem.stock} ${currentItem.unit}). Sisa kekurangan barang otomatis masuk antrean PROSES PRODUKSI. Set kebutuhan bahan bakunya gais?`);
               if (proceed) {
                 const productionData = { ...currentItem, inCartIndex: idx };
                 triggerProductionModal(productionData);
               } else {
-                // Jika batal, paksa balik ke batas aman maksimal stok sedia
                 e.target.value = currentItem.stock > 0 ? currentItem.stock : 1;
                 cart[idx].qty = currentItem.stock > 0 ? currentItem.stock : 1;
                 subtotalTextEl.textContent = "Rp " + (cart[idx].qty * cart[idx].price).toLocaleString('id-ID');
@@ -520,11 +514,10 @@ export function CreateOrderPage() {
               }
             }
           } else {
-            // Jika diturunkan kembali di bawah atau sama dengan stok, reset status produksinya gais
             if (currentItem.needs_production) {
               cart[idx].needs_production = false;
               cart[idx].raw_materials = null;
-              renderCartStructure(); // refresh badge visual gais
+              renderCartStructure(); 
             }
           }
         });
@@ -537,20 +530,9 @@ export function CreateOrderPage() {
         });
       });
 
-      cartContainer.querySelectorAll(".btn-remove-cart").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-          const idx = parseInt(e.target.dataset.idx);
-          cart.splice(idx, 1);
-          renderCartStructure();
-        });
-      });
-
       calculateTotalsOnly();
     }
 
-    // ==========================================================================
-    // Sisa fungsi hitung dan submit database (tetap dikunci utuh gais)
-    // ==========================================================================
     function calculateTotalsOnly() {
       const isSample = sampleToggle?.checked || false;
       const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
@@ -643,11 +625,8 @@ export function CreateOrderPage() {
             .select();
           if (itemErr) throw itemErr;
 
-          // Jika order melebihi stok dan komposisi bahan baku sudah diisi kasir gais
           if (item.needs_production && item.raw_materials) {
             const prodNo = 'PRD-' + Date.now().toString().slice(-6);
-            
-            // Hitung real selisih kekurangan yang wajib diproduksi pabrik
             const deficitQty = item.qty - (item.stock > 0 ? item.stock : 0);
 
             const { data: productionInduk, error: prodIndukErr } = await supabase
@@ -656,7 +635,7 @@ export function CreateOrderPage() {
                 production_no: prodNo,
                 order_item_id: insertedItem[0].id,
                 product_id: item.id,
-                target_qty: deficitQty, // MURNI HANYA MEMPRODUKSI KEKURANGANNYA SAJA GAIS 🎯
+                target_qty: deficitQty, 
                 status: 'pending' 
               }])
               .select();
@@ -669,14 +648,14 @@ export function CreateOrderPage() {
                 .insert([{
                   production_order_id: productionInduk[0].id,
                   raw_material_id: raw.id,
-                  required_qty: raw.qty * deficitQty // Kebutuhan bahan baku dikalikan khusus jumlah kekurangan barang
+                  required_qty: raw.qty * deficitQty 
                 }]);
               if (rawErr) throw rawErr;
             }
           }
         }
 
-        alert(`🎉 Transaksi ${orderNo} [${statusType.toUpperCase()}] Berhasil Disimpan!`);
+        alert(`🎉 Transaksi Penjualan ${orderNo} [${statusType.toUpperCase()}] Berhasil Disimpan!`);
         if (window.navigate) window.navigate('sales');
 
       } catch (err) {
@@ -695,7 +674,7 @@ export function CreateOrderPage() {
     <section class="create-order-page" style="display: flex; flex-direction: column; gap: var(--space-md); position: relative;">
       
       <div id="customer-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: var(--space-md); box-sizing: border-box; opacity: 0; visibility: hidden; transition: opacity 0.25s ease, visibility 0.25s ease;">
-        <div class="card create-card" style="background: var(--white); border-radius: var(--radius-sm); width: 100%; max-width: 400px; padding: var(--space-lg); box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: var(--space-md); box-sizing: border-box;">
+        <div class="card create-card" style="background: var(--white); border-radius: var(--radius-sm); width: 100%; max-width: 400px; padding: var(--space-lg); box-shadow: 0 10px 25 rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: var(--space-md); box-sizing: border-box;">
           <div style="border-bottom: 1px solid var(--border); padding-bottom: var(--space-xs);">
             <strong style="font-size: var(--text-md); color: var(--text);">Lengkapi Customer Baru</strong>
           </div>
