@@ -3,6 +3,8 @@ import StockAdjustmentPage from "../pages/StockAdjustmentPage.js"; // ✔️ FIX
 import { DashboardPage } from "../pages/dashboard.js";
 
 import { SampleOutListPage } from "../pages/SampleOutListPage.js";
+import { SampleOutDetailPage }
+from "../pages/SampleOutDetailPage.js";
 
 import { OrderListPage } from "../pages/order-list-page.js";
 import { OrderDetailPage } from "../pages/order-detail-page.js";
@@ -75,6 +77,9 @@ export function renderRoute(route) {
 
     case "sample-out":
       return SampleOutListPage();
+
+    case "sample-out-detail":
+      return SampleOutDetailPage();
 
     case "order-detail":
       return OrderDetailPage();
