@@ -1,10 +1,11 @@
-import StockAdjustmentPage from "../pages/StockAdjustmentPage.js"; // ✔️ FIX: Mengubah 'Import' menjadi 'import' huruf kecil
+// ==========================================================================
+// FILE: src/router/index.js (FULL FIXED VERSION)
+// ==========================================================================
 
+import StockAdjustmentPage from "../pages/StockAdjustmentPage.js"; 
 import { DashboardPage } from "../pages/dashboard.js";
-
 import { SampleOutListPage } from "../pages/SampleOutListPage.js";
-import { SampleOutDetailPage }
-from "../pages/SampleOutDetailPage.js";
+import { SampleOutDetailPage } from "../pages/SampleOutDetailPage.js";
 
 import { OrderListPage } from "../pages/order-list-page.js";
 import { OrderDetailPage } from "../pages/order-detail-page.js";
@@ -20,30 +21,30 @@ import { PurchaseListPage } from "../pages/purchase-list-page.js";
 import { PurchaseDetailPage } from "../pages/purchase-detail-page.js";
 import { CreatePurchasePage } from "../pages/create-purchase-page.js";
 
-// 💸 SUNTIKAN JALUR PAGE BARU: IMPORT HALAMAN PIUTANG USAHA TRIAL LO GAIS
 import DebtsPage from "../pages/DebtsPage.js"; 
-
-// 2. PERBAIKAN UTAMA: Mengubah named import {} menjadi default import (tanpa {})
 import ProductPage from "../pages/ProductPage.js"; 
 
-// 🕵️ 3. SUNTIKAN: IMPORT COMPONENT LAYAR PIN IPHONE LO GAIS
 import { PinLock } from "../components/PinLock.js";
 import { supabase } from "../supabaseClient.js";
 
-export function renderRoute(route) {
+// ==========================================================================
+// CENTRAL CONTAINER FINDER
+// Mendapatkan root element aplikasi tunggal (SPA) gais
+// ==========================================================================
+function getAppContainer() {
+  // Mencari id="app", jika tidak ada gunakan id="content", atau fallback ke body
+  return document.getElementById("app") || document.getElementById("content") || document.body;
+}
 
+export function renderRoute(route) {
   // ==========================================================================
-  // 🕵️ INTERCEPTOR ENGINE PIN ACCESS (PENCEGAT ROUTER MULTIKUNCI GAIS)
+  // 🕵️ INTERCEPTOR ENGINE PIN ACCESS
   // ==========================================================================
   const isUnlocked = sessionStorage.getItem("app_unlocked");
 
   if (!isUnlocked) {
-    // Paksa render layar iPhone Lockscreen duluan gais!
     return PinLock(() => {
-      // Callback ketika sukses tembus PIN:
       sessionStorage.setItem("app_unlocked", "true");
-      
-      // Begitu PIN cocok, langsung pemicu reload navigasi balik ke dashboard gais!
       if (window.navigate) {
         window.navigate("dashboard");
       } else {
@@ -52,91 +53,94 @@ export function renderRoute(route) {
     });
   }
 
+  // Ambil instance container aktif sebelum masuk ke mapping halaman
+  const container = getAppContainer();
+
   // ==========================================================================
-  // CORE APP ROUTER MAP (JALUR ROUTE ASLI TRANS PARAN LO)
+  // CORE APP ROUTER MAP - DENGAN SUNTIKAN CONTAINER AMAN 🚀
   // ==========================================================================
   switch (route) {
     
     /* =========================
-       🛠️ INVENTORY ADJUSTMENT (PENYESUAIAN STOK GUDANG)
+       🛠️ INVENTORY ADJUSTMENT
     ========================= */
     case "penyesuaian-stok":
-      return StockAdjustmentPage();
+      return StockAdjustmentPage(container);
 
     /* =========================
        DASHBOARD
     ========================= */
     case "dashboard":
-      return DashboardPage();
+      return DashboardPage(container);
 
     /* =========================
        ORDER & SAMPEL
     ========================= */
     case "order":
-      return OrderListPage();
+      return OrderListPage(container);
 
     case "sample-out":
-      return SampleOutListPage();
+      return SampleOutListPage(container);
 
     case "sample-out-detail":
-      return SampleOutDetailPage();
-
+      return SampleOutDetailPage(container);
 
     case "order-detail":
-      return OrderDetailPage();
+      return OrderDetailPage(container);
 
     case "create-order":
-      return CreateOrderPage();
+      // ✔️ FIX UTAMA: Sekarang container aman disuntikkan ke dalam kurung fungsi gais!
+      return CreateOrderPage(container); 
 
     /* =========================
        PRODUKSI
     ========================= */
     case "produksi":
-      return ProduksiListPage();
+      return ProduksiListPage(container);
 
     case "produksi-detail":
-      return ProduksiDetailPage();
+      return ProduksiDetailPage(container);
 
     /* =========================
        STOCK
     ========================= */
     case "stok":
-      return StockPage();
+      return StockPage(container);
 
     case "stock-detail":
-      return StockDetailPage();
+      return StockDetailPage(container);
 
     /* =========================
        PURCHASE
     ========================= */
     case "pembelian":
-      return PurchaseListPage();
+      return PurchaseListPage(container);
 
     case "purchase-detail":
-      return PurchaseDetailPage();
+      return PurchaseDetailPage(container);
 
     case "create-purchase":
-      return CreatePurchasePage();
+      return CreatePurchasePage(container);
 
     /* =========================
        MASTER PRODUK
     ========================= */
     case "produk":
-      return ProductPage();
+      return ProductPage(container);
 
     /* =========================
-       💸 ACCOUNTS RECEIVABLE (PIUTANG TRIAL)
+       💸 ACCOUNTS RECEIVABLE (PIUTANG)
     ========================= */
     case "piutang":
-      return DebtsPage();
+      return DebtsPage(container);
 
     default:
-      return DashboardPage();
+      return DashboardPage(container);
   }
 }
 
 // ==========================================================================
-// 🔔 ENGINE NOTIFIKASI REALTIME: SINKRONISASI NOTA BARU MASUK GLOBAL GAIS
+// 🔔 ENGINE NOTIFIKASI REALTIME
 // ==========================================================================
 let isNotificationInitialized = false;
 
@@ -149,14 +153,13 @@ function listenToNewOrdersRealtime() {
     .on(
       'postgres_changes',
       {
-        event: 'INSERT', // Menangkap murni baris order baru masuk gais
+        event: 'INSERT',
         schema: 'public',
         table: 'sales_orders'
       },
       (payload) => {
         const newOrder = payload.new;
         
-        // 1. Trigger Efek Suara Bell Kasir Ting-Ting Resmi
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx) {
           const oscillator = audioCtx.createOscillator();
@@ -165,8 +168,8 @@ function listenToNewOrdersRealtime() {
           gainNode.connect(audioCtx.destination);
           
           oscillator.type = 'sine';
-          oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Tone 1 (D5)
-          oscillator.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.1); // Tone 2 (A5)
+          oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); 
+          oscillator.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.1); 
           gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
           
@@ -174,7 +177,6 @@ function listenToNewOrdersRealtime() {
           oscillator.stop(audioCtx.currentTime + 0.4);
         }
 
-        // 2. Buat Elemen Pop-up Banner Animasi di Atas Layar HP Lo
         const alertBanner = document.createElement("div");
         alertBanner.style.cssText = `
           position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
@@ -193,7 +195,6 @@ function listenToNewOrdersRealtime() {
           </div>
         `;
 
-        // Inject animasi CSS transisi jika belum terpasang gais
         if (!document.getElementById("notif-anim-style")) {
           const style = document.createElement("style");
           style.id = "notif-anim-style";
@@ -208,7 +209,6 @@ function listenToNewOrdersRealtime() {
 
         document.body.appendChild(alertBanner);
 
-        // Hapus Pop-up otomatis dalam tempo 4 detik
         setTimeout(() => {
           alertBanner.style.opacity = '0';
           alertBanner.style.transition = 'all 0.3s ease';
@@ -219,5 +219,4 @@ function listenToNewOrdersRealtime() {
     .subscribe();
 }
 
-// Nyalakan monitor pengawasan order gais
 listenToNewOrdersRealtime();
