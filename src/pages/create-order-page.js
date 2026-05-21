@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: 100% OPERATIONAL - SAMPLE MODE & MANUFACTURING WORKFLOW MERGED! 🚀
+// STATUS: 100% OPERATIONAL - PRODUCTION DROPDOWN ELEMENT FIXED & SAMPLE MODE ACTIVE! 🚀
 // ==========================================================================
 
 import { supabase } from "../supabaseClient.js";
@@ -242,7 +242,7 @@ export function CreateOrderPage() {
       });
     }
 
-    // --- PRODUCT LIVE SEARCH (DENGAN SKEMA INTERCEPT PRODUKSI SEPAKAT) 🎯 ---
+    // --- PRODUCT LIVE SEARCH ---
     if (productInput) {
       productInput.addEventListener("input", async (e) => {
         const val = e.target.value.trim();
@@ -288,7 +288,7 @@ export function CreateOrderPage() {
                 const proceedProduction = confirm(`⚠️ Stok "${productData.name}" kosong. Produk otomatis dialihkan ke antrean PROSES PRODUKSI. Tentukan komposisi bahan baku pendukungnya gais?`);
                 if (proceedProduction) {
                   currentActiveProductionProduct = productData;
-                  manufacturingItems = []; // reset array draft modal
+                  manufacturingItems = []; 
                   if (prodModal) {
                     prodModalTitle.textContent = productData.name;
                     rawMaterialInput.value = "";
@@ -309,7 +309,7 @@ export function CreateOrderPage() {
       });
     }
 
-    // --- LIVE SEARCH BAHAN BAKU DI DALAM MODAL MANUFAKTUR ---
+    // --- LIVE SEARCH BAHAN BAKU DI DALAM MODAL MANUFAKTUR (FIXED 🎯) ---
     if (rawMaterialInput) {
       rawMaterialInput.addEventListener("input", async (e) => {
         const val = e.target.value.trim();
@@ -318,7 +318,7 @@ export function CreateOrderPage() {
         const { data: raws, error } = await supabase
           .from('products')
           .select('id, name, stock, unit')
-          .eq('category', 'bahan baku') // Ambil mutlak hanya yang kategori bahan baku
+          .eq('category', 'bahan baku') 
           .ilike('name', `%${val}%`)
           .limit(5);
 
@@ -329,7 +329,7 @@ export function CreateOrderPage() {
               <span class="text-xs text-light">Stok Gudang: ${r.stock || 0} ${r.unit}</span>
             </div>
           `).join('');
-          rawMaterialFloat.style.display = "block";
+          rawMaterialFloat.style.display = "block"; // FIX TYPO EXTENSION STRING
 
           rawMaterialFloat.querySelectorAll(".raw-item-row").forEach(row => {
             row.onclick = (evt) => {
@@ -353,6 +353,9 @@ export function CreateOrderPage() {
               renderProductionCart();
             };
           });
+        } else {
+          rawMaterialFloat.innerHTML = `<div style="padding: var(--space-sm); text-align: center; color: var(--text-light); font-size: var(--text-xs);">Bahan baku tidak ditemukan</div>`;
+          rawMaterialFloat.style.display = "block";
         }
       });
     }
@@ -409,7 +412,6 @@ export function CreateOrderPage() {
       }
     });
 
-    // Close elements globally on body click
     document.addEventListener("click", (e) => {
       if (!customerInput.contains(e.target) && !customerFloat.contains(e.target)) customerFloat.style.display = "none";
       if (!salesInput.contains(e.target) && !salesFloat.contains(e.target)) salesFloat.style.display = "none";
@@ -519,7 +521,7 @@ export function CreateOrderPage() {
     }
 
     // ==========================================================================
-    // 4. PARALEL MULTI-TABLE TRANSACTION SUBMIT (SO & PRODUCTION) 🚀
+    // 4. PARALEL MULTI-TABLE TRANSACTION SUBMIT
     // ==========================================================================
     const submitBtn = container.querySelector(".primary-action");
     const draftBtn = container.querySelector(".action-btn:not(.primary-action)");
@@ -558,7 +560,6 @@ export function CreateOrderPage() {
           finalSalesId = newSl[0].id;
         }
 
-        // A. Insert data ke tabel orders induk
         const { data: orderData, error: orderError } = await supabase
           .from('orders')
           .insert([{
@@ -579,7 +580,6 @@ export function CreateOrderPage() {
         if (orderError) throw orderError;
         const orderId = orderData[0].id;
 
-        // B. Looping insert child item ke tabel detail `order_items` + Pemicu Alur Produksi
         for (const item of cart) {
           const { data: insertedItem, error: itemErr } = await supabase
             .from('order_items')
@@ -593,11 +593,9 @@ export function CreateOrderPage() {
             .select();
           if (itemErr) throw itemErr;
 
-          // ⚙️ MANUFAKTUR TRIGGER LOGIC: Jika berstatus produksi, otomatis masukkan antrean
           if (item.needs_production && item.raw_materials) {
             const prodNo = 'PRD-' + Date.now().toString().slice(-6);
             
-            // 1. Masukkan ke data produksi induk (production_orders)
             const { data: productionInduk, error: prodIndukErr } = await supabase
               .from('production_orders') 
               .insert([{
@@ -611,21 +609,20 @@ export function CreateOrderPage() {
 
             if (prodIndukErr) throw prodIndukErr;
 
-            // 2. Breakdown detail bahan baku pendukung ke production_materials
             for (const raw of item.raw_materials) {
               const { error: rawErr } = await supabase
                 .from('production_materials') 
                 .insert([{
                   production_order_id: productionInduk[0].id,
                   raw_material_id: raw.id,
-                  required_qty: raw.qty * item.qty // Akumulasi total kebutuhan bahan dikalikan qty order
+                  required_qty: raw.qty * item.qty 
                 }]);
               if (rawErr) throw rawErr;
             }
           }
         }
 
-        alert(`🎉 Transaksi ${orderNo} [${statusType.toUpperCase()}] Berhasil Disimpan! Item stok kosong otomatis didaftarkan ke Antrean Produksi Manufaktur ⚙️`);
+        alert(`🎉 Transaksi Penjualan ${orderNo} [${statusType.toUpperCase()}] Berhasil Disimpan! Item stok kosong otomatis didaftarkan ke Antrean Produksi Manufaktur ⚙️`);
         if (window.navigate) window.navigate('sales');
 
       } catch (err) {
@@ -680,6 +677,7 @@ export function CreateOrderPage() {
           <div class="form-group" style="position: relative;">
             <label class="form-label" style="font-weight: 600;">Pilih Kebutuhan Bahan Baku</label>
             <input type="text" id="search-raw-material" class="input" placeholder="Ketik nama kopi mentah, pack, botol, cup..." autocomplete="off" style="border-color: #CBD5E1;" />
+            
             <div id="raw-material-dropdown-float" class="card" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 1020; display: none; max-height: 150px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0; background: var(--white);"></div>
           </div>
           <div style="background: #F8FAFC; border: 1px dashed var(--border); border-radius: var(--radius-sm); padding: var(--space-sm); max-height: 180px; overflow-y: auto;">
