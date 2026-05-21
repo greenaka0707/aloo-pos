@@ -415,3 +415,13 @@
   gap: 8px;
   margin-top: 4px;
 }
+
+.modern-status.released {
+  background: rgba(249, 115, 22, 0.12);
+  color: #ea580c;
+}
+
+.modern-status.draft {
+  background: rgba(148, 163, 184, 0.12);
+  color: #64748b;
+}
