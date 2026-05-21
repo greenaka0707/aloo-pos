@@ -3,7 +3,12 @@ import { supabase } from "../supabaseClient.js";
 export default function CreateSampleOutPage() {
 
   let cart = [];
+
   let isSubmitting = false;
+
+  let selectedCustomer = null;
+
+  let selectedSalesman = null;
 
   const today =
     new Date().toISOString().split("T")[0];
@@ -22,11 +27,17 @@ export default function CreateSampleOutPage() {
     const dateInput =
       container.querySelector("#sample-date");
 
-    const receiverInput =
-      container.querySelector("#sample-receiver");
+    const customerInput =
+      container.querySelector("#customer-search");
 
-    const requesterInput =
-      container.querySelector("#sample-requester");
+    const customerFloat =
+      container.querySelector("#customer-floating-list");
+
+    const salesmanInput =
+      container.querySelector("#salesman-search");
+
+    const salesmanFloat =
+      container.querySelector("#salesman-floating-list");
 
     const divisionInput =
       container.querySelector("#sample-division");
@@ -56,187 +67,296 @@ export default function CreateSampleOutPage() {
       container.querySelector(".primary-action");
 
     // ======================================================
-    // INIT DATE
+    // INIT
     // ======================================================
 
-    if (dateInput) {
-      dateInput.value = today;
-    }
+    dateInput.value = today;
+
+    // ======================================================
+    // CUSTOMER SEARCH
+    // ======================================================
+
+    customerInput.addEventListener(
+      "input",
+      async (e) => {
+
+        selectedCustomer = null;
+
+        const val =
+          e.target.value.trim();
+
+        if (!val) {
+
+          customerFloat.style.display =
+            "none";
+
+          return;
+        }
+
+        const {
+          data,
+          error
+        } = await supabase
+          .from("customers")
+          .select(`
+            id,
+            name
+          `)
+          .ilike("name", `%${val}%`)
+          .limit(8);
+
+        if (error || !data) return;
+
+        customerFloat.innerHTML =
+          data.map(c => `
+
+            <div
+              class="floating-item customer-item"
+              data-id="${c.id}"
+              data-name="${c.name}"
+            >
+              ${c.name}
+            </div>
+
+          `).join("");
+
+        customerFloat.style.display =
+          "block";
+
+        customerFloat
+          .querySelectorAll(".customer-item")
+          .forEach(item => {
+
+            item.addEventListener(
+              "click",
+              () => {
+
+                selectedCustomer = {
+
+                  id:
+                    item.dataset.id,
+
+                  name:
+                    item.dataset.name
+
+                };
+
+                customerInput.value =
+                  item.dataset.name;
+
+                customerFloat.style.display =
+                  "none";
+
+              }
+            );
+
+          });
+
+      }
+    );
+
+    // ======================================================
+    // SALESMAN SEARCH
+    // ======================================================
+
+    salesmanInput.addEventListener(
+      "input",
+      async (e) => {
+
+        selectedSalesman = null;
+
+        const val =
+          e.target.value.trim();
+
+        if (!val) {
+
+          salesmanFloat.style.display =
+            "none";
+
+          return;
+        }
+
+        const {
+          data,
+          error
+        } = await supabase
+          .from("salesmen")
+          .select(`
+            id,
+            name
+          `)
+          .ilike("name", `%${val}%`)
+          .limit(8);
+
+        if (error || !data) return;
+
+        salesmanFloat.innerHTML =
+          data.map(s => `
+
+            <div
+              class="floating-item salesman-item"
+              data-id="${s.id}"
+              data-name="${s.name}"
+            >
+              ${s.name}
+            </div>
+
+          `).join("");
+
+        salesmanFloat.style.display =
+          "block";
+
+        salesmanFloat
+          .querySelectorAll(".salesman-item")
+          .forEach(item => {
+
+            item.addEventListener(
+              "click",
+              () => {
+
+                selectedSalesman = {
+
+                  id:
+                    item.dataset.id,
+
+                  name:
+                    item.dataset.name
+
+                };
+
+                salesmanInput.value =
+                  item.dataset.name;
+
+                salesmanFloat.style.display =
+                  "none";
+
+              }
+            );
+
+          });
+
+      }
+    );
 
     // ======================================================
     // PRODUCT SEARCH
     // ======================================================
 
-    if (productInput && productFloat) {
+    productInput.addEventListener(
+      "input",
+      async (e) => {
 
-      productInput.addEventListener(
-        "input",
-        async (e) => {
+        const val =
+          e.target.value.trim();
 
-          const val =
-            e.target.value.trim();
+        if (!val) {
 
-          if (val.length < 1) {
+          productFloat.style.display =
+            "none";
 
-            productFloat.style.display = "none";
-            return;
-          }
-
-          const {
-            data: products,
-            error
-          } = await supabase
-            .from("products")
-            .select(`
-              id,
-              name,
-              stock,
-              unit,
-              cost_price
-            `)
-            .ilike("name", `%${val}%`)
-            .limit(8);
-
-          if (!error && products) {
-
-            productFloat.innerHTML =
-              products.map(p => `
-
-                <div
-                  class="product-row-item"
-                  data-id="${p.id}"
-                  data-name="${p.name}"
-                  data-unit="${p.unit || "pcs"}"
-                  data-price="${p.cost_price || 0}"
-                  style="
-                    padding:12px;
-                    border-bottom:1px solid var(--border);
-                    cursor:pointer;
-                    display:flex;
-                    align-items:center;
-                    justify-content:space-between;
-                    gap:12px;
-                  "
-                >
-
-                  <div>
-
-                    <strong
-                      style="
-                        font-size:14px;
-                        color:var(--text);
-                        display:block;
-                      "
-                    >
-                      ${p.name}
-                    </strong>
-
-                    <span
-                      class="text-xs text-light"
-                    >
-                      Stok:
-                      ${p.stock || 0}
-                      ${p.unit || "pcs"}
-                    </span>
-
-                  </div>
-
-                  <span class="badge badge-primary">
-                    ${p.unit || "pcs"}
-                  </span>
-
-                </div>
-
-              `).join("");
-
-            productFloat.style.display =
-              "block";
-
-            productFloat
-              .querySelectorAll(".product-row-item")
-              .forEach(row => {
-
-                row.addEventListener(
-                  "click",
-                  (evt) => {
-
-                    const target =
-                      evt.currentTarget;
-
-                    const pId =
-                      parseInt(
-                        target.dataset.id
-                      );
-
-                    if (
-                      cart.some(
-                        item => item.id === pId
-                      )
-                    ) {
-
-                      productInput.value = "";
-                      productFloat.style.display =
-                        "none";
-
-                      return;
-                    }
-
-                    cart.push({
-
-                      id: pId,
-
-                      name:
-                        target.dataset.name,
-
-                      unit:
-                        target.dataset.unit,
-
-                      qty: "",
-
-                      price:
-                        parseFloat(
-                          target.dataset.price
-                        ) || 0
-
-                    });
-
-                    renderCart();
-
-                    productInput.value = "";
-
-                    productFloat.style.display =
-                      "none";
-
-                  }
-                );
-
-              });
-
-          }
-
+          return;
         }
-      );
 
-      document.addEventListener(
-        "click",
-        (e) => {
+        const {
+          data,
+          error
+        } = await supabase
+          .from("products")
+          .select(`
+            id,
+            name,
+            stock,
+            unit,
+            price
+          `)
+          .ilike("name", `%${val}%`)
+          .limit(8);
 
-          if (
-            !productInput.contains(e.target) &&
-            !productFloat.contains(e.target)
-          ) {
+        if (error || !data) return;
 
-            productFloat.style.display =
-              "none";
-          }
+        productFloat.innerHTML =
+          data.map(p => `
 
-        }
-      );
+            <div
+              class="floating-item product-item"
+              data-id="${p.id}"
+              data-name="${p.name}"
+              data-unit="${p.unit || "pcs"}"
+              data-price="${p.price || 0}"
+            >
 
-    }
+              <div>
+
+                <strong>
+                  ${p.name}
+                </strong>
+
+                <small>
+                  Stok:
+                  ${p.stock || 0}
+                  ${p.unit || ""}
+                </small>
+
+              </div>
+
+            </div>
+
+          `).join("");
+
+        productFloat.style.display =
+          "block";
+
+        productFloat
+          .querySelectorAll(".product-item")
+          .forEach(item => {
+
+            item.addEventListener(
+              "click",
+              () => {
+
+                const id =
+                  Number(item.dataset.id);
+
+                if (
+                  cart.some(x => x.id === id)
+                ) return;
+
+                cart.push({
+
+                  id,
+
+                  name:
+                    item.dataset.name,
+
+                  unit:
+                    item.dataset.unit,
+
+                  qty: "",
+
+                  price:
+                    Number(
+                      item.dataset.price
+                    )
+
+                });
+
+                renderCart();
+
+                productInput.value = "";
+
+                productFloat.style.display =
+                  "none";
+
+              }
+            );
+
+          });
+
+      }
+    );
 
     // ======================================================
-    // RENDER CART
+    // CART
     // ======================================================
 
     function renderCart() {
@@ -245,15 +365,17 @@ export default function CreateSampleOutPage() {
 
         cartContainer.innerHTML = `
 
-          <div
-            class="card"
-            style="
-              padding:16px;
-              text-align:center;
-              color:var(--text-light);
-            "
-          >
-            Belum ada item sample.
+          <div class="card create-card">
+
+            <div
+              style="
+                text-align:center;
+                color:var(--text-light);
+              "
+            >
+              Belum ada item sample
+            </div>
+
           </div>
 
         `;
@@ -266,13 +388,7 @@ export default function CreateSampleOutPage() {
       cartContainer.innerHTML =
         cart.map((item, idx) => `
 
-          <div
-            class="card"
-            style="
-              padding:14px;
-              margin-bottom:10px;
-            "
-          >
+          <div class="card create-card">
 
             <div
               style="
@@ -280,7 +396,6 @@ export default function CreateSampleOutPage() {
                 align-items:flex-start;
                 justify-content:space-between;
                 gap:12px;
-                margin-bottom:12px;
               "
             >
 
@@ -289,7 +404,6 @@ export default function CreateSampleOutPage() {
                 <strong
                   style="
                     font-size:14px;
-                    color:var(--text);
                   "
                 >
                   ${item.name}
@@ -298,45 +412,47 @@ export default function CreateSampleOutPage() {
               </div>
 
               <button
-                class="btn-remove-item"
+                class="remove-item-btn"
                 data-idx="${idx}"
-                style="
-                  border:none;
-                  background:none;
-                  color:var(--danger);
-                  cursor:pointer;
-                  font-size:12px;
-                  font-weight:600;
-                "
               >
                 Hapus
               </button>
 
             </div>
 
-            <div
-              style="
-                display:grid;
-                grid-template-columns:1fr 90px;
-                gap:10px;
-              "
-            >
+            <div class="form-grid-2">
 
-              <input
-                type="number"
-                inputmode="decimal"
-                class="input item-qty"
-                data-idx="${idx}"
-                placeholder="Qty"
-                value="${item.qty}"
-              />
+              <div class="form-group">
 
-              <input
-                type="text"
-                class="input"
-                readonly
-                value="${item.unit}"
-              />
+                <label class="form-label">
+                  Qty
+                </label>
+
+                <input
+                  type="number"
+                  inputmode="decimal"
+                  class="input item-qty"
+                  data-idx="${idx}"
+                  value="${item.qty}"
+                  placeholder="0"
+                />
+
+              </div>
+
+              <div class="form-group">
+
+                <label class="form-label">
+                  Unit
+                </label>
+
+                <input
+                  type="text"
+                  class="input"
+                  readonly
+                  value="${item.unit}"
+                />
+
+              </div>
 
             </div>
 
@@ -345,29 +461,20 @@ export default function CreateSampleOutPage() {
                 display:flex;
                 align-items:center;
                 justify-content:space-between;
-                margin-top:10px;
-                padding-top:10px;
-                border-top:1px dashed var(--border);
               "
             >
 
-              <span
-                class="text-xs text-light"
-              >
+              <span class="text-xs text-light">
                 Nilai Sample
               </span>
 
               <strong
                 class="item-total"
-                style="
-                  font-size:14px;
-                  color:var(--text);
-                "
               >
                 Rp ${(
-                  (parseFloat(item.qty) || 0)
+                  (Number(item.qty) || 0)
                   *
-                  (parseFloat(item.price) || 0)
+                  (Number(item.price) || 0)
                 ).toLocaleString("id-ID")}
               </strong>
 
@@ -378,7 +485,7 @@ export default function CreateSampleOutPage() {
         `).join("");
 
       // ====================================================
-      // EVENTS
+      // QTY
       // ====================================================
 
       cartContainer
@@ -390,22 +497,39 @@ export default function CreateSampleOutPage() {
             (e) => {
 
               const idx =
-                parseInt(
+                Number(
                   e.target.dataset.idx
                 );
 
               cart[idx].qty =
                 e.target.value;
 
-              renderCart();
+              calculateTotals();
+
+              const card =
+                e.target.closest(".card");
+
+              const totalEl =
+                card.querySelector(".item-total");
+
+              totalEl.textContent =
+                `Rp ${(
+                  (Number(cart[idx].qty) || 0)
+                  *
+                  (Number(cart[idx].price) || 0)
+                ).toLocaleString("id-ID")}`;
 
             }
           );
 
         });
 
+      // ====================================================
+      // REMOVE
+      // ====================================================
+
       cartContainer
-        .querySelectorAll(".btn-remove-item")
+        .querySelectorAll(".remove-item-btn")
         .forEach(btn => {
 
           btn.addEventListener(
@@ -413,7 +537,7 @@ export default function CreateSampleOutPage() {
             (e) => {
 
               const idx =
-                parseInt(
+                Number(
                   e.target.dataset.idx
                 );
 
@@ -431,7 +555,7 @@ export default function CreateSampleOutPage() {
     }
 
     // ======================================================
-    // CALCULATE TOTAL
+    // TOTALS
     // ======================================================
 
     function calculateTotals() {
@@ -440,7 +564,7 @@ export default function CreateSampleOutPage() {
         cart.reduce(
           (acc, item) =>
             acc +
-            (parseFloat(item.qty) || 0),
+            (Number(item.qty) || 0),
           0
         );
 
@@ -449,24 +573,18 @@ export default function CreateSampleOutPage() {
           (acc, item) =>
             acc +
             (
-              (parseFloat(item.qty) || 0)
+              (Number(item.qty) || 0)
               *
-              (parseFloat(item.price) || 0)
+              (Number(item.price) || 0)
             ),
           0
         );
 
-      if (totalQtyText) {
+      totalQtyText.textContent =
+        `${totalQty} item`;
 
-        totalQtyText.textContent =
-          `${totalQty} item`;
-      }
-
-      if (totalText) {
-
-        totalText.textContent =
-          `Rp ${totalAmount.toLocaleString("id-ID")}`;
-      }
+      totalText.textContent =
+        `Rp ${totalAmount.toLocaleString("id-ID")}`;
 
     }
 
@@ -474,172 +592,172 @@ export default function CreateSampleOutPage() {
     // SUBMIT
     // ======================================================
 
-    if (submitBtn) {
+    submitBtn.addEventListener(
+      "click",
+      async () => {
 
-      submitBtn.addEventListener(
-        "click",
-        async () => {
+        if (isSubmitting) return;
 
-          if (isSubmitting) return;
+        if (!selectedCustomer) {
 
-          if (!receiverInput.value.trim()) {
+          alert(
+            "Pilih customer terlebih dahulu"
+          );
 
-            alert(
-              "Penerima sample wajib diisi."
+          return;
+        }
+
+        if (!selectedSalesman) {
+
+          alert(
+            "Pilih requester terlebih dahulu"
+          );
+
+          return;
+        }
+
+        if (!cart.length) {
+
+          alert(
+            "Item sample masih kosong"
+          );
+
+          return;
+        }
+
+        isSubmitting = true;
+
+        submitBtn.disabled = true;
+
+        submitBtn.textContent =
+          "Menyimpan...";
+
+        try {
+
+          const totalAmount =
+            cart.reduce(
+              (acc, item) =>
+                acc +
+                (
+                  (Number(item.qty) || 0)
+                  *
+                  (Number(item.price) || 0)
+                ),
+              0
             );
 
-            return;
-          }
+          const refNo =
+            "SMP-" +
+            today.replace(/-/g, "") +
+            "-" +
+            Date.now()
+              .toString()
+              .slice(-4);
 
-          if (!cart.length) {
+          // ==================================================
+          // HEADER
+          // ==================================================
 
-            alert(
-              "Item sample masih kosong."
-            );
+          const {
+            data: header,
+            error: headerError
+          } = await supabase
+            .from("sample_outflows")
+            .insert([{
 
-            return;
-          }
+              reference_no: refNo,
 
-          isSubmitting = true;
+              date:
+                dateInput.value,
 
-          submitBtn.disabled = true;
+              customer_name:
+                selectedCustomer.name,
 
-          submitBtn.textContent =
-            "Menyimpan...";
+              requester:
+                selectedSalesman.name,
 
-          try {
+              division:
+                divisionInput.value,
 
-            const totalAmount =
-              cart.reduce(
-                (acc, item) =>
-                  acc +
-                  (
-                    (parseFloat(item.qty) || 0)
-                    *
-                    (parseFloat(item.price) || 0)
-                  ),
-                0
-              );
+              purpose:
+                purposeInput.value,
 
-            const refNo =
-              "SMP-" +
-              today.replace(/-/g, "") +
-              "-" +
-              Date.now()
-                .toString()
-                .slice(-4);
+              notes:
+                notesInput.value,
 
-            // ==============================================
-            // HEADER
-            // ==============================================
+              total_amount:
+                totalAmount,
 
-            const {
-              data: header,
-              error: headerError
-            } = await supabase
-              .from("sample_outflows")
-              .insert([{
+              status:
+                "released"
 
-                reference_no: refNo,
+            }])
+            .select()
+            .single();
 
-                date:
-                  dateInput.value || today,
+          if (headerError)
+            throw headerError;
 
-                customer_name:
-                  receiverInput.value,
+          // ==================================================
+          // ITEMS
+          // ==================================================
 
-                requester:
-                  requesterInput.value,
+          const itemPayload =
+            cart.map(item => ({
 
-                division:
-                  divisionInput.value,
+              sample_outflow_id:
+                header.id,
 
-                purpose:
-                  purposeInput.value,
+              product_id:
+                item.id,
 
-                notes:
-                  notesInput.value,
+              qty:
+                Number(item.qty) || 0,
 
-                total_amount:
-                  totalAmount,
+              unit:
+                item.unit
 
-                status: "released"
+            }));
 
-              }])
-              .select()
-              .single();
+          const {
+            error: itemError
+          } = await supabase
+            .from("sample_outflow_items")
+            .insert(itemPayload);
 
-            if (headerError)
-              throw headerError;
+          if (itemError)
+            throw itemError;
 
-            // ==============================================
-            // DETAIL
-            // ==============================================
+          alert(
+            `Sample ${refNo} berhasil dibuat`
+          );
 
-            const itemPayload =
-              cart.map(item => ({
-
-                sample_outflow_id:
-                  header.id,
-
-                product_id:
-                  item.id,
-
-                qty:
-                  parseFloat(item.qty) || 0,
-
-                unit:
-                  item.unit
-
-              }));
-
-            const {
-              error: itemError
-            } = await supabase
-              .from("sample_outflow_items")
-              .insert(itemPayload);
-
-            if (itemError)
-              throw itemError;
-
-            alert(
-              `Sample ${refNo} berhasil disimpan`
-            );
-
-            if (window.navigate) {
-
-              window.navigate(
-                "sample-out"
-              );
-
-            }
-
-          }
-
-          catch (err) {
-
-            alert(
-              "Gagal menyimpan sample: "
-              + err.message
-            );
-
-          }
-
-          finally {
-
-            isSubmitting = false;
-
-            submitBtn.disabled = false;
-
-            submitBtn.textContent =
-              "Simpan Sample";
-
-          }
+          window.navigate("sample-out");
 
         }
-      );
 
-    }
+        catch (err) {
+
+          alert(
+            "Gagal membuat sample: "
+            + err.message
+          );
+
+        }
+
+        finally {
+
+          isSubmitting = false;
+
+          submitBtn.disabled = false;
+
+          submitBtn.textContent =
+            "Simpan Sample";
+
+        }
+
+      }
+    );
 
     renderCart();
 
@@ -647,18 +765,14 @@ export default function CreateSampleOutPage() {
 
   return `
 
-    <section
-      class="create-sample-page"
-      style="
-        padding-bottom:120px;
-      "
-    >
+    <section class="create-sample-page">
 
       <!-- INFO -->
 
       <div class="card create-card">
 
         <div class="form-group">
+
           <label class="form-label">
             Tanggal
           </label>
@@ -668,58 +782,82 @@ export default function CreateSampleOutPage() {
             id="sample-date"
             class="input"
           />
+
         </div>
 
-        <div class="form-group">
+        <!-- CUSTOMER -->
+
+        <div
+          class="form-group"
+          style="position:relative;"
+        >
+
           <label class="form-label">
-            Penerima Sample
+            Customer
           </label>
 
           <input
             type="text"
-            id="sample-receiver"
+            id="customer-search"
             class="input"
-            placeholder="Nama cafe / customer"
+            placeholder="Cari customer..."
+            autocomplete="off"
           />
+
+          <div
+            id="customer-floating-list"
+            class="card floating-list"
+          ></div>
+
         </div>
+
+        <!-- SALESMAN -->
 
         <div
-          style="
-            display:grid;
-            grid-template-columns:1fr 1fr;
-            gap:12px;
-          "
+          class="form-group"
+          style="position:relative;"
         >
 
-          <div class="form-group">
-            <label class="form-label">
-              Requester
-            </label>
+          <label class="form-label">
+            Requester
+          </label>
 
-            <input
-              type="text"
-              id="sample-requester"
-              class="input"
-              placeholder="Nama PIC"
-            />
-          </div>
+          <input
+            type="text"
+            id="salesman-search"
+            class="input"
+            placeholder="Cari sales..."
+            autocomplete="off"
+          />
 
-          <div class="form-group">
-            <label class="form-label">
-              Divisi
-            </label>
-
-            <input
-              type="text"
-              id="sample-division"
-              class="input"
-              placeholder="Marketing"
-            />
-          </div>
+          <div
+            id="salesman-floating-list"
+            class="card floating-list"
+          ></div>
 
         </div>
 
+        <!-- DIVISION -->
+
         <div class="form-group">
+
+          <label class="form-label">
+            Divisi
+          </label>
+
+          <input
+            type="text"
+            id="sample-division"
+            class="input"
+            placeholder="Marketing"
+          />
+
+        </div>
+
+        <!-- PURPOSE -->
+
+        <div class="form-group">
+
           <label class="form-label">
             Tujuan
           </label>
@@ -730,9 +868,13 @@ export default function CreateSampleOutPage() {
             class="input"
             placeholder="Tujuan sample keluar"
           />
+
         </div>
 
+        <!-- NOTES -->
+
         <div class="form-group">
+
           <label class="form-label">
             Catatan
           </label>
@@ -742,68 +884,51 @@ export default function CreateSampleOutPage() {
             class="textarea"
             placeholder="Tambahkan catatan..."
           ></textarea>
+
         </div>
 
       </div>
 
-      <!-- SEARCH PRODUCT -->
+      <!-- PRODUCT -->
 
       <div class="card create-card">
 
         <div
           style="
-            margin-bottom:12px;
+            display:flex;
+            flex-direction:column;
+            gap:2px;
           "
         >
 
-          <h3
-            style="
-              font-size:15px;
-              font-weight:700;
-              margin-bottom:2px;
-            "
-          >
-            Barang Sample
-          </h3>
+          <strong>
+            Create Sample
+          </strong>
 
-          <p
+          <span
             class="text-xs text-light"
           >
             Cari produk untuk ditambahkan
-          </p>
+          </span>
 
         </div>
 
         <div
           class="form-group"
-          style="
-            position:relative;
-          "
+          style="position:relative;"
         >
 
           <input
             type="text"
             id="product-search"
             class="input"
-            placeholder="Cari nama produk..."
+            placeholder="Cari produk..."
             autocomplete="off"
           />
 
           <div
             id="product-floating-list"
-            class="card"
-            style="
-              position:absolute;
-              top:100%;
-              left:0;
-              right:0;
-              z-index:1000;
-              display:none;
-              overflow:hidden;
-              margin-top:4px;
-              max-height:260px;
-              overflow-y:auto;
-            "
+            class="card floating-list"
           ></div>
 
         </div>
@@ -823,22 +948,14 @@ export default function CreateSampleOutPage() {
             display:flex;
             align-items:center;
             justify-content:space-between;
-            margin-bottom:10px;
           "
         >
 
-          <span
-            class="text-sm text-light"
-          >
+          <span class="text-sm text-light">
             Total Item
           </span>
 
-          <strong
-            id="summary-total-qty"
-            style="
-              font-size:14px;
-            "
-          >
+          <strong id="summary-total-qty">
             0 item
           </strong>
 
@@ -852,9 +969,7 @@ export default function CreateSampleOutPage() {
           "
         >
 
-          <span
-            class="font-semibold"
-          >
+          <span class="font-semibold">
             Total Nilai Sample
           </span>
 
@@ -862,7 +977,6 @@ export default function CreateSampleOutPage() {
             id="summary-total"
             style="
               font-size:18px;
-              font-weight:700;
               color:var(--orange);
             "
           >
@@ -875,20 +989,12 @@ export default function CreateSampleOutPage() {
 
       <!-- ACTION -->
 
-      <div
-        class="detail-actions"
-        style="
-          display:flex;
-          gap:12px;
-          margin-top:20px;
-        "
-      >
+      <div class="detail-actions">
 
         <button
           class="btn btn-secondary"
           style="flex:1;"
           onclick="
-            window.navigate &&
             window.navigate('sample-out')
           "
         >
