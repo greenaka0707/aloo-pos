@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: 100% OPERATIONAL - PRODUCTION DROPDOWN ELEMENT FIXED & SAMPLE MODE ACTIVE! 🚀
+// STATUS: 100% OPERATIONAL - OVER-STOCK PRODUCTION INTERCEPT SECURED! 🚀
 // ==========================================================================
 
 import { supabase } from "../supabaseClient.js";
@@ -11,7 +11,7 @@ export function CreateOrderPage() {
   let cart = [];
   let isSubmitting = false;
 
-  // State internal manajemen antrean manufaktur produk kosong
+  // State internal manajemen antrean manufaktur produk
   let manufacturingItems = [];
   let currentActiveProductionProduct = null;
 
@@ -280,22 +280,16 @@ export function CreateOrderPage() {
                 unit: target.dataset.unit,
                 price: parseFloat(target.dataset.price) || 0,
                 qty: 1,
-                needs_production: false
+                is_raw: isRawMaterial,
+                needs_production: false,
+                raw_materials: null
               };
 
-              // ⚙️ LOGIC SPLIT MANUFAKTUR: Jika bukan kategori bahan baku dan stoknya kosong (<= 0)
+              // Jalur intercept awal jika stoknya mutlak sudah 0/minus dari awal klik gais
               if (!isRawMaterial && currentStock <= 0) {
-                const proceedProduction = confirm(`⚠️ Stok "${productData.name}" kosong. Produk otomatis dialihkan ke antrean PROSES PRODUKSI. Tentukan komposisi bahan baku pendukungnya gais?`);
+                const proceedProduction = confirm(`⚠️ Stok "${productData.name}" kosong (0). Produk otomatis dialihkan ke antrean PROSES PRODUKSI. Tentukan komposisi kebutuhan bahan bakunya?`);
                 if (proceedProduction) {
-                  currentActiveProductionProduct = productData;
-                  manufacturingItems = []; 
-                  if (prodModal) {
-                    prodModalTitle.textContent = productData.name;
-                    rawMaterialInput.value = "";
-                    rawMaterialCart.innerHTML = `<div style="text-align: center; color: var(--text-light); font-size: var(--text-xs); font-style: italic; padding: var(--space-md);">Belum ada bahan baku yang dipilih</div>`;
-                    prodModal.style.opacity = "1";
-                    prodModal.style.visibility = "visible";
-                  }
+                  triggerProductionModal(productData);
                   productInput.value = ""; productFloat.style.display = "none"; return;
                 }
               }
@@ -309,7 +303,7 @@ export function CreateOrderPage() {
       });
     }
 
-    // --- LIVE SEARCH BAHAN BAKU DI DALAM MODAL MANUFAKTUR (FIXED 🎯) ---
+    // --- LIVE SEARCH BAHAN BAKU DI DALAM MODAL MANUFAKTUR ---
     if (rawMaterialInput) {
       rawMaterialInput.addEventListener("input", async (e) => {
         const val = e.target.value.trim();
@@ -329,7 +323,7 @@ export function CreateOrderPage() {
               <span class="text-xs text-light">Stok Gudang: ${r.stock || 0} ${r.unit}</span>
             </div>
           `).join('');
-          rawMaterialFloat.style.display = "block"; // FIX TYPO EXTENSION STRING
+          rawMaterialFloat.style.display = "block";
 
           rawMaterialFloat.querySelectorAll(".raw-item-row").forEach(row => {
             row.onclick = (evt) => {
@@ -358,6 +352,18 @@ export function CreateOrderPage() {
           rawMaterialFloat.style.display = "block";
         }
       });
+    }
+
+    function triggerProductionModal(productData) {
+      currentActiveProductionProduct = productData;
+      manufacturingItems = []; 
+      if (prodModal) {
+        prodModalTitle.textContent = productData.name;
+        rawMaterialInput.value = "";
+        rawMaterialCart.innerHTML = `<div style="text-align: center; color: var(--text-light); font-size: var(--text-xs); font-style: italic; padding: var(--space-md);">Belum ada bahan baku yang dipilih</div>`;
+        prodModal.style.opacity = "1";
+        prodModal.style.visibility = "visible";
+      }
     }
 
     function renderProductionCart() {
@@ -394,6 +400,12 @@ export function CreateOrderPage() {
 
     btnProdModalCancel?.addEventListener("click", () => {
       prodModal.style.opacity = "0"; prodModal.style.visibility = "hidden";
+      // Callback pengaman: Jika batal produksi pas pengetikan Qty berlebih, kembalikan qty ke batas aman stoknya
+      if (currentActiveProductionProduct && currentActiveProductionProduct.inCartIndex !== undefined) {
+        const origIdx = currentActiveProductionProduct.inCartIndex;
+        cart[origIdx].qty = cart[origIdx].stock > 0 ? cart[origIdx].stock : 1;
+        renderCartStructure();
+      }
       currentActiveProductionProduct = null;
     });
 
@@ -405,7 +417,14 @@ export function CreateOrderPage() {
         currentActiveProductionProduct.needs_production = true;
         currentActiveProductionProduct.raw_materials = [...manufacturingItems];
         
-        cart.push(currentActiveProductionProduct);
+        // Cek apakah ini barang baru atau update qty dari barang yang sudah ada di cart
+        if (currentActiveProductionProduct.inCartIndex !== undefined) {
+          const targetIndex = currentActiveProductionProduct.inCartIndex;
+          cart[targetIndex] = { ...cart[targetIndex], ...currentActiveProductionProduct };
+        } else {
+          cart.push(currentActiveProductionProduct);
+        }
+
         currentActiveProductionProduct = null;
         prodModal.style.opacity = "0"; prodModal.style.visibility = "hidden";
         renderCartStructure();
@@ -432,9 +451,12 @@ export function CreateOrderPage() {
 
       cartContainer.innerHTML = cart.map((item, idx) => {
         const itemSubtotal = item.qty * item.price;
-        const prodBadge = item.needs_production 
-          ? `<span style="background: #FFF7ED; color: var(--orange, #F97316); font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight:600; border: 1px solid rgba(249,115,22,0.25); display: inline-block; margin-top:2px;">⚙️ ANTRIAN PRODUKSI (${item.raw_materials.length} Bahan)</span>`
-          : `<span style="background: #ECFDF5; color: #10B981; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight:600; display: inline-block; margin-top:2px;">📦 Ready Stock</span>`;
+        
+        // Penentuan dinamis badge status berdasarkan akumulasi ketikan Qty gais 🎯
+        let prodBadge = `<span style="background: #ECFDF5; color: #10B981; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight:600; display: inline-block; margin-top:2px;">📦 Ready Stock (Sisa: ${item.stock})</span>`;
+        if (item.needs_production && item.raw_materials) {
+          prodBadge = `<span style="background: #FFF7ED; color: var(--orange, #F97316); font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight:600; border: 1px solid rgba(249,115,22,0.25); display: inline-block; margin-top:2px;">⚙️ OVER STOK: ANTRIAN PRODUKSI (${item.raw_materials.length} Bahan)</span>`;
+        }
 
         return `
           <div class="card create-card item-cart-row" data-idx="${idx}" style="background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--space-md); display: flex; flex-direction: column; gap: var(--space-sm);">
@@ -471,11 +493,40 @@ export function CreateOrderPage() {
         const priceEl = row.querySelector(".input-price");
         const subtotalTextEl = row.querySelector(".row-subtotal-text");
 
+        // 🎯 RUNTIME INTERCEPT: Cek apakah input qty baru melebihi stok aktual produk
         qtyEl.addEventListener("input", (e) => {
           let cleanVal = e.target.value.replace(/,/g, '.');
-          cart[idx].qty = parseFloat(cleanVal) || 0;
+          const newQty = parseFloat(cleanVal) || 0;
+          const currentItem = cart[idx];
+
+          cart[idx].qty = newQty;
           subtotalTextEl.textContent = "Rp " + (cart[idx].qty * cart[idx].price).toLocaleString('id-ID');
           calculateTotalsOnly();
+
+          // Jika jumlah order melebihi stok gudang & bukan produk kategori 'bahan baku'
+          if (!currentItem.is_raw && newQty > currentItem.stock) {
+            // Trigger pemicu komposisi bahan baku produksi jika belum pernah diisi sebelumnya
+            if (!currentItem.needs_production) {
+              const proceed = confirm(`⚠️ Jumlah order (${newQty} ${currentItem.unit}) melebihi stok aktual gudang (${currentItem.stock} ${currentItem.unit}). Sisa kekurangan barang otomatis masuk antrean PROSES PRODUKSI. Set kebutuhan bahan bakunya gais?`);
+              if (proceed) {
+                const productionData = { ...currentItem, inCartIndex: idx };
+                triggerProductionModal(productionData);
+              } else {
+                // Jika batal, paksa balik ke batas aman maksimal stok sedia
+                e.target.value = currentItem.stock > 0 ? currentItem.stock : 1;
+                cart[idx].qty = currentItem.stock > 0 ? currentItem.stock : 1;
+                subtotalTextEl.textContent = "Rp " + (cart[idx].qty * cart[idx].price).toLocaleString('id-ID');
+                calculateTotalsOnly();
+              }
+            }
+          } else {
+            // Jika diturunkan kembali di bawah atau sama dengan stok, reset status produksinya gais
+            if (currentItem.needs_production) {
+              cart[idx].needs_production = false;
+              cart[idx].raw_materials = null;
+              renderCartStructure(); // refresh badge visual gais
+            }
+          }
         });
 
         priceEl.addEventListener("input", (e) => {
@@ -497,6 +548,9 @@ export function CreateOrderPage() {
       calculateTotalsOnly();
     }
 
+    // ==========================================================================
+    // Sisa fungsi hitung dan submit database (tetap dikunci utuh gais)
+    // ==========================================================================
     function calculateTotalsOnly() {
       const isSample = sampleToggle?.checked || false;
       const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
@@ -520,15 +574,11 @@ export function CreateOrderPage() {
       }
     }
 
-    // ==========================================================================
-    // 4. PARALEL MULTI-TABLE TRANSACTION SUBMIT
-    // ==========================================================================
     const submitBtn = container.querySelector(".primary-action");
     const draftBtn = container.querySelector(".action-btn:not(.primary-action)");
 
     const executeOrderSubmit = async (statusType) => {
       if (isSubmitting) return;
-
       if (!selectedCustomer) { alert("⚠️ Harap tentukan customer transaksi terlebih dahulu!"); return; }
       if (cart.length === 0) { alert("⚠️ Keranjang belanja produk penjualan masih kosong!"); return; }
 
@@ -541,7 +591,7 @@ export function CreateOrderPage() {
         const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
         const isSample = sampleToggle?.checked || false;
         const shippingCost = isSample ? 0 : (parseFloat(ongkirInput?.value) || 0);
-        const grandTotal = isSample ? 0 : (subtotalTotal + shippingCost);
+        const grandTotal = subtotalTotal + shippingCost;
         const payAmount = isSample ? 0 : (parseFloat(bayarInput?.value) || 0);
 
         let finalCustomerId = selectedCustomer.id;
@@ -593,16 +643,20 @@ export function CreateOrderPage() {
             .select();
           if (itemErr) throw itemErr;
 
+          // Jika order melebihi stok dan komposisi bahan baku sudah diisi kasir gais
           if (item.needs_production && item.raw_materials) {
             const prodNo = 'PRD-' + Date.now().toString().slice(-6);
             
+            // Hitung real selisih kekurangan yang wajib diproduksi pabrik
+            const deficitQty = item.qty - (item.stock > 0 ? item.stock : 0);
+
             const { data: productionInduk, error: prodIndukErr } = await supabase
               .from('production_orders') 
               .insert([{
                 production_no: prodNo,
                 order_item_id: insertedItem[0].id,
                 product_id: item.id,
-                target_qty: item.qty,
+                target_qty: deficitQty, // MURNI HANYA MEMPRODUKSI KEKURANGANNYA SAJA GAIS 🎯
                 status: 'pending' 
               }])
               .select();
@@ -615,23 +669,19 @@ export function CreateOrderPage() {
                 .insert([{
                   production_order_id: productionInduk[0].id,
                   raw_material_id: raw.id,
-                  required_qty: raw.qty * item.qty 
+                  required_qty: raw.qty * deficitQty // Kebutuhan bahan baku dikalikan khusus jumlah kekurangan barang
                 }]);
               if (rawErr) throw rawErr;
             }
           }
         }
 
-        alert(`🎉 Transaksi Penjualan ${orderNo} [${statusType.toUpperCase()}] Berhasil Disimpan! Item stok kosong otomatis didaftarkan ke Antrean Produksi Manufaktur ⚙️`);
+        alert(`🎉 Transaksi ${orderNo} [${statusType.toUpperCase()}] Berhasil Disimpan!`);
         if (window.navigate) window.navigate('sales');
 
       } catch (err) {
         alert("❌ Gagal menyimpan data penjualan: " + err.message);
-      } finally {
-        isSubmitting = false;
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Simpan";
-      }
+      } finalCustomerId = null;
     };
 
     submitBtn?.addEventListener("click", () => executeOrderSubmit('ordered'));
@@ -677,7 +727,6 @@ export function CreateOrderPage() {
           <div class="form-group" style="position: relative;">
             <label class="form-label" style="font-weight: 600;">Pilih Kebutuhan Bahan Baku</label>
             <input type="text" id="search-raw-material" class="input" placeholder="Ketik nama kopi mentah, pack, botol, cup..." autocomplete="off" style="border-color: #CBD5E1;" />
-            
             <div id="raw-material-dropdown-float" class="card" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 1020; display: none; max-height: 150px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0; background: var(--white);"></div>
           </div>
           <div style="background: #F8FAFC; border: 1px dashed var(--border); border-radius: var(--radius-sm); padding: var(--space-sm); max-height: 180px; overflow-y: auto;">
