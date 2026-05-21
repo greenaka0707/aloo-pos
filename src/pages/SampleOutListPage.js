@@ -190,20 +190,27 @@ export function SampleOutListPage() {
               </div>
 
               <!-- REF -->
-              <p class="order-ref">
-                ${item.reference_no || "-"}
-              </p>
-
-              <!-- DATE -->
-             <p
+              <div
                 class="order-ref"
                 style="
+                  display:flex;
+                  align-items:center;
+                  gap:8px;
                   margin-top:2px;
-                  font-size:11px;
                 "
               >
-                ${formattedDate}
-              </p>
+                <span>
+                  ${item.reference_no || "-"}
+                </span>
+              
+                <span>•</span>
+              
+                <span>
+                  ${formattedDate}
+                </span>
+              </div>
+
+              
               <!-- BOTTOM -->
               <div class="order-bottom-row">
 
