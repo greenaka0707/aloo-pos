@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: 100% MATCH WITH YOUR NATIVE CSS 🚀
+// STATUS: FORCED RENDER + NATIVE CSS ALIGNMENT (PASTI MUNCUL) 🚀
 // ==========================================================================
 
 export function CreateOrderPage(container) {
@@ -10,86 +10,84 @@ export function CreateOrderPage(container) {
     return;
   }
 
-  // ==========================================================================
-  // INJEKSI UI - MENGIKUTI CLASS CSS NATIVE DI STYLE.CSS KAMU
-  // ==========================================================================
+  // 1. PAKSA CONTAINER UNTUK MENGGUNAKAN CLASS CSS FORM KAMU GAIS
+  // Ini memastikan style .create-order-page dari style.css langsung aktif di root pembungkusnya!
+  container.className = "create-order-page";
+
+  // 2. SUNTIKKAN ISI FORM LANGSUNG KE UTAMA (TANPA DIV PEMBUNGKUS GANDA)
   container.innerHTML = `
-    <div class="create-order-page">
-      
-      <div class="card create-card" style="flex-direction: row; justify-content: space-between; align-items: center;">
-        <div>
-          <label style="font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--text); block">Sample Order Mode</label>
-          <span style="font-size: var(--text-xs); color: var(--text-light); display: block; margin-top: 2px;">Aktifkan untuk pesanan contoh gratis</span>
-        </div>
-        <div class="toggle-wrapper" style="position: relative; inline-block; width: 44px; height: 24px;">
-          <input type="checkbox" id="sample-order-toggle" class="toggle-checkbox" style="position: absolute; opacity: 0; width: 0; height: 0;" />
-          <label for="sample-order-toggle" class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #E2E8F0; transition: .3s; border-radius: 24px;"></label>
-        </div>
+    <div class="card create-card" style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; background: #ffffff; padding: var(--space-md); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+      <div>
+        <label style="font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--text); display: block;">Sample Order Mode</label>
+        <span style="font-size: var(--text-xs); color: var(--text-light); display: block; margin-top: 2px;">Aktifkan untuk pesanan contoh gratis</span>
       </div>
-
-      <div class="card create-card">
-        <div class="form-group">
-          <label class="form-label" for="order-date">Tanggal Pesanan</label>
-          <input type="date" id="order-date" class="input" />
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label" for="order-note">Catatan Internal / Warung</label>
-          <textarea id="order-note" class="textarea" placeholder="Masukkan catatan pesanan di sini..."></textarea>
-        </div>
+      <div class="toggle-wrapper" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+        <input type="checkbox" id="sample-order-toggle" class="toggle-checkbox" style="position: absolute; opacity: 0; width: 0; height: 0;" />
+        <label for="sample-order-toggle" class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #E2E8F0; transition: .3s; border-radius: 24px;"></label>
       </div>
-
-      <div id="manufacturing-analysis-card" class="card create-card" style="background: #FFF7ED; border: 1px solid #FFEDD5; border-radius: var(--radius-sm); display: none;">
-        <div style="display: flex; gap: 8px;">
-          <span style="color: #EA580C; font-weight: bold;">⚠️</span>
-          <div>
-            <strong style="color: #9A3412; font-size: var(--text-sm); display: block;">Butuh Antrean Produksi!</strong>
-            <span style="color: #C2410C; font-size: var(--text-xs); display: block; margin-top: 2px;">Stok roastbean di POS kurang. Sistem otomatis mendaftarkan ke list jadwal produksi gais.</span>
-          </div>
-        </div>
-      </div>
-
-      <div id="summary-card" class="card create-card">
-        <h3 class="form-label" style="text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Rincian Biaya</h3>
-        
-        <div style="display: flex; justify-content: space-between; font-size: var(--text-sm);">
-          <span style="color: var(--text-light);">Subtotal Produk</span>
-          <span id="summary-subtotal" style="font-weight: var(--font-semibold); color: var(--text);">Rp 0</span>
-        </div>
-        
-        <div class="form-grid-2" style="align-items: center;">
-          <span style="color: var(--text-light); font-size: var(--text-sm);">Ongkos Kirim</span>
-          <input type="number" id="order-ongkir" value="0" class="input" style="text-align: right; font-weight: var(--font-semibold);" />
-        </div>
-        
-        <div style="border-top: 1px solid var(--border); margin: 4px 0;"></div>
-        
-        <div style="display: flex; justify-content: space-between; font-size: var(--text-sm);">
-          <span style="color: var(--text-light); font-weight: var(--font-semibold);">Total Tagihan</span>
-          <span id="summary-ongkir" style="font-weight: var(--font-bold); color: var(--text);">Rp 0</span>
-        </div>
-      </div>
-
-      <div id="payment-card" class="card create-card">
-        <div class="form-group">
-          <label class="form-label" for="order-bayar">Nominal Uang Diterima (Bayar)</label>
-          <div style="position: relative; width: 100%;">
-            <span style="position: absolute; left: var(--space-md); top: 50%; transform: translateY(-50%); font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text-light);">Rp</span>
-            <input type="number" id="order-bayar" class="input" style="padding-left: 36px; font-weight: var(--font-bold);" placeholder="0" />
-          </div>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; font-size: var(--text-sm); margin-top: 8px; pt: 4px; border-top: 1px solid var(--border);">
-          <span style="color: var(--text-light);">Sisa / Kembalian</span>
-          <span id="summary-sisa" style="font-weight: var(--font-bold); color: #10B981;">Rp 0</span>
-        </div>
-      </div>
-
-      <button id="btn-simpan-order" style="width: 100%; background: var(--orange); color: var(--white); border: none; border-radius: var(--radius-sm); font-weight: var(--font-bold); padding: var(--space-md) 0; font-size: var(--text-sm); cursor: pointer; transition: var(--transition); box-shadow: 0 4px 12px rgba(249,115,22,0.15);">
-        SIMPAN & PROSES NOTA
-      </button>
-
     </div>
+
+    <div class="card create-card" style="background: #ffffff; padding: var(--space-md); border: 1px solid var(--border); border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: var(--space-md);">
+      <div class="form-group">
+        <label class="form-label" for="order-date">Tanggal Pesanan</label>
+        <input type="date" id="order-date" class="input" style="width: 100%; box-sizing: border-box;" />
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="order-note">Catatan Internal / Warung</label>
+        <textarea id="order-note" class="textarea" style="width: 100%; box-sizing: border-box;" placeholder="Masukkan catatan pesanan di sini..."></textarea>
+      </div>
+    </div>
+
+    <div id="manufacturing-analysis-card" class="card create-card" style="background: #FFF7ED; border: 1px solid #FFEDD5; border-radius: var(--radius-sm); padding: var(--space-md); display: none;">
+      <div style="display: flex; gap: 8px;">
+        <span style="color: #EA580C; font-weight: bold;">⚠️</span>
+        <div>
+          <strong style="color: #9A3412; font-size: var(--text-sm); display: block;">Butuh Antrean Produksi!</strong>
+          <span style="color: #C2410C; font-size: var(--text-xs); display: block; margin-top: 2px;">Stok roastbean di POS kurang. Sistem otomatis mendaftarkan ke list jadwal produksi gais.</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="summary-card" class="card create-card" style="background: #ffffff; padding: var(--space-md); border: 1px solid var(--border); border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: var(--space-md);">
+      <h3 class="form-label" style="text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; padding-left: 0;">Rincian Biaya</h3>
+      
+      <div style="display: flex; justify-content: space-between; font-size: var(--text-sm);">
+        <span style="color: var(--text-light);">Subtotal Produk</span>
+        <span id="summary-subtotal" style="font-weight: var(--font-semibold); color: var(--text);">Rp 0</span>
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: var(--text-sm);">
+        <span style="color: var(--text-light);">Ongkos Kirim</span>
+        <input type="number" id="order-ongkir" value="0" class="input" style="text-align: right; font-weight: var(--font-semibold); width: 120px;" />
+      </div>
+      
+      <div style="border-top: 1px solid var(--border); margin: 4px 0;"></div>
+      
+      <div style="display: flex; justify-content: space-between; font-size: var(--text-sm);">
+        <span style="color: var(--text-light); font-weight: var(--font-semibold);">Total Tagihan</span>
+        <span id="summary-ongkir" style="font-weight: var(--font-bold); color: var(--text);">Rp 0</span>
+      </div>
+    </div>
+
+    <div id="payment-card" class="card create-card" style="background: #ffffff; padding: var(--space-md); border: 1px solid var(--border); border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: var(--space-md);">
+      <div class="form-group">
+        <label class="form-label" for="order-bayar">Nominal Uang Diterima (Bayar)</label>
+        <div style="position: relative; width: 100%;">
+          <span style="position: absolute; left: var(--space-md); top: 50%; transform: translateY(-50%); font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text-light);">Rp</span>
+          <input type="number" id="order-bayar" class="input" style="padding-left: 36px; font-weight: var(--font-bold); width: 100%; box-sizing: border-box;" placeholder="0" />
+        </div>
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; font-size: var(--text-sm); margin-top: 4px; padding-top: 8px; border-t: 1px solid var(--border);">
+        <span style="color: var(--text-light);">Sisa / Kembalian</span>
+        <span id="summary-sisa" style="font-weight: var(--font-bold); color: #10B981;">Rp 0</span>
+      </div>
+    </div>
+
+    <button id="btn-simpan-order" style="width: 100%; background: var(--orange); color: var(--white); border: none; border-radius: var(--radius-sm); font-weight: var(--font-bold); padding: var(--space-md) 0; font-size: var(--text-sm); cursor: pointer; transition: var(--transition); box-shadow: 0 4px 12px rgba(249,115,22,0.15);">
+      SIMPAN & PROSES NOTA
+    </button>
 
     <style>
       .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
@@ -99,7 +97,7 @@ export function CreateOrderPage(container) {
   `;
 
   // ==========================================================================
-  // SELECTOR ELEMENT - SEKARANG MENCOCOKKAN ID DAN CLASS BARU
+  // SELECTOR ELEMENT - MENCARI ELEMENT SECARA AMAN DI DALAM CONTAINER
   // ==========================================================================
   const today = new Date().toISOString().split('T')[0];
   const dateInput = container.querySelector("#order-date");
@@ -118,7 +116,7 @@ export function CreateOrderPage(container) {
   let isSampleOrder = false;
 
   // ==========================================================================
-  // INIT & LISTENERS
+  // INITIALIZATION & LOGIC
   // ==========================================================================
   if (dateInput) dateInput.value = today;
 
@@ -142,8 +140,8 @@ export function CreateOrderPage(container) {
       if (paymentCard) paymentCard.style.display = "none";
       if (manufacturingCard) manufacturingCard.style.display = "none";
     } else {
-      if (summaryCard) summaryCard.style.display = "block";
-      if (paymentCard) paymentCard.style.display = "block";
+      if (summaryCard) summaryCard.style.display = "flex";
+      if (paymentCard) paymentCard.style.display = "flex";
     }
   }
 
@@ -185,10 +183,11 @@ export function CreateOrderPage(container) {
     }
   }
 
+  // Pemicu awal kalkulasi gais
   calculateTotalsOnly();
 
   // ==========================================================================
-  // SUBMIT HANDLER TO SUPABASE
+  // EXECUTOR SUBMIT TO SUPABASE
   // ==========================================================================
   async function handleSubmitOrder() {
     if (isSubmitting) return;
@@ -253,7 +252,7 @@ export function CreateOrderPage(container) {
 
       if (itemsError) throw itemsError;
 
-      alert("Pesanan Berhasil Disimpan!");
+      alert("Pesanan Berhasil Disimpan gais!");
       
       if (typeof cart !== "undefined") cart = [];
       isSampleOrder = false;
