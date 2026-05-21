@@ -2,8 +2,6 @@ import StockAdjustmentPage from "../pages/StockAdjustmentPage.js"; // ✔️ FIX
 
 import { DashboardPage } from "../pages/dashboard.js";
 
-import CreateSampleOutPage
-from "../pages/CreateSampleOutPage.js";
 import { SampleOutListPage } from "../pages/SampleOutListPage.js";
 import { SampleOutDetailPage }
 from "../pages/SampleOutDetailPage.js";
@@ -83,8 +81,6 @@ export function renderRoute(route) {
     case "sample-out-detail":
       return SampleOutDetailPage();
 
-    case "create-sample-out":
-      return CreateSampleOutPage();
 
     case "order-detail":
       return OrderDetailPage();
