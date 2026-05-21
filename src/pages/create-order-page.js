@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: 100% OPERATIONAL - IN-DROPDOWN DYNAMIC ADD BUTTON SECURED! 🚀
+// STATUS: 100% OPERATIONAL - NEW CUSTOMER EXTENDED FIELDS & ORANGE BADGE SECURED! 🚀
 // ==========================================================================
 
 import { supabase } from "../supabaseClient.js";
@@ -27,6 +27,11 @@ export function CreateOrderPage() {
     const productInput = container.querySelector("#search-product");
     const addProductBtn = container.querySelector(".btn-soft");
     
+    // Dynamic Fields for New Customer
+    const newCustFields = container.querySelector("#new-customer-fields");
+    const custPhoneInput = container.querySelector("#new-customer-phone");
+    const custAddressInput = container.querySelector("#new-customer-address");
+
     const detailRows = container.querySelectorAll(".detail-info .detail-row-item strong");
     const summarySubtotal = detailRows[0];
     const summaryOngkir = detailRows[1];
@@ -109,7 +114,6 @@ export function CreateOrderPage() {
           `).join('');
         }
 
-        // Selalu sisipkan opsi "Tambah Baru" di paling bawah dropdown jika nama tidak pas 100%
         htmlContent += `
           <div id="dropdown-add-customer-trigger" data-name="${val}" style="padding: var(--space-sm); background: #F0F9FF; color: #0284C7; cursor: pointer; border-top: 1px solid var(--border); font-size: var(--text-sm); font-weight: var(--font-medium); text-align: center;">
             + Tambah "${val}" Sebagai Customer Baru
@@ -119,22 +123,29 @@ export function CreateOrderPage() {
         customerFloat.innerHTML = htmlContent;
         customerFloat.style.display = "block";
 
-        // Bind event click data existing
         customerFloat.querySelectorAll(".customer-item").forEach(row => {
           row.addEventListener("click", (evt) => {
             const target = evt.currentTarget;
             selectedCustomer = { id: parseInt(target.dataset.id), name: target.dataset.name };
             customerInput.value = target.dataset.name;
             customerFloat.style.display = "none";
+            if (newCustFields) newCustFields.style.display = "none"; // Sembunyikan field tambahan jika pilih data lama
           });
         });
 
-        // Bind event click tambah baru dari dalam dropdown
         customerFloat.querySelector("#dropdown-add-customer-trigger")?.addEventListener("click", (evt) => {
           const newName = evt.currentTarget.dataset.name;
           selectedCustomer = { id: 'NEW_CUSTOMER', name: newName };
-          customerInput.value = newName + " (Baru)";
+          customerInput.value = newName; 
+          
+          // Memunculkan info badge baru kecil warna orange di sebelah label input secara dinamis
+          const label = customerGroup.querySelector(".form-label");
+          if (label) {
+            label.innerHTML = `Customer <span style="color: var(--orange, #F97316); font-size: 11px; font-weight: 600; margin-left: 4px;">(Baru)</span>`;
+          }
+
           customerFloat.style.display = "none";
+          if (newCustFields) newCustFields.style.display = "block"; // Munculkan form no telp & alamat
         });
       });
     }
@@ -161,7 +172,6 @@ export function CreateOrderPage() {
           `).join('');
         }
 
-        // Selalu sisipkan opsi "Tambah Baru" di paling bawah dropdown salesmen
         htmlContent += `
           <div id="dropdown-add-sales-trigger" data-name="${val}" style="padding: var(--space-sm); background: #F0F9FF; color: #0284C7; cursor: pointer; border-top: 1px solid var(--border); font-size: var(--text-sm); font-weight: var(--font-medium); text-align: center;">
             + Tambah "${val}" Sebagai Salesman Baru
@@ -171,7 +181,6 @@ export function CreateOrderPage() {
         salesFloat.innerHTML = htmlContent;
         salesFloat.style.display = "block";
 
-        // Bind event click data existing
         salesFloat.querySelectorAll(".sales-item").forEach(row => {
           row.addEventListener("click", (evt) => {
             const target = evt.currentTarget;
@@ -181,11 +190,16 @@ export function CreateOrderPage() {
           });
         });
 
-        // Bind event click tambah baru dari dalam dropdown
         salesFloat.querySelector("#dropdown-add-sales-trigger")?.addEventListener("click", (evt) => {
           const newName = evt.currentTarget.dataset.name;
           selectedSales = { id: 'NEW_SALES', name: newName };
-          salesInput.value = newName + " (Baru)";
+          salesInput.value = newName;
+
+          const label = salesGroup.querySelector(".form-label");
+          if (label) {
+            label.innerHTML = `Salesman <span style="color: var(--orange, #F97316); font-size: 11px; font-weight: 600; margin-left: 4px;">(Baru)</span>`;
+          }
+
           salesFloat.style.display = "none";
         });
       });
@@ -383,7 +397,13 @@ export function CreateOrderPage() {
         let finalCustomerId = selectedCustomer.id;
         if (finalCustomerId === 'NEW_CUSTOMER') {
           const { data: newCust, error: cErr } = await supabase
-            .from('customers').insert([{ name: selectedCustomer.name }]).select();
+            .from('customers')
+            .insert([{ 
+              name: selectedCustomer.name,
+              phone: custPhoneInput?.value || null,
+              address: custAddressInput?.value || null
+            }])
+            .select();
           if (cErr) throw cErr;
           finalCustomerId = newCust[0].id;
         }
@@ -468,10 +488,26 @@ export function CreateOrderPage() {
           <label class="form-label">Tanggal Transaksi</label>
           <input type="date" class="input" />
         </div>
+        
         <div class="form-group">
           <label class="form-label">Customer</label>
           <input type="text" id="search-customer" class="input" placeholder="Cari nama warung / customer..." autocomplete="off" />
         </div>
+
+        <div id="new-customer-fields" style="display: none; background: #FFF7ED; border: 1px dashed var(--orange, #F97316); padding: var(--space-sm); border-radius: var(--radius-sm); margin-bottom: var(--space-sm);">
+          <span style="font-size: 11px; font-weight: 600; color: var(--orange, #F97316); display: block; margin-bottom: var(--space-xs);">LENGKAPI DATA CUSTOMER BARU:</span>
+          <div class="form-grid-2">
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label" style="font-size: var(--text-xs);">No. Telepon</label>
+              <input type="text" id="new-customer-phone" class="input" placeholder="08xxxxxxxx" style="height: 34px; font-size: var(--text-sm);" />
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label" style="font-size: var(--text-xs);">Alamat Lengkap</label>
+              <input type="text" id="new-customer-address" class="input" placeholder="Nama jalan, kota..." style="height: 34px; font-size: var(--text-sm);" />
+            </div>
+          </div>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Salesman</label>
           <input type="text" id="search-sales" class="input" placeholder="Pilih nama sales..." autocomplete="off" />
