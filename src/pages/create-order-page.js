@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: 100% OPERATIONAL - PRODUCT SEARCH FIXED & VULNERABILITY SECURED! 🚀
+// STATUS: 100% OPERATIONAL - REAL DATABASE SCHEMA SYNCHRONIZED! 🚀
 // ==========================================================================
 
 import { supabase } from "../supabaseClient.js";
@@ -94,7 +94,7 @@ export function CreateOrderPage() {
 
     if (dateInput) dateInput.value = today;
 
-    // Logic interaksi runtime toggle Sample Mode (TETAP AKTIF AMAN)
+    // Logic interaksi runtime toggle Sample Mode
     if (sampleToggle) {
       sampleToggle.addEventListener("change", (e) => {
         const slider = e.target.nextElementSibling;
@@ -242,13 +242,12 @@ export function CreateOrderPage() {
       });
     }
 
-    // --- PRODUCT LIVE SEARCH (FIXED QUERY CLEANUP 🎯) ---
+    // --- PRODUCT LIVE SEARCH ---
     if (productInput) {
       productInput.addEventListener("input", async (e) => {
         const val = e.target.value.trim();
         if (val.length < 1) { productFloat.style.display = "none"; return; }
         
-        // Memakai parameter select dasar yang bersih tanpa pemanggilan kolom eksternal
         const { data: products, error } = await supabase
           .from('products')
           .select('id, name, stock, unit, price')
@@ -288,7 +287,6 @@ export function CreateOrderPage() {
                 raw_materials: null
               };
 
-              // Pemicu manufaktur antrean jika barang ready stock sisa 0 saat pertama kali klik
               if (currentStock <= 0) {
                 const proceedProduction = confirm(`⚠️ Stok "${productData.name}" kosong (0). Produk otomatis dialihkan ke antrean PROSES PRODUKSI. Tentukan komposisi kebutuhan bahan bakunya?`);
                 if (proceedProduction) {
@@ -439,6 +437,9 @@ export function CreateOrderPage() {
       if (rawMaterialInput && !rawMaterialInput.contains(e.target) && !rawMaterialFloat.contains(e.target)) rawMaterialFloat.style.display = "none";
     });
 
+    // ==========================================================================
+    // 3. RENDER STRUKTUR ROW ITEM DI CART (RE-IMPLEMENTED) 🎯
+    // ==========================================================================
     function renderCartStructure() {
       if (cart.length === 0) {
         cartContainer.innerHTML = `
@@ -526,6 +527,14 @@ export function CreateOrderPage() {
         });
       });
 
+      cartContainer.querySelectorAll(".btn-remove-cart").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          const idx = parseInt(e.target.dataset.idx);
+          cart.splice(idx, 1);
+          renderCartStructure();
+        });
+      });
+
       calculateTotalsOnly();
     }
 
@@ -552,6 +561,9 @@ export function CreateOrderPage() {
       }
     }
 
+    // ==========================================================================
+    // 4. MULTI-TABLE INSERT TRANSACTION (MAPPED TO REAL TABLES) 🎯
+    // ==========================================================================
     const submitBtn = container.querySelector(".primary-action");
     const draftBtn = container.querySelector(".action-btn:not(.primary-action)");
 
@@ -565,12 +577,13 @@ export function CreateOrderPage() {
       submitBtn.textContent = "Processing...";
 
       try {
-        const orderNo = 'SO-' + today.replace(/-/g, '') + '-' + Date.now().toString().slice(-4);
         const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
         const isSample = sampleToggle?.checked || false;
         const shippingCost = isSample ? 0 : (parseFloat(ongkirInput?.value) || 0);
         const grandTotal = subtotalTotal + shippingCost;
         const payAmount = isSample ? 0 : (parseFloat(bayarInput?.value) || 0);
+
+        const invoiceNo = 'SO-' + today.replace(/-/g, '') + '-' + Date.now().toString().slice(-4);
 
         let finalCustomerId = selectedCustomer.id;
         if (finalCustomerId === 'NEW_CUSTOMER') {
@@ -588,74 +601,83 @@ export function CreateOrderPage() {
           finalSalesId = newSl[0].id;
         }
 
+        // A. Insert ke tabel induk penjualan aslimu: 'sales_orders'
         const { data: orderData, error: orderError } = await supabase
-          .from('orders')
+          .from('sales_orders')
           .insert([{
-            order_no: orderNo,
+            invoice_no: invoiceNo,
             order_date: dateInput?.value || today,
             customer_id: finalCustomerId,
             salesman_id: finalSalesId,
             total_amount: subtotalTotal,
-            shipping_cost: shippingCost,
-            grand_total: grandTotal,
-            payment_amount: payAmount,
+            net_amount: grandTotal,
+            discount: 0,
+            payment_method: 'Cash',
             is_sample: isSample,
-            status: statusType, 
+            status: statusType === 'draft' ? 'draft' : 'ready', 
             notes: catatanInput?.value || null
           }])
           .select();
 
         if (orderError) throw orderError;
-        const orderId = orderData[0].id;
+        const salesOrderId = orderData[0].id;
 
+        // B. Looping insert child item ke tabel detail aslimu: 'sales_order_items'
         for (const item of cart) {
-          const { data: insertedItem, error: itemErr } = await supabase
-            .from('order_items')
+          const { error: itemErr } = await supabase
+            .from('sales_order_items')
             .insert([{
-              order_id: orderId,
+              sales_order_id: salesOrderId,
               product_id: item.id,
               qty: item.qty,
               unit_price: item.price,
-              subtotal: item.qty * item.price
-            }])
-            .select();
+              total_price: item.qty * item.price
+            }]);
           if (itemErr) throw itemErr;
 
+          // ⚙️ TRIGGER ALUR PRODUKSI: Tembak ke tabel induk aslimu 'productions' & 'production_ingredients'
           if (item.needs_production && item.raw_materials) {
-            const prodNo = 'PRD-' + Date.now().toString().slice(-6);
+            const prodNo = 'PRD-' + today.replace(/-/g, '') + '-' + Date.now().toString().slice(-4);
             const deficitQty = item.qty - (item.stock > 0 ? item.stock : 0);
 
+            // Insert ke tabel manufaktur induk aslimu: 'productions'
             const { data: productionInduk, error: prodIndukErr } = await supabase
-              .from('production_orders') 
+              .from('productions') 
               .insert([{
                 production_no: prodNo,
-                order_item_id: insertedItem[0].id,
+                production_date: today,
                 product_id: item.id,
-                target_qty: deficitQty, 
-                status: 'pending' 
+                qty_produced: deficitQty, 
+                sales_order_id: salesOrderId,
+                notes: 'Auto-generated dari transaksi penjualan nota: ' + invoiceNo
               }])
               .select();
 
             if (prodIndukErr) throw prodIndukErr;
 
+            // Breakdown detail komposisi bahan baku ke tabel anak aslimu: 'production_ingredients'
             for (const raw of item.raw_materials) {
               const { error: rawErr } = await supabase
-                .from('production_materials') 
+                .from('production_ingredients') 
                 .insert([{
-                  production_order_id: productionInduk[0].id,
-                  raw_material_id: raw.id,
-                  required_qty: raw.qty * deficitQty 
+                  production_id: productionInduk[0].id,
+                  material_id: raw.id,
+                  qty_used: raw.qty * deficitQty 
                 }]);
               if (rawErr) throw rawErr;
             }
           }
         }
 
-        alert(`🎉 Transaksi Penjualan ${orderNo} [${statusType.toUpperCase()}] Berhasil Disimpan!`);
+        alert(`🎉 Transaksi Penjualan ${invoiceNo} Berhasil Disimpan!`);
         if (window.navigate) window.navigate('sales');
 
       } catch (err) {
         alert("❌ Gagal menyimpan data penjualan: " + err.message);
+      } finally {
+        isSubmitting = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Simpan";
       }
     };
 
