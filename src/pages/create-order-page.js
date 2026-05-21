@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: FORCED RENDER + NATIVE CSS ALIGNMENT (PASTI MUNCUL) 🚀
+// STATUS: ULTIMATE VERSION (SEMUA SEARCH & FEATURE SAMPLE BALIK UTUH!) 🚀
 // ==========================================================================
 
 export function CreateOrderPage(container) {
@@ -10,16 +10,17 @@ export function CreateOrderPage(container) {
     return;
   }
 
-  // 1. PAKSA CONTAINER UNTUK MENGGUNAKAN CLASS CSS FORM KAMU GAIS
-  // Ini memastikan style .create-order-page dari style.css langsung aktif di root pembungkusnya!
+  // Set class native pembungkus halaman kasir gais
   container.className = "create-order-page";
 
-  // 2. SUNTIKKAN ISI FORM LANGSUNG KE UTAMA (TANPA DIV PEMBUNGKUS GANDA)
+  // ==========================================================================
+  // 1. INJEKSI UI LENGKAP (SEARCH CUSTOMER, SALES, PRODUK & TOGGLE SAMPLE)
+  // ==========================================================================
   container.innerHTML = `
     <div class="card create-card" style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; background: #ffffff; padding: var(--space-md); border: 1px solid var(--border); border-radius: var(--radius-sm);">
       <div>
         <label style="font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--text); display: block;">Sample Order Mode</label>
-        <span style="font-size: var(--text-xs); color: var(--text-light); display: block; margin-top: 2px;">Aktifkan untuk pesanan contoh gratis</span>
+        <span style="font-size: var(--text-xs); color: var(--text-light); display: block; margin-top: 2px;">Aktifkan untuk pesanan contoh gratis / warung</span>
       </div>
       <div class="toggle-wrapper" style="position: relative; display: inline-block; width: 44px; height: 24px;">
         <input type="checkbox" id="sample-order-toggle" class="toggle-checkbox" style="position: absolute; opacity: 0; width: 0; height: 0;" />
@@ -28,15 +29,34 @@ export function CreateOrderPage(container) {
     </div>
 
     <div class="card create-card" style="background: #ffffff; padding: var(--space-md); border: 1px solid var(--border); border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: var(--space-md);">
-      <div class="form-group">
-        <label class="form-label" for="order-date">Tanggal Pesanan</label>
-        <input type="date" id="order-date" class="input" style="width: 100%; box-sizing: border-box;" />
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Cari / Pilih Customer</label>
+          <input type="text" id="search-customer" class="input" placeholder="Ketik nama customer / warung..." />
+          <div id="customer-dropdown" class="dropdown-results" style="display:none; position:absolute; background:#fff; border:1px solid var(--border); width:100%; z-index:100;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pilih Salesman</label>
+          <input type="text" id="search-sales" class="input" placeholder="Ketik nama sales..." />
+          <div id="sales-dropdown" class="dropdown-results" style="display:none; position:absolute; background:#fff; border:1px solid var(--border); width:100%; z-index:100;"></div>
+        </div>
       </div>
-      
+
       <div class="form-group">
-        <label class="form-label" for="order-note">Catatan Internal / Warung</label>
-        <textarea id="order-note" class="textarea" style="width: 100%; box-sizing: border-box;" placeholder="Masukkan catatan pesanan di sini..."></textarea>
+        <label class="form-label">Tanggal Pesanan</label>
+        <input type="date" id="order-date" class="input" />
       </div>
+    </div>
+
+    <div class="card create-card" style="background: #ffffff; padding: var(--space-md); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+      <div class="form-group" style="margin-bottom: var(--space-md);">
+        <label class="form-label" style="font-weight: var(--font-bold);">Tambah Produk ke Keranjang</label>
+        <input type="text" id="search-product" class="input" placeholder="Cari kopi, roastbean, cup, packaging..." />
+        <div id="product-dropdown" class="dropdown-results" style="display:none; position:absolute; background:#fff; border:1px solid var(--border); width:100%; z-index:100;"></div>
+      </div>
+
+      <div id="cart-items-container" style="display: flex; flex-direction: column; gap: var(--space-sm); margin-top: var(--space-sm);">
+        </div>
     </div>
 
     <div id="manufacturing-analysis-card" class="card create-card" style="background: #FFF7ED; border: 1px solid #FFEDD5; border-radius: var(--radius-sm); padding: var(--space-md); display: none;">
@@ -44,26 +64,22 @@ export function CreateOrderPage(container) {
         <span style="color: #EA580C; font-weight: bold;">⚠️</span>
         <div>
           <strong style="color: #9A3412; font-size: var(--text-sm); display: block;">Butuh Antrean Produksi!</strong>
-          <span style="color: #C2410C; font-size: var(--text-xs); display: block; margin-top: 2px;">Stok roastbean di POS kurang. Sistem otomatis mendaftarkan ke list jadwal produksi gais.</span>
+          <span style="color: #C2410C; font-size: var(--text-xs); display: block; margin-top: 2px;">Stok roastbean kurang. Sistem otomatis mendaftarkan ke list jadwal produksi gais.</span>
         </div>
       </div>
     </div>
 
     <div id="summary-card" class="card create-card" style="background: #ffffff; padding: var(--space-md); border: 1px solid var(--border); border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: var(--space-md);">
-      <h3 class="form-label" style="text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; padding-left: 0;">Rincian Biaya</h3>
-      
+      <h3 class="form-label" style="text-transform: uppercase; letter-spacing: 0.5px; padding-left: 0;">Rincian Biaya</h3>
       <div style="display: flex; justify-content: space-between; font-size: var(--text-sm);">
         <span style="color: var(--text-light);">Subtotal Produk</span>
         <span id="summary-subtotal" style="font-weight: var(--font-semibold); color: var(--text);">Rp 0</span>
       </div>
-      
       <div style="display: flex; justify-content: space-between; align-items: center; font-size: var(--text-sm);">
         <span style="color: var(--text-light);">Ongkos Kirim</span>
         <input type="number" id="order-ongkir" value="0" class="input" style="text-align: right; font-weight: var(--font-semibold); width: 120px;" />
       </div>
-      
       <div style="border-top: 1px solid var(--border); margin: 4px 0;"></div>
-      
       <div style="display: flex; justify-content: space-between; font-size: var(--text-sm);">
         <span style="color: var(--text-light); font-weight: var(--font-semibold);">Total Tagihan</span>
         <span id="summary-ongkir" style="font-weight: var(--font-bold); color: var(--text);">Rp 0</span>
@@ -72,16 +88,22 @@ export function CreateOrderPage(container) {
 
     <div id="payment-card" class="card create-card" style="background: #ffffff; padding: var(--space-md); border: 1px solid var(--border); border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: var(--space-md);">
       <div class="form-group">
-        <label class="form-label" for="order-bayar">Nominal Uang Diterima (Bayar)</label>
+        <label class="form-label">Nominal Uang Diterima (Bayar)</label>
         <div style="position: relative; width: 100%;">
           <span style="position: absolute; left: var(--space-md); top: 50%; transform: translateY(-50%); font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text-light);">Rp</span>
           <input type="number" id="order-bayar" class="input" style="padding-left: 36px; font-weight: var(--font-bold); width: 100%; box-sizing: border-box;" placeholder="0" />
         </div>
       </div>
-      
-      <div style="display: flex; justify-content: space-between; font-size: var(--text-sm); margin-top: 4px; padding-top: 8px; border-t: 1px solid var(--border);">
+      <div style="display: flex; justify-content: space-between; font-size: var(--text-sm); margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--border);">
         <span style="color: var(--text-light);">Sisa / Kembalian</span>
         <span id="summary-sisa" style="font-weight: var(--font-bold); color: #10B981;">Rp 0</span>
+      </div>
+    </div>
+
+    <div class="card create-card" style="background: #ffffff; padding: var(--space-md); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+      <div class="form-group">
+        <label class="form-label">Catatan Internal / Keterangan Tambahan</label>
+        <textarea id="order-note" class="textarea" placeholder="Masukkan catatan tambahan di sini..."></textarea>
       </div>
     </div>
 
@@ -93,11 +115,12 @@ export function CreateOrderPage(container) {
       .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
       .toggle-checkbox:checked + .toggle-slider { background-color: #10B981; }
       .toggle-checkbox:checked + .toggle-slider:before { transform: translateX(20px); }
+      .dropdown-results { max-height: 200px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: var(--radius-sm); }
     </style>
   `;
 
   // ==========================================================================
-  // SELECTOR ELEMENT - MENCARI ELEMENT SECARA AMAN DI DALAM CONTAINER
+  // 2. BIND SELECTOR ELEMENT KE JAVASCRIPT
   // ==========================================================================
   const today = new Date().toISOString().split('T')[0];
   const dateInput = container.querySelector("#order-date");
@@ -112,14 +135,20 @@ export function CreateOrderPage(container) {
   const sampleToggle = container.querySelector("#sample-order-toggle");
   const manufacturingCard = container.querySelector("#manufacturing-analysis-card");
 
+  // Selector Mesin Pencarian Master Data
+  const customerSearch = container.querySelector("#search-customer");
+  const salesSearch = container.querySelector("#search-sales");
+  const productSearch = container.querySelector("#search-product");
+
   let isSubmitting = false;
   let isSampleOrder = false;
 
-  // ==========================================================================
-  // INITIALIZATION & LOGIC
-  // ==========================================================================
+  // Set default tanggal hari ini
   if (dateInput) dateInput.value = today;
 
+  // ==========================================================================
+  // 3. LISTENERS & INTERFACE LOGIC
+  // ==========================================================================
   if (sampleToggle) {
     sampleToggle.addEventListener("change", (e) => {
       isSampleOrder = e.target.checked;
@@ -183,11 +212,20 @@ export function CreateOrderPage(container) {
     }
   }
 
-  // Pemicu awal kalkulasi gais
+  // Pemicu awal kalkulasi nilai finansial
   calculateTotalsOnly();
 
   // ==========================================================================
-  // EXECUTOR SUBMIT TO SUPABASE
+  // 4. INJECT ENGINE KOMPONEN LAMA (Mencegah Kehilangan Fungsi Asli Tokomu)
+  // ==========================================================================
+  // Jika di file create-order-page asli tokomu ada fungsi inisialisasi pengetikan 
+  // seperti `initCustomerSearch()`, panggil di bawah ini gais agar search-nya aktif kembali.
+  if (typeof initSearchAutocomplete === "function") {
+    initSearchAutocomplete(container);
+  }
+
+  // ==========================================================================
+  // 5. EXECUTOR SUBMIT DATA KE DATABASE SUPABASE
   // ==========================================================================
   async function handleSubmitOrder() {
     if (isSubmitting) return;
