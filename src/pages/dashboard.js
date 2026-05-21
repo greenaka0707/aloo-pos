@@ -188,6 +188,14 @@ export function DashboardPage() {
             <span>Penjualan</span>
           </div>
 
+          <div class="quick-menu-item" onclick="window.navigate('sample-out')">
+            <div class="quick-menu-icon">
+              <i data-lucide="gift"></i>
+            </div>
+          
+            <span>Sampel</span>
+          </div>
+
           <div class="quick-menu-item" onclick="window.navigate('produksi')">
             <div class="quick-menu-icon"><i data-lucide="factory"></i></div>
             <span>Produksi</span>
