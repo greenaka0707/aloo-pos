@@ -75,14 +75,21 @@ export function OrderListPage() {
         );
       }
 
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <p class="text-light text-xs" style="text-align: center; padding: var(--space-xl);">
-            Tidak ada transaksi sales order yang cocok.
-          </p>
-        `;
-        ;
-      }
+     if (filtered.length === 0) {
+  container.innerHTML = `
+    <p
+      class="text-light text-xs"
+      style="
+        text-align: center;
+        padding: var(--space-xl);
+      "
+    >
+      Tidak ada transaksi sales order yang cocok.
+    </p>
+  `;
+
+  return;
+}
 
       container.innerHTML = filtered.map(order => {
         const totalItems = order.sales_order_items?.length || 0;
@@ -149,7 +156,7 @@ export function OrderListPage() {
 
         <button
           class="order-arrow-btn detail-btn"
-          data-id="${order.id}"
+          data-id="${Number(order.id)}"
         >
           <i data-lucide="arrow-up-right"></i>
         </button>
@@ -163,13 +170,49 @@ export function OrderListPage() {
 
       }).join('');
 
-      container.querySelectorAll(".detail-btn").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-          const orderId = e.target.dataset.id;
-          localStorage.setItem("selected_order_id", orderId);
-          if (window.navigate) window.navigate("order-detail");
-        });
-      });
+  container.querySelectorAll(".detail-btn").forEach(btn => {
+
+  btn.addEventListener("click", () => {
+
+    const orderId = Number(btn.dataset.id);
+
+    // VALIDASI ID
+    if (!orderId || isNaN(orderId)) {
+      console.error("ID Order tidak valid");
+      return;
+    }
+
+    // SIMPAN
+    localStorage.setItem(
+      "selected_order_id",
+      orderId.toString()
+    );
+
+    // NAVIGATE
+    if (
+  orderId &&
+  !isNaN(orderId) &&
+  window.navigate
+) {
+
+  console.log("OPEN DETAIL ORDER:", orderId);
+
+  window.navigate("order-detail");
+
+} else {
+
+  console.error(
+    "Gagal buka detail. ID invalid:",
+    orderId
+  );
+
+  alert("ID Order tidak valid");
+
+}
+
+  });
+
+});
 
       if (window.lucide) window.lucide.createIcons();
     }
