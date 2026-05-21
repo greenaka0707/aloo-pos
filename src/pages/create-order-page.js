@@ -1,6 +1,6 @@
 // ==========================================================================
 // FILE: src/pages/create-order-page.js
-// STATUS: 100% OPERATIONAL & VITE BUILD VULNERABILITY FIXED! 🚀
+// STATUS: 100% OPERATIONAL - SYNCHRONIZED WITH 'salesmen' TABLE SCHEMA! 🚀
 // ==========================================================================
 
 import { supabase } from "../supabaseClient.js";
@@ -141,14 +141,19 @@ export function CreateOrderPage() {
           salesFloat.style.display = "none";
           return;
         }
-        const { data: employees, error } = await supabase
-          .from('employees').select('id, name').ilike('name', `%${val}%`).limit(5);
+        
+        // 🛠️ FIX TABEL: Tembak tabel 'salesmen' sesuai database asli lo gais!
+        const { data: salesmen, error } = await supabase
+          .from('salesmen')
+          .select('id, name, sales_code, area_tugas')
+          .ilike('name', `%${val}%`)
+          .limit(5);
 
-        if (!error && employees && employees.length > 0) {
-          salesFloat.innerHTML = employees.map(s => `
+        if (!error && salesmen && salesmen.length > 0) {
+          salesFloat.innerHTML = salesmen.map(s => `
             <div class="float-row-item" data-id="${s.id}" data-name="${s.name}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer;">
               <strong style="font-size: var(--text-sm); display: block; color: var(--text);">${s.name}</strong>
-              <span class="text-xs text-light">Karyawan / Sales Team</span>
+              <span class="text-xs text-light">${s.sales_code || 'No Code'} - ${s.area_tugas || 'Sales Team'}</span>
             </div>
           `).join('');
           salesFloat.style.display = "block";
@@ -233,7 +238,7 @@ export function CreateOrderPage() {
     });
 
     // ==========================================================================
-    // 3. RENDER STRUKTUR ROW ITEM DI CART (FIXED SINTAKS VITE PARSER) 🎯
+    // 3. RENDER STRUKTUR ROW ITEM DI CART
     // ==========================================================================
     function renderCartStructure() {
       if (cart.length === 0) {
@@ -242,7 +247,6 @@ export function CreateOrderPage() {
         return;
       }
 
-      // Memastikan pembuatan template string bersih dari tabrakan interpretasi literal inline-style
       cartContainer.innerHTML = cart.map((item, idx) => {
         const itemSubtotal = item.qty * item.price;
         return `
@@ -364,8 +368,11 @@ export function CreateOrderPage() {
 
         let finalSalesId = selectedSales ? selectedSales.id : null;
         if (finalSalesId === 'NEW_SALES') {
+          // 🛠️ FIX SCHEMA: Insert baru ke tabel 'salesmen' dengan kolom 'area_tugas'
           const { data: newSl, error: sErr } = await supabase
-            .from('employees').insert([{ name: selectedSales.name }]).select();
+            .from('salesmen')
+            .insert([{ name: selectedSales.name, area_tugas: 'Tim Lapangan / Salesman', status: 'aktif' }])
+            .select();
           if (sErr) throw sErr;
           finalSalesId = newSl[0].id;
         }
