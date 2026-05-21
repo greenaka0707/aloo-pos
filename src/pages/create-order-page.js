@@ -228,10 +228,7 @@ if (!selectedCustomer) {
 
 }
 
-if (
-  !isSampleOrder &&
-  !selectedSalesman
-) {
+if (!selectedSalesman) {
 
   alert(
     "⚠️ Harap pilih salesman terlebih dahulu!"
@@ -252,11 +249,7 @@ if (
 const finalOrderStatus =
   isSampleOrder
     ? 'sample'
-    : (
-        autoNeedsProduction
-          ? 'butuh produksi'
-          : 'pending'
-      );
+    : 'pending';
 
 const finalNetAmount =
   subtotalTotal + shippingCost;
@@ -297,14 +290,14 @@ const {
         ? subtotalTotal
         : finalNetAmount,
 
-    payment_method:
-      isSampleOrder
-        ? 'SAMPLE'
-        : (
-            payAmount >= finalNetAmount
-              ? 'QRIS'
-              : 'Cash'
-          ),
+   payment_method:
+  isSampleOrder
+    ? 'Cash'
+    : (
+        payAmount >= finalNetAmount
+          ? 'QRIS'
+          : 'Cash'
+      ),
 
     status:
       finalOrderStatus,
