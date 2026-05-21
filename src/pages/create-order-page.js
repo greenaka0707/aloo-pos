@@ -14,29 +14,32 @@ export function CreateOrderPage() {
 
   const today = new Date().toISOString().split('T')[0];
 
-  setTimeout(async () => {
+ setTimeout(async () => {
     const container = document.querySelector(".create-order-page");
     if (!container) return;
 
-    // Capture elemen DOM kontrol utama
+    // ==========================================================================
+    // FIX CAPTURE DOM ELEMENT - DIJAMIN KETANGKAP & TIDAK BLANK RESIKO MENTAL 🚀
+    // ==========================================================================
     const dateInput = container.querySelector("input[type='date']");
     const customerInput = container.querySelector("#search-customer");
     const salesInput = container.querySelector("#search-sales");
     const productInput = container.querySelector("#search-product");
     const addProductBtn = container.querySelector(".btn-soft");
     
-    // Ringkasan Biaya & Pembayaran dari DOM
-    const summarySubtotal = container.querySelector(".detail-info .detail-row-item:nth-child(1) strong");
-    const summaryOngkir = container.querySelector(".detail-info .detail-row-item:nth-child(2) strong");
-    const summaryTotal = container.querySelector(".detail-info .detail-row-item:nth-child(3) strong");
-    const summaryChange = container.querySelector(".detail-info .detail-row-item:nth-child(4) strong");
+    // Ambil element strong untuk update ringkasan biaya secara presisi
+    const detailRows = container.querySelectorAll(".detail-info .detail-row-item strong");
+    const summarySubtotal = detailRows[0];
+    const summaryOngkir = detailRows[1];
+    const summaryTotal = detailRows[2];
+    const summaryChange = detailRows[3];
     
     const ongkirInput = container.querySelector("#input-shipping");
     const bayarInput = container.querySelector("#input-payment");
     const catatanInput = container.querySelector(".textarea");
     const sampleToggle = container.querySelector("#sample-order-toggle");
 
-    // Container dinamis untuk menyisipkan list belanjaan kasir
+    // Container dinamis untuk list belanjaan
     const subtotalCard = container.querySelector(".detail-info").closest(".create-card");
     
     let cartContainer = container.querySelector("#dynamic-cart-container");
