@@ -1,5 +1,5 @@
 // ==========================================================================
-// FILE: src/router/index.jsx (MURNI REACT VERSION - REALTIME INTEGRATED)
+// FILE: src/router/index.jsx (MURNI REACT VERSION - ULTRA CLEAN ROUTE)
 // ==========================================================================
 
 import React, { useState, useEffect } from "react";
@@ -10,13 +10,13 @@ import BottomNav from "../components/BottomNav.jsx";
 import { PinLock } from "../components/PinLock.js"; // Dipanggil jika belum unlock
 import { supabase } from "../supabaseClient.js";
 
-// IMPORT PAGES (Koreksi jalur file .jsx baru gais!)
+// IMPORT PAGES (Murni Menggunakan Format .jsx Baru Gais!)
 import StockAdjustmentPage from "../pages/StockAdjustmentPage.js";
-import DashboardPage from "../pages/DashboardPage.jsx"; // 🔥 UPDATE: Jalur React Murni
+import DashboardPage from "../pages/DashboardPage.jsx"; // 🔥 FIX SINKRONISASI PASALCASE
 import { SampleOutListPage } from "../pages/SampleOutListPage.js";
 import { SampleOutDetailPage } from "../pages/SampleOutDetailPage.js";
-import OrderListPage from "../pages/OrderListPage.jsx"; // 🔥 UPDATE: Jalur React Murni
-import OrderDetailPage from "../pages/OrderDetailPage.jsx"; // 🔥 UPDATE: Jalur React Murni
+import OrderListPage from "../pages/OrderListPage.jsx"; 
+import OrderDetailPage from "../pages/OrderDetailPage.jsx"; 
 import CreateOrderPage from "../pages/CreateOrderPage.jsx"; 
 import { ProduksiListPage } from "../pages/produksi-list-page.js";
 import { ProduksiDetailPage } from "../pages/produksi-detail-page.js";
