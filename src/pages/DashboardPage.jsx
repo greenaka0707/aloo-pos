@@ -118,12 +118,20 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <section className="dashboard-page p-4 space-y-5 pb-24">
+    <section 
+      className="dashboard-page p-4 space-y-5"
+      style={{
+        maxHeight: "calc(100vh - 65px)", // 🔥 LOCK TINGGI: Cegah halaman menendang BottomNav luar gais
+        overflowY: "auto",                // 🔥 AKTIFKAN SCROLL INTERNAL
+        WebkitOverflowScrolling: "touch", // 👍 Bikin scrolling di iPhone/Android super smooth
+        paddingBottom: "40px"            // Beri nafas ruang di atas BottomNav
+      }}
+    >
       
       {/* CARD HERO ATAS */}
       <div className="dashboard-hero-card bg-orange-500 rounded-3xl p-5 text-white shadow-lg shadow-orange-500/10 cursor-pointer" onClick={() => navigate("/sales")}>
         <div className="dashboard-hero-top flex items-center gap-4 mb-5">
-          <div className="hero-icon bg-white/20 p-3 rounded-2xl">
+          <div className="hero-icon bg-white/20 p-3 rounded-2xl flex items-center justify-center">
             <TrendingUp size={24} />
           </div>
           <div>
@@ -156,47 +164,47 @@ export default function DashboardPage() {
         <div className="quick-actions-layout grid grid-cols-3 gap-3">
           
           <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/pembelian")}>
-            <div className="quick-menu-icon text-zinc-600"><ShoppingBag size={20} /></div>
+            <div className="quick-menu-icon text-zinc-600 flex items-center justify-center w-6 h-6"><ShoppingBag size={20} /></div>
             <span className="text-xs text-zinc-700 font-medium">Pembelian</span>
           </div>
 
           <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/sales")}>
-            <div className="quick-menu-icon text-zinc-600"><ShoppingCart size={20} /></div>
+            <div className="quick-menu-icon text-zinc-600 flex items-center justify-center w-6 h-6"><ShoppingCart size={20} /></div>
             <span className="text-xs text-zinc-700 font-medium">Penjualan</span>
           </div>
 
           <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/sample-out")}>
-            <div className="quick-menu-icon text-zinc-600"><Gift size={20} /></div>
+            <div className="quick-menu-icon text-zinc-600 flex items-center justify-center w-6 h-6"><Gift size={20} /></div>
             <span className="text-xs text-zinc-700 font-medium">Sampel</span>
           </div>
 
           <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/manufacturing")}>
-            <div className="quick-menu-icon text-zinc-600"><Factory size={20} /></div>
+            <div className="quick-menu-icon text-zinc-600 flex items-center justify-center w-6 h-6"><Factory size={20} /></div>
             <span className="text-xs text-zinc-700 font-medium">Produksi</span>
           </div>
 
           <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/inventory")}>
-            <div className="quick-menu-icon text-zinc-600"><Package size={20} /></div>
+            <div className="quick-menu-icon text-zinc-600 flex items-center justify-center w-6 h-6"><Package size={20} /></div>
             <span className="text-xs text-zinc-700 font-medium">Stock</span>
           </div>
 
           <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/penyesuaian-stok")}>
-            <div className="quick-menu-icon text-zinc-600"><Sliders size={20} /></div>
+            <div className="quick-menu-icon text-zinc-600 flex items-center justify-center w-6 h-6"><Sliders size={20} /></div>
             <span className="text-xs text-zinc-700 font-medium">Adj Stok</span>
           </div>
 
           <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/produk")}>
-            <div className="quick-menu-icon text-zinc-600"><Boxes size={20} /></div>
+            <div className="quick-menu-icon text-zinc-600 flex items-center justify-center w-6 h-6"><Boxes size={20} /></div>
             <span className="text-xs text-zinc-700 font-medium">Produk</span>
           </div>
 
           <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/piutang")}>
-            <div className="quick-menu-icon text-zinc-600"><CreditCard size={20} /></div>
+            <div className="quick-menu-icon text-zinc-600 flex items-center justify-center w-6 h-6"><CreditCard size={20} /></div>
             <span className="text-xs text-zinc-700 font-medium">Piutang</span>
           </div>
 
           <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/laporan")}>
-            <div className="quick-menu-icon text-zinc-600"><BarChart3 size={20} /></div>
+            <div className="quick-menu-icon text-zinc-600 flex items-center justify-center w-6 h-6"><BarChart3 size={20} /></div>
             <span className="text-xs text-zinc-700 font-medium">Laporan</span>
           </div>
 
@@ -208,7 +216,7 @@ export default function DashboardPage() {
         <h3 className="text-sm font-bold text-zinc-800 px-1">Prioritas Hari Ini</h3>
         <div className="card dashboard-priority-card bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm space-y-3">
           <div className="priority-head flex items-center gap-3">
-            <div className="priority-icon-box bg-red-50 text-red-500 p-2.5 rounded-xl">
+            <div className="priority-icon-box bg-red-50 text-red-500 p-2.5 rounded-xl flex items-center justify-center">
               <AlertTriangle size={18} />
             </div>
             <div>
