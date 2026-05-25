@@ -11,8 +11,8 @@ import { PinLock } from "../components/PinLock.js"; // Dipanggil jika belum unlo
 import { supabase } from "../supabaseClient.js";
 
 // IMPORT PAGES (Murni Menggunakan Format .jsx Baru Gais!)
-import StockAdjustmentPage from "../pages/StockAdjustmentPage.js";
-import DashboardPage from "../pages/DashboardPage.jsx";
+import StockAdjustmentPage from "../pages/StockAdjustmentPage.js";o
+import { DashboardPage } from "../pages/DashboardPage.jsx"; // 🔥 TAMBAHKAN KURUNG KURAWAL BIAR FLEXIBLE READING CACHING GAIS
 import { SampleOutListPage } from "../pages/SampleOutListPage.js";
 import { SampleOutDetailPage } from "../pages/SampleOutDetailPage.js";
 import OrderListPage from "../pages/OrderListPage.jsx"; 
