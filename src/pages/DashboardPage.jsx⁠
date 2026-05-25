@@ -1,0 +1,273 @@
+// ==========================================================================
+// FILE: src/pages/DashboardPage.jsx (MURNI REACT VERSION - SUPABASE STATETIME)
+// ==========================================================================
+
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient.js";
+import {
+  TrendingUp,
+  ShoppingBag,
+  ShoppingCart,
+  Gift,
+  Factory,
+  Package,
+  Sliders,
+  Boxes,
+  CreditCard,
+  BarChart3,
+  AlertTriangle
+} from "lucide-react";
+
+export default function DashboardPage() {
+  const navigate = useNavigate();
+
+  // ==========================================================================
+  // STATE MANAGEMENT DATA DASBOR GAIS
+  // ==========================================================================
+  const [omzetToday, setOmzetToday] = useState(0);
+  const [orderCountToday, setOrderCountToday] = useState(0);
+  const [pendingCountToday, setPendingCountToday] = useState(0);
+  
+  const [totalPendingAllTime, setTotalPendingAllTime] = useState(0);
+  const [totalDiprosesAllTime, setTotalDiprosesAllTime] = useState(0);
+  const [totalReadyAllTime, setTotalReadyAllTime] = useState(0);
+  
+  const [activeProdCount, setActiveProdCount] = useState(0);
+  const [lowStockItems, setLowStockItems] = useState([]);
+  const [isLoadingStock, setIsLoadingStock] = useState(true);
+
+  // ==========================================================================
+  // EFFECT CONTROLLER: PULL DATABASE REALTIME WORKER
+  // ==========================================================================
+  useEffect(() => {
+    async function loadDashboardRealtimeData() {
+      try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const isoToday = today.toISOString();
+
+        // 1. FETCH DATA UTAMA SALES ORDERS (UNTUK OMZET & STATS HARI INI)
+        const { data: orders, error: orderErr } = await supabase
+          .from("sales_orders")
+          .select("status, total_amount")
+          .gte("created_at", isoToday);
+
+        if (orderErr) throw orderErr;
+
+        let totalOmzet = 0;
+        let countOrders = 0;
+        let countPending = 0;
+
+        if (orders) {
+          orders.forEach((o) => {
+            const statusLower = o.status ? o.status.toLowerCase() : "pending";
+            if (statusLower !== "void") {
+              totalOmzet += parseFloat(o.total_amount || 0);
+              countOrders++;
+            }
+            if (statusLower === "pending" || statusLower === "butuh produksi") {
+              countPending++;
+            }
+          });
+        }
+        setOmzetToday(totalOmzet);
+        setOrderCountToday(countOrders);
+        setPendingCountToday(countPending);
+
+        // 2. FETCH DATA SUMMARY OPERASIONAL ALL TIME ACTIVE ORDERS
+        const { data: allActiveOrders } = await supabase
+          .from("sales_orders")
+          .select("status");
+
+        let pendingAllTime = 0;
+        let diprosesAllTime = 0;
+        let readyAllTime = 0;
+
+        if (allActiveOrders) {
+          allActiveOrders.forEach((o) => {
+            const stat = o.status ? o.status.toLowerCase() : "pending";
+            if (stat === "pending" || stat === "butuh produksi") pendingAllTime++;
+            if (stat === "diproses") diprosesAllTime++;
+            if (stat === "ready") readyAllTime++;
+          });
+        }
+        setTotalPendingAllTime(pendingAllTime);
+        setTotalDiprosesAllTime(diprosesAllTime);
+        setTotalReadyAllTime(readyAllTime);
+
+        // 3. FETCH DATA ANTREAN MESIN ROASTER LIVE
+        const { data: activeProds } = await supabase
+          .from("productions")
+          .select("id");
+        if (activeProds) setActiveProdCount(activeProds.length);
+
+        // 4. FETCH DATA LIVE PRODUK CRITICAL STOCK WARNING < 15KG
+        const { data: lowStock } = await supabase
+          .from("products")
+          .select("name, stock, unit")
+          .lt("stock", 15)
+          .order("stock", { ascending: true })
+          .limit(3);
+        
+        if (lowStock) setLowStockItems(lowStock);
+        setIsLoadingStock(false);
+
+      } catch (err) {
+        console.error("Gagal sinkronisasi data dasbor gais: ", err.message);
+      }
+    }
+
+    loadDashboardRealtimeData();
+  }, []);
+
+  return (
+    <section className="dashboard-page p-4 space-y-5 pb-24">
+      
+      {/* CARD HERO ATAS */}
+      <div className="dashboard-hero-card bg-orange-500 rounded-3xl p-5 text-white shadow-lg shadow-orange-500/10 cursor-pointer" onClick={() => navigate("/sales")}>
+        <div className="dashboard-hero-top flex items-center gap-4 mb-5">
+          <div className="hero-icon bg-white/20 p-3 rounded-2xl">
+            <TrendingUp size={24} />
+          </div>
+          <div>
+            <p className="hero-label text-white/80 text-xs font-medium tracking-wide">Omzet Hari Ini</p>
+            <h2 className="hero-value text-2xl font-bold mt-0.5">Rp {omzetToday.toLocaleString("id-ID")}</h2>
+          </div>
+        </div>
+
+        <div className="dashboard-hero-stats grid grid-cols-5 items-center text-center bg-black/10 rounded-2xl py-3 px-1">
+          <div className="hero-stat flex flex-col">
+            <strong className="text-base font-bold">{orderCountToday}</strong>
+            <span className="text-[10px] text-white/70">Order</span>
+          </div>
+          <div className="w-[1px] h-6 bg-white/20 mx-auto"></div>
+          <div className="hero-stat flex flex-col" onClick={(e) => { e.stopPropagation(); navigate("/manufacturing"); }}>
+            <strong className="text-base font-bold">{activeProdCount}</strong>
+            <span className="text-[10px] text-white/70">Produksi</span>
+          </div>
+          <div className="w-[1px] h-6 bg-white/20 mx-auto"></div>
+          <div className="hero-stat flex flex-col">
+            <strong className="text-base font-bold">{pendingCountToday}</strong>
+            <span className="text-[10px] text-white/70">Pending</span>
+          </div>
+        </div>
+      </div>
+
+      {/* BLOK MENU AKSI CEPAT */}
+      <div className="dashboard-section space-y-2">
+        <h3 className="text-sm font-bold text-zinc-800 px-1">Aksi Cepat</h3>
+        <div className="quick-actions-layout grid grid-cols-3 gap-3">
+          
+          <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/pembelian")}>
+            <div className="quick-menu-icon text-zinc-600"><ShoppingBag size={20} /></div>
+            <span className="text-xs text-zinc-700 font-medium">Pembelian</span>
+          </div>
+
+          <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/sales")}>
+            <div className="quick-menu-icon text-zinc-600"><ShoppingCart size={20} /></div>
+            <span className="text-xs text-zinc-700 font-medium">Penjualan</span>
+          </div>
+
+          <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/sample-out")}>
+            <div className="quick-menu-icon text-zinc-600"><Gift size={20} /></div>
+            <span className="text-xs text-zinc-700 font-medium">Sampel</span>
+          </div>
+
+          <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/manufacturing")}>
+            <div className="quick-menu-icon text-zinc-600"><Factory size={20} /></div>
+            <span className="text-xs text-zinc-700 font-medium">Produksi</span>
+          </div>
+
+          <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/inventory")}>
+            <div className="quick-menu-icon text-zinc-600"><Package size={20} /></div>
+            <span className="text-xs text-zinc-700 font-medium">Stock</span>
+          </div>
+
+          <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/penyesuaian-stok")}>
+            <div className="quick-menu-icon text-zinc-600"><Sliders size={20} /></div>
+            <span className="text-xs text-zinc-700 font-medium">Adj Stok</span>
+          </div>
+
+          <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/produk")}>
+            <div className="quick-menu-icon text-zinc-600"><Boxes size={20} /></div>
+            <span className="text-xs text-zinc-700 font-medium">Produk</span>
+          </div>
+
+          <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/piutang")}>
+            <div className="quick-menu-icon text-zinc-600"><CreditCard size={20} /></div>
+            <span className="text-xs text-zinc-700 font-medium">Piutang</span>
+          </div>
+
+          <div className="quick-menu-item bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center shadow-sm cursor-pointer active:scale-95 transition-all" onClick={() => navigate("/laporan")}>
+            <div className="quick-menu-icon text-zinc-600"><BarChart3 size={20} /></div>
+            <span className="text-xs text-zinc-700 font-medium">Laporan</span>
+          </div>
+
+        </div>
+      </div>
+
+      {/* BLOK PRIORITAS STOK KRITIS */}
+      <div className="dashboard-section space-y-2 cursor-pointer" onClick={() => navigate("/inventory")}>
+        <h3 className="text-sm font-bold text-zinc-800 px-1">Prioritas Hari Ini</h3>
+        <div className="card dashboard-priority-card bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm space-y-3">
+          <div className="priority-head flex items-center gap-3">
+            <div className="priority-icon-box bg-red-50 text-red-500 p-2.5 rounded-xl">
+              <AlertTriangle size={18} />
+            </div>
+            <div>
+              <strong className="text-xs font-bold text-zinc-800 block">Stock Menipis</strong>
+              <p className="text-[11px] text-zinc-500">
+                {isLoadingStock 
+                  ? "Memuat analisis timbangan gudang..." 
+                  : lowStockItems.length > 0 
+                    ? `${lowStockItems.length} item barang perlu restock segera` 
+                    : "Aman! Semua stok rak gudang mencukupi"}
+              </p>
+            </div>
+          </div>
+
+          <div className="priority-stock-list space-y-2 pt-1 border-t border-zinc-100">
+            {!isLoadingStock && lowStockItems.length === 0 ? (
+              <div className="priority-stock-item flex items-center justify-between text-xs py-1">
+                <span className="text-zinc-500 italic">Tidak ada bahan kritis.</span>
+                <strong className="text-emerald-600 font-semibold">OK</strong>
+              </div>
+            ) : (
+              lowStockItems.map((item, idx) => (
+                <div key={idx} className="priority-stock-item flex items-center justify-between text-xs py-0.5">
+                  <span className="text-zinc-700 font-medium">{item.name}</span>
+                  <strong className="text-red-600 font-bold">{parseFloat(item.stock || 0).toFixed(1)} {item.unit || "kg"}</strong>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* BLOK RINGKASAN OPERASIONAL */}
+      <div className="dashboard-section space-y-2">
+        <h3 className="text-sm font-bold text-zinc-800 px-1">Ringkasan Operasional</h3>
+        <div className="dashboard-summary-row grid grid-cols-3 gap-3">
+          
+          <div className="summary-inline-item bg-zinc-50 border border-zinc-200 rounded-xl p-3 flex flex-col items-center justify-center gap-0.5 text-center cursor-pointer active:bg-zinc-100" onClick={() => navigate("/sales")}>
+            <strong className="text-zinc-800 text-base font-bold">{totalPendingAllTime}</strong>
+            <span className="text-[10px] text-zinc-500">Pending Order</span>
+          </div>
+
+          <div className="summary-inline-item bg-zinc-50 border border-zinc-200 rounded-xl p-3 flex flex-col items-center justify-center gap-0.5 text-center cursor-pointer active:bg-zinc-100" onClick={() => navigate("/manufacturing")}>
+            <strong className="text-zinc-800 text-base font-bold">{totalDiprosesAllTime}</strong>
+            <span className="text-[10px] text-zinc-500">Produksi</span>
+          </div>
+
+          <div className="summary-inline-item bg-zinc-50 border border-zinc-200 rounded-xl p-3 flex flex-col items-center justify-center gap-0.5 text-center cursor-pointer active:bg-zinc-100" onClick={() => navigate("/sales")}>
+            <strong className="text-zinc-800 text-base font-bold">{totalReadyAllTime}</strong>
+            <span className="text-[10px] text-zinc-500">Ready Kirim</span>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+  );
+}
