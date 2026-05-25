@@ -10,14 +10,14 @@ import BottomNav from "../components/BottomNav.jsx";
 import { PinLock } from "../components/PinLock.js"; // Dipanggil jika belum unlock
 import { supabase } from "../supabaseClient.js";
 
-// IMPORT PAGES (Mengikuti berkas eksisting milikmu gais)
+// IMPORT PAGES (Koreksi jalur file .jsx baru gais!)
 import StockAdjustmentPage from "../pages/StockAdjustmentPage.js";
-import { DashboardPage } from "../pages/dashboard.js";
+import DashboardPage from "../pages/DashboardPage.jsx"; // 🔥 UPDATE: Jalur React Murni
 import { SampleOutListPage } from "../pages/SampleOutListPage.js";
 import { SampleOutDetailPage } from "../pages/SampleOutDetailPage.js";
-import { OrderListPage } from "../pages/order-list-page.js";
-import { OrderDetailPage } from "../pages/order-detail-page.js";
-import CreateOrderPage from "../pages/CreateOrderPage.jsx"; // Halaman baru kita!
+import OrderListPage from "../pages/OrderListPage.jsx"; // 🔥 UPDATE: Jalur React Murni
+import OrderDetailPage from "../pages/OrderDetailPage.jsx"; // 🔥 UPDATE: Jalur React Murni
+import CreateOrderPage from "../pages/CreateOrderPage.jsx"; 
 import { ProduksiListPage } from "../pages/produksi-list-page.js";
 import { ProduksiDetailPage } from "../pages/produksi-detail-page.js";
 import { StockPage } from "../pages/stock-page.js";
@@ -119,13 +119,11 @@ export default function AppRouter() {
       )
       .subscribe();
 
-    // Clean-up koneksi supabase jika komponen ter-unmount gais
     return () => {
       supabase.removeChannel(channel);
     };
   }, [isUnlocked]);
 
-  // Jika aplikasi masih terkunci PIN, cegah navigasi masuk gais
   if (!isUnlocked) {
     return <PinLock onSuccess={handleUnlockSuccess} />;
   }
