@@ -1,299 +1,414 @@
-import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient.js";
 
-// Fungsi pembantu global untuk me-render UI secara manual ke dalam DOM Vanilla
-function RenderReactForm({ 
-  customers, salesList, products, selectedCustomer, setSelectedCustomer,
-  selectedSales, setSelectedSales, searchProductQuery, setSearchProductQuery,
-  cart, addToCart, updateQty, isSample, setIsSample, shippingCost, setShippingCost,
-  paymentAmount, setPaymentAmount, catatan, setCatatan, orderDate, setOrderDate,
-  isSubmitting, handleSubmit, subtotalTotal, grandTotal, sisaKembalian, hasActiveProduction, filteredProducts
-}) {
-  
-  // Karena struktur lama aplikasimu membaca string, kita rakit HTML-nya secara dinamis di sini
-  // agar performanya tetap reaktif menyerupai state bawaan React.
-  const targetContainer = document.getElementById("react-form-root");
-  if (!targetContainer) return;
+export function CreateOrderPage() {
+  let selectedCustomer = null;
+  let selectedSales = null;
+  let cart = [];
+  let isSubmitting = false;
+  let temporarySelectedProduct = null; 
 
-  targetContainer.innerHTML = `
-    <h2 style="margin-bottom: 20px; font-size: 20px; font-weight: bold;">Buat Order & Manufaktur Baru</h2>
+  const today = new Date().toISOString().split('T')[0];
+
+  setTimeout(async () => {
+    const container = document.querySelector(".create-order-page");
+    if (!container) return;
+
+    // 1. Capture Elemen Kontrol Utama DOM
+    const dateInput = container.querySelector("input[type='date']");
+    const salesInput = container.querySelector(".form-group:nth-child(2) select");
+    const customerInput = container.querySelector(".form-group:nth-child(3) select");
+    const productInput = container.querySelector(".card:nth-child(3) .form-group input[type='text']");
+    const addProductBtn = container.querySelector(".btn-soft");
     
-    <form id="main-order-form">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-        <div>
-          <label style="font-size: 14px; color: #aaa;">Tanggal Order:</label>
-          <input type="date" id="form-order-date" value="${orderDate}" style="width: 100%; padding: 10px; margin-top: 4px; background-color: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box;" />
-        </div>
-        <div>
-          <label style="font-size: 14px; color: #aaa;">Pilih Sales:</label>
-          <select id="form-sales" style="width: 100%; padding: 10px; margin-top: 4px; background-color: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box;">
-            <option value="">-- Pilih Sales --</option>
-            ${salesList.map(s => `<option value="${s.id}" ${selectedSales === s.id ? 'selected' : ''}>${s.name}</option>`).join('')}
-          </select>
-        </div>
-      </div>
+    // Ringkasan Biaya & Pembayaran dari DOM
+    const summarySubtotal = container.querySelector(".detail-info .detail-row-item:nth-child(1) strong");
+    const summaryOngkir = container.querySelector(".detail-info .detail-row-item:nth-child(2) strong");
+    const summaryTotal = container.querySelector(".detail-info .detail-row-item:nth-child(3) strong");
+    const summaryStatus = container.querySelector(".detail-info .detail-row-item:nth-child(4) strong");
+    
+    const ongkirInput = container.querySelector("#input-shipping");
+    const bayarInput = container.querySelector("#input-payment");
+    const catatanInput = container.querySelector(".textarea");
+    const sampleToggle = container.querySelector("#sample-order-toggle");
+    const submitBtn = container.querySelector(".primary-action");
 
-      <div style="margin-bottom: 12px;">
-        <label style="font-size: 14px; color: #aaa;">Pilih Customer:</label>
-        <select id="form-customer" style="width: 100%; padding: 10px; margin-top: 4px; background-color: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box;">
-          <option value="">-- Pilih Customer --</option>
-          ${customers.map(c => `<option value="${c.id}" ${selectedCustomer === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
-        </select>
-      </div>
+    // Container dinamis untuk menyisipkan list belanjaan
+    const subtotalCard = container.querySelector(".detail-info").closest(".card");
+    let cartContainer = container.querySelector("#dynamic-cart-container");
+    if (!cartContainer) {
+      cartContainer = document.createElement("div");
+      cartContainer.id = "dynamic-cart-container";
+      subtotalCard.parentNode.insertBefore(cartContainer, subtotalCard);
+    }
 
-      <div style="margin-bottom: 16px; background: #1e1e1e; padding: 12px; border-radius: 8px;">
-        <label style="font-size: 14px; color: #aaa;">Cari Produk Manufaktur / Stok:</label>
-        <input type="text" id="form-search-product" placeholder="Ketik nama produk..." value="${searchProductQuery}" style="width: 100%; padding: 10px; margin-top: 4px; background-color: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box;" />
-        
-        ${searchProductQuery ? `
-          <div style="background-color: #2a2a2a; max-height: 150px; overflow-y: auto; margin-top: 4px; border-radius: 4px;">
-            ${filteredProducts.map(p => `
-              <div class="search-item-row" data-id="${p.id}" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #333; display: flex; justify-content: space-between;">
-                <span>${p.name} ${p.needs_production ? '<span style="color: #ffc107; font-size: 11px;">(Butuh Pabrikasi)</span>' : ''}</span>
-                <strong>Rp ${p.price.toLocaleString('id-ID')}</strong>
-              </div>
-            `).join('')}
-          </div>
-        ` : ''}
-      </div>
+    // Suntik element list melayang untuk live search produk
+    const productGroup = productInput.closest(".form-group");
+    productGroup.style.position = "relative";
+    let productFloat = document.createElement("div");
+    productFloat.className = "card";
+    productFloat.style = "position: absolute; top: 100%; left: 0; right: 0; z-index: 1010; display: none; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; padding:0; background: #2a2a2a;";
+    productGroup.appendChild(productFloat);
 
-      <div style="margin-bottom: 16px;">
-        <h4 style="font-size: 16px; margin-bottom: 8px;">Daftar Item Order:</h4>
-        ${cart.length === 0 ? `
-          <p style="color: #888; font-size: 14px;">Belum ada item terpilih.</p>
-        ` : cart.map(item => `
-            <div style="display: flex; justify-content: space-between; align-items: center; background-color: #1e1e1e; padding: 10px; border-radius: 6px; margin-bottom: 6px;">
+    // Set tanggal default hari ini
+    if (dateInput) dateInput.value = today;
+
+    // Load Dropdown Master Data (Customer & Sales) dari Supabase
+    async function loadDropdowns() {
+      try {
+        const { data: customers } = await supabase.from('customers').select('id, name');
+        if (customers && customerInput) {
+          customerInput.innerHTML = '<option value="">-- Pilih Customer --</option>' + 
+            customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+        const { data: sales } = await supabase.from('sales').select('id, name');
+        if (sales && salesInput) {
+          salesInput.innerHTML = '<option value="">-- Pilih Sales --</option>' + 
+            sales.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+        }
+      } catch (err) {
+        console.error("Gagal load dropdown:", err);
+      }
+    }
+    await loadDropdowns();
+
+    // ==========================================================================
+    // 1. LIVE SEARCH PRODUK MANUFAKTUR
+    // ==========================================================================
+    if (productInput) {
+      productInput.addEventListener("input", async (e) => {
+        const val = e.target.value.trim();
+        if (val.length < 1) {
+          productFloat.style.display = "none";
+          return;
+        }
+
+        const { data: products, error } = await supabase
+          .from('products')
+          .select('id, name, price, needs_production')
+          .ilike('name', `%${val}%`)
+          .limit(5);
+
+        if (!error && products && products.length > 0) {
+          productFloat.innerHTML = products.map(p => `
+            <div class="product-row-item" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-production="${p.needs_production}" style="padding: var(--space-sm); border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <div style="font-size: 14px; font-weight: bold;">${item.name}</div>
-                <div style="font-size: 12px; color: #aaa;">Rp ${item.price.toLocaleString('id-ID')}</div>
-              </div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <button type="button" class="btn-cart-minus" data-id="${item.id}" style="width: 28px; height: 28px; background-color: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">-</button>
-                <span>${item.qty}</span>
-                <button type="button" class="btn-cart-plus" data-id="${item.id}" style="width: 28px; height: 28px; background-color: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">+</button>
+                <strong style="font-size: var(--text-sm); color: #fff;">${p.name}</strong>
+                <span class="text-xs" style="display: block; color: #aaa;">${p.needs_production ? '🟡 Butuh Pabrikasi' : '🟢 Ready Stock'}</span>
               </div>
             </div>
-        `).join('')}
-      </div>
+          `).join('');
+          productFloat.style.display = "block";
 
-      <div style="margin-bottom: 12px;">
-        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-          <input type="checkbox" id="form-is-sample" ${isSample ? 'checked' : ''} />
-          Jadikan Sample Order (Tanpa Biaya)
-        </label>
-      </div>
-
-      ${!isSample ? `
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-          <div>
-            <label style="font-size: 14px; color: #aaa;">Ongkos Kirim:</label>
-            <input type="number" id="form-shipping" value="${shippingCost}" style="width: 100%; padding: 10px; margin-top: 4px; background-color: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box;" />
-          </div>
-          <div>
-            <label style="font-size: 14px; color: #aaa;">Nominal Pembayaran:</label>
-            <input type="number" id="form-payment" value="${paymentAmount}" style="width: 100%; padding: 10px; margin-top: 4px; background-color: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box;" />
-          </div>
-        </div>
-      ` : ''}
-
-      <div style="margin-bottom: 16px;">
-        <label style="font-size: 14px; color: #aaa;">Catatan Tambahan:</label>
-        <textarea id="form-catatan" style="width: 100%; padding: 10px; margin-top: 4px; background-color: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box; height: 60px; resize: none;">${catatan}</textarea>
-      </div>
-
-      <div style="background: #1e1e1e; padding: 14px; border-radius: 8px; margin-bottom: 20px; border-left: ${hasActiveProduction ? '4px solid #ffc107' : '4px solid #28a745'}">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">Subtotal: <span>Rp ${subtotalTotal.toLocaleString('id-ID')}</span></div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">Ongkir: <span>Rp ${isSample ? 0 : shippingCost.toLocaleString('id-ID')}</span></div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: bold;">Grand Total: <span>Rp ${grandTotal.toLocaleString('id-ID')}</span></div>
-        <hr style="border-color: #333;" />
-        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px; color: #aaa;">
-          Status Kas: <strong>${isSample ? "Sample (Free)" : (sisaKembalian >= 0 ? `Kembalian: Rp ${sisaKembalian.toLocaleString('id-ID')}` : `Kurang: Rp ${Math.abs(sisaKembalian).toLocaleString('id-ID')}`)}</strong>
-        </div>
-      </div>
-
-      <button type="submit" ${isSubmitting ? 'disabled' : ''} style="width: 100%; padding: 14px; background: ${hasActiveProduction ? '#ffc107' : '#007bff'}; color: ${hasActiveProduction ? '#000' : '#fff'}; border: none; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer;">
-        ${isSubmitting ? "Memproses..." : (hasActiveProduction ? "Kirim ke Produksi & Simpan" : "Simpan Order")}
-      </button>
-    </form>
-  `;
-
-  // --- ATTACH EVENT LISTENERS MANUAL UNTUK METODE HYBRID ---
-  document.getElementById("main-order-form")?.addEventListener("submit", handleSubmit);
-  document.getElementById("form-order-date")?.addEventListener("change", (e) => setOrderDate(e.target.value));
-  document.getElementById("form-sales")?.addEventListener("change", (e) => setSelectedSales(e.target.value));
-  document.getElementById("form-customer")?.addEventListener("change", (e) => setSelectedCustomer(e.target.value));
-  
-  const searchInput = document.getElementById("form-search-product");
-  searchInput?.addEventListener("input", (e) => setSearchProductQuery(e.target.value));
-  if (searchProductQuery) {
-    searchInput.focus();
-    searchInput.setSelectionRange(searchProductQuery.length, searchProductQuery.length);
-  }
-
-  document.querySelectorAll(".search-item-row").forEach(row => {
-    row.addEventListener("click", () => {
-      const pId = row.getAttribute("data-id");
-      const matchedProd = products.find(p => p.id === pId);
-      if (matchedProd) {
-        addToCart(matchedProd);
-        setSearchProductQuery("");
-      }
-    });
-  });
-
-  document.querySelectorAll(".btn-cart-minus").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-id");
-      const currentItem = cart.find(item => item.id === id);
-      if (currentItem) updateQty(id, currentItem.qty - 1);
-    });
-  });
-
-  document.querySelectorAll(".btn-cart-plus").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-id");
-      const currentItem = cart.find(item => item.id === id);
-      if (currentItem) updateQty(id, currentItem.qty + 1);
-    });
-  });
-
-  document.getElementById("form-is-sample")?.addEventListener("change", (e) => setIsSample(e.target.checked));
-  document.getElementById("form-shipping")?.addEventListener("input", (e) => setShippingCost(parseFloat(e.target.value) || 0));
-  document.getElementById("form-payment")?.addEventListener("input", (e) => setPaymentAmount(parseFloat(e.target.value) || 0));
-  document.getElementById("form-catatan")?.addEventListener("input", (e) => setCatatan(e.target.value));
-}
-
-export function CreateOrderPage() {
-  // --- STATE MANAGEMENT ---
-  const [customers, setCustomers] = useState([]);
-  const [salesList, setSalesList] = useState([]);
-  const [products, setProducts] = useState([]);
-  
-  const [selectedCustomer, setSelectedCustomer] = useState("");
-  const [selectedSales, setSelectedSales] = useState("");
-  const [searchProductQuery, setSearchProductQuery] = useState("");
-  const [cart, setCart] = useState([]);
-  
-  const [shippingCost, setShippingCost] = useState(0);
-  const [paymentAmount, setPaymentAmount] = useState(0);
-  const [catatan, setCatatan] = useState("");
-  const [orderDate, setOrderDate] = useState(new Date().toISOString().split('T')[0]);
-  const [isSample, setIsSample] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // --- 1. AMBIL DATA MASTER DARI SUPABASE ---
-  useEffect(() => {
-    async function loadMasterData() {
-      try {
-        const { data: customerData } = await supabase.from("customers").select("id, name");
-        if (customerData) setCustomers(customerData);
-
-        const { data: salesData } = await supabase.from("sales").select("id, name");
-        if (salesData) setSalesList(salesData);
-
-        const { data: productData } = await supabase.from("products").select("id, name, price, needs_production");
-        if (productData) setProducts(productData);
-      } catch (err) {
-        console.error("Gagal memuat data master:", err.message);
-      }
-    }
-    loadMasterData();
-  }, []);
-
-  // --- 2. LOGIC ACTIONS ---
-  const addToCart = (product) => {
-    const existingItem = cart.find(item => item.id === product.id);
-    if (existingItem) {
-      setCart(cart.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item));
-    } else {
-      setCart([...cart, { id: product.id, name: product.name, price: product.price, qty: 1, needs_production: product.needs_production }]);
-    }
-  };
-
-  const updateQty = (id, newQty) => {
-    if (newQty <= 0) {
-      setCart(cart.filter(item => item.id !== id));
-    } else {
-      setCart(cart.map(item => item.id === id ? { ...item, qty: newQty } : item));
-    }
-  };
-
-  const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * (item.price || 0)), 0);
-  const grandTotal = isSample ? 0 : (subtotalTotal + shippingCost);
-  const sisaKembalian = isSample ? 0 : (paymentAmount - grandTotal);
-  const hasActiveProduction = cart.some(item => item.needs_production === true);
-  const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchProductQuery.toLowerCase()));
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!selectedCustomer) return alert("Silakan pilih Customer terlebih dahulu!");
-    
-    setIsSubmitting(true);
-    try {
-      const { data: orderData, error: orderError } = await supabase
-        .from("orders")
-        .insert([{
-          customer_id: selectedCustomer,
-          sales_id: selectedSales,
-          order_date: orderDate,
-          subtotal: subtotalTotal,
-          shipping_cost: isSample ? 0 : shippingCost,
-          grand_total: grandTotal,
-          notes: catatan,
-          is_sample: isSample,
-          status: hasActiveProduction ? "Pending Production" : "Completed"
-        }])
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      if (cart.length > 0) {
-        const orderItems = cart.map(item => ({
-          order_id: orderData.id,
-          product_id: item.id,
-          qty: item.qty,
-          price: item.price
-        }));
-        await supabase.from("order_items").insert(orderItems);
-
-        if (hasActiveProduction) {
-          const productionItems = cart
-            .filter(item => item.needs_production)
-            .map(item => ({
-              order_id: orderData.id,
-              product_id: item.id,
-              qty_target: item.qty,
-              status: "Queued"
-            }));
-          await supabase.from("manufacturing_queue").insert(productionItems);
+          productFloat.querySelectorAll(".product-row-item").forEach(row => {
+            row.addEventListener("click", (evt) => {
+              const target = evt.currentTarget;
+              temporarySelectedProduct = {
+                id: parseInt(target.dataset.id),
+                name: target.dataset.name,
+                price: parseFloat(target.dataset.price || 0),
+                needs_production: target.dataset.production === "true"
+              };
+              productInput.value = target.dataset.name;
+              productFloat.style.display = "none";
+            });
+          });
         }
+      });
+    }
+
+    // Klik tombol tambah ke keranjang order
+    if (addProductBtn) {
+      addProductBtn.addEventListener("click", () => {
+        if (!temporarySelectedProduct) {
+          alert("⚠️ Pilih produk dari daftar pencarian terlebih dahulu!");
+          return;
+        }
+        if (cart.some(item => item.id === temporarySelectedProduct.id)) {
+          alert("⚠️ Produk sudah ada di list keranjang!");
+          productInput.value = "";
+          temporarySelectedProduct = null;
+          return;
+        }
+
+        cart.push({ ...temporarySelectedProduct, qty: 1 });
+        productInput.value = "";
+        temporarySelectedProduct = null;
+        renderCartStructure();
+      });
+    }
+
+    // ==========================================================================
+    // 2. RENDER LIST BELANJAAN JAMAK GAYA DOM MANIPULATION
+    // ==========================================================================
+    function renderCartStructure() {
+      if (cart.length === 0) {
+        cartContainer.innerHTML = "";
+        calculateTotalsOnly();
+        return;
       }
 
-      alert("Order berhasil disimpan!");
-      setCart([]);
-    } catch (error) {
-      alert("Gagal menyimpan order: " + error.message);
-    } finally {
-      setIsSubmitting(false);
+      cartContainer.innerHTML = cart.map((item, idx) => `
+        <div class="card create-card item-cart-row" data-idx="${idx}" style="margin-bottom: var(--space-sm);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md); padding-bottom: var(--space-sm); border-bottom: 1px solid var(--border);">
+            <strong style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">
+              ${item.name} ${item.needs_production ? '<span style="color: #ffc107; font-size: 11px;">(Prod)</span>' : ''}
+            </strong>
+            <button class="btn-remove-cart" data-idx="${idx}" style="background: none; border: none; color: var(--danger); font-size: var(--text-xs); font-weight: var(--font-semibold); padding: var(--space-xs); cursor: pointer;">
+              Hapus
+            </button>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Qty (Pcs)</label>
+              <input type="number" pattern="[0-9]*" inputmode="numeric" class="input input-qty" value="${item.qty}" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Harga (Rp)</label>
+              <input type="number" pattern="[0-9]*" inputmode="numeric" class="input input-price" value="${item.price}" />
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: var(--space-md); padding-top: var(--space-sm); border-top: 1px dashed var(--border);">
+            <span class="text-light text-xs">Subtotal</span>
+            <strong class="row-subtotal-text" style="font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--text);">
+              Rp ${(item.qty * item.price).toLocaleString('id-ID')}
+            </strong>
+          </div>
+        </div>
+      `).join('');
+
+      cartContainer.querySelectorAll(".item-cart-row").forEach(row => {
+        const idx = parseInt(row.dataset.idx);
+        row.querySelector(".input-qty").addEventListener("input", (e) => {
+          cart[idx].qty = parseFloat(e.target.value) || 0;
+          row.querySelector(".row-subtotal-text").textContent = `Rp ${(cart[idx].qty * cart[idx].price).toLocaleString('id-ID')}`;
+          calculateTotalsOnly();
+        });
+        row.querySelector(".input-price").addEventListener("input", (e) => {
+          cart[idx].price = parseFloat(e.target.value) || 0;
+          row.querySelector(".row-subtotal-text").textContent = `Rp ${(cart[idx].qty * cart[idx].price).toLocaleString('id-ID')}`;
+          calculateTotalsOnly();
+        });
+      });
+
+      cartContainer.querySelectorAll(".btn-remove-cart").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          cart.splice(parseInt(e.target.dataset.idx), 1);
+          renderCartStructure();
+        });
+      });
+
+      calculateTotalsOnly();
     }
-  };
 
-  // --- 3. TRIGGER RE-RENDER MANUAL SETIAP STATE BERUBAH ---
-  useEffect(() => {
-    RenderReactForm({
-      customers, salesList, products, selectedCustomer, setSelectedCustomer,
-      selectedSales, setSelectedSales, searchProductQuery, setSearchProductQuery,
-      cart, addToCart, updateQty, isSample, setIsSample, shippingCost, setShippingCost,
-      paymentAmount, setPaymentAmount, catatan, setCatatan, orderDate, setOrderDate,
-      isSubmitting, handleSubmit, subtotalTotal, grandTotal, sisaKembalian, hasActiveProduction, filteredProducts
+    function calculateTotalsOnly() {
+      const isSample = sampleToggle?.checked || false;
+      const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
+      const shippingCost = isSample ? 0 : (parseFloat(ongkirInput?.value) || 0);
+      const grandTotal = isSample ? 0 : (subtotalTotal + shippingCost);
+      const payAmount = isSample ? 0 : (parseFloat(bayarInput?.value) || 0);
+      const sisaKembalian = payAmount - grandTotal;
+
+      if (summarySubtotal) summarySubtotal.textContent = `Rp ${subtotalTotal.toLocaleString('id-ID')}`;
+      if (summaryOngkir) summaryOngkir.textContent = `Rp ${shippingCost.toLocaleString('id-ID')}`;
+      if (summaryTotal) summaryTotal.textContent = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+      
+      if (summaryStatus) {
+        summaryStatus.textContent = isSample ? "Sample Mode" : (sisaKembalian >= 0 ? `Kembalian: Rp ${sisaKembalian.toLocaleString('id-ID')}` : `Kurang: Rp ${Math.abs(sisaKembalian).toLocaleString('id-ID')}`);
+      }
+
+      const hasActiveProduction = cart.some(item => item.needs_production === true);
+      if (submitBtn) submitBtn.textContent = hasActiveProduction ? "Kirim ke Produksi & Simpan" : "Simpan";
+    }
+
+    // Listener Event untuk perhitungan dinamis biaya sampingan
+    ongkirInput?.addEventListener("input", calculateTotalsOnly);
+    bayarInput?.addEventListener("input", calculateTotalsOnly);
+    sampleToggle?.addEventListener("change", () => {
+      const shippingSection = container.querySelector("#shipping-payment-grid");
+      if (shippingSection) shippingSection.style.display = sampleToggle.checked ? "none" : "grid";
+      calculateTotalsOnly();
     });
-  }, [customers, salesList, products, selectedCustomer, selectedSales, searchProductQuery, cart, isSample, shippingCost, paymentAmount, catatan, orderDate, isSubmitting]);
 
-  // Kembalikan kontainer kosong bertipe string murni agar router vanilla-mu tidak blank
+    // ==========================================================================
+    // 3. SUBMIT ORDER & UPDATE JALUR ANTRIAN PABRIK (MANUFACTURING QUEUE)
+    // ==========================================================================
+    if (submitBtn) {
+      submitBtn.addEventListener("click", async () => {
+        if (isSubmitting) return;
+
+        selectedCustomer = customerInput.value;
+        selectedSales = salesInput.value;
+
+        if (!selectedCustomer) {
+          alert("⚠️ Harap tentukan customer terlebih dahulu!");
+          return;
+        }
+        if (cart.length === 0) {
+          alert("⚠️ Keranjang belanja order masih kosong!");
+          return;
+        }
+
+        isSubmitting = true;
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Processing...";
+
+        try {
+          const isSample = sampleToggle?.checked || false;
+          const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * item.price), 0);
+          const shippingCost = isSample ? 0 : (parseFloat(ongkirInput?.value) || 0);
+          const grandTotal = isSample ? 0 : (subtotalTotal + shippingCost);
+          const hasActiveProduction = cart.some(item => item.needs_production === true);
+
+          // A. Insert data ke tabel induk orders
+          const { data: orderData, error: orderError } = await supabase
+            .from('orders')
+            .insert([{
+              customer_id: parseInt(selectedCustomer),
+              sales_id: selectedSales ? parseInt(selectedSales) : null,
+              order_date: dateInput?.value || today,
+              subtotal: subtotalTotal,
+              shipping_cost: shippingCost,
+              grand_total: grandTotal,
+              is_sample: isSample,
+              notes: catatanInput?.value || null,
+              status: hasActiveProduction ? "Pending Production" : "Completed"
+            }])
+            .select();
+
+          if (orderError) throw orderError;
+          const orderId = orderData[0].id;
+
+          // B. Insert item ke tabel order_items
+          const orderItemsPayload = cart.map(item => ({
+            order_id: orderId,
+            product_id: item.id,
+            qty: item.qty,
+            price: item.price
+          }));
+          const { error: itemsErr } = await supabase.from('order_items').insert(orderItemsPayload);
+          if (itemsErr) throw itemsErr;
+
+          // C. OTOMATISASI MANUFACTURING: Kirim antrean pabrik jika ada item butuh produksi
+          if (hasActiveProduction) {
+            const productionPayload = cart
+              .filter(item => item.needs_production === true)
+              .map(item => ({
+                order_id: orderId,
+                product_id: item.id,
+                qty_target: item.qty,
+                status: "Queued"
+              }));
+            
+            const { error: mfgErr } = await supabase.from('manufacturing_queue').insert(productionPayload);
+            if (mfgErr) throw mfgErr;
+          }
+
+          alert(`🎉 Transaksi Order Berhasil Disimpan! ${hasActiveProduction ? 'Item otomatis dikirim ke antrean produksi pabrik.' : ''}`);
+          if (window.navigate) window.navigate('order');
+
+        } catch (err) {
+          alert("❌ Gagal menyimpan data order: " + err.message);
+        } finally {
+          isSubmitting = false;
+          submitBtn.disabled = false;
+          calculateTotalsOnly();
+        }
+      });
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+  }, 50);
+
   return `
-    <section class="create-order-page" id="react-form-root" style="padding: 16px; color: #fff; min-height: 100vh;">
-      <p style="color: #888;">Memuat formulir order manufaktur...</p>
+    <section class="create-order-page">
+
+      <div class="card create-card">
+        <div class="form-group">
+          <label class="form-label">Tanggal Order</label>
+          <input type="date" class="input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Sales</label>
+          <select class="input"><option value="">Loading Sales...</option></select>
+        </div>
+      </div>
+
+      <div class="card create-card">
+        <div class="form-group">
+          <label class="form-label">Customer</label>
+          <select class="input"><option value="">Loading Customers...</option></select>
+        </div>
+      </div>
+
+      <div class="card create-card">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md);">
+          <div>
+            <h3 style="font-size: var(--text-md); font-weight: var(--font-bold); color: var(--text);">Produk</h3>
+            <p class="text-light text-xs" style="margin-top: 1px;">Tambahkan item produksi/stok</p>
+          </div>
+          <button class="btn-soft" style="height: 32px; padding: 0 var(--space-md); border-radius: var(--radius-sm); font-size: var(--text-xs); display: flex; align-items: center; gap: var(--space-xs); border: none; font-weight: var(--font-semibold); color: var(--orange); background: var(--orange-soft);">
+            <i data-lucide="plus" style="width: 14px; height: 14px;"></i> Tambah
+          </button>
+        </div>
+        <div class="form-group">
+          <input type="text" class="input" placeholder="Cari produk manufaktur..." autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="card create-card" style="margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="checkbox" id="sample-order-toggle" style="cursor:pointer;" />
+          <label for="sample-order-toggle" style="font-size: 14px; cursor:pointer;">Jadikan Sample Order (Tanpa Biaya)</label>
+        </div>
+      </div>
+
+      <div class="card create-card">
+        <div class="detail-info" style="gap: var(--space-sm);">
+          <div class="detail-row-item" style="padding: 2px 0;">
+            <span class="text-light text-sm">Subtotal</span>
+            <strong style="font-size: var(--text-sm); font-weight: var(--font-bold);">Rp 0</strong>
+          </div>
+          <div class="detail-row-item" style="padding: 2px 0;">
+            <span class="text-light text-sm">Ongkir</span>
+            <strong style="font-size: var(--text-sm); font-weight: var(--font-bold);">Rp 0</strong>
+          </div>
+          <div class="detail-row-item" style="border-top: 1px solid var(--border); padding-top: var(--space-sm); margin-top: 4px;">
+            <span class="font-semibold text-sm">Total</span>
+            <strong style="color: var(--orange); font-size: var(--text-md);">Rp 0</strong>
+          </div>
+          <div class="detail-row-item" style="padding: 2px 0; font-size: 12px; color: #aaa;">
+            <span>Status</span>
+            <strong>Rp 0</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="card create-card" id="shipping-payment-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">Ongkos Kirim (Rp)</label>
+          <input type="number" id="input-shipping" class="input" placeholder="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bayar Tunai/DP (Rp)</label>
+          <input type="number" id="input-payment" class="input" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="card create-card">
+        <div class="form-group">
+          <label class="form-label">Catatan Order</label>
+          <textarea class="textarea" placeholder="Tambahkan catatan pengerjaan manufaktur..."></textarea>
+        </div>
+      </div>
+
+      <div class="detail-actions">
+        <button class="action-btn">Draft</button>
+        <button class="action-btn primary-action">Simpan</button>
+      </div>
+
     </section>
   `;
 }
