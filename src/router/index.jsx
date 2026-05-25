@@ -7,7 +7,7 @@ import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 
 // IMPORT COMPONENT UTAMA
 import BottomNav from "../components/BottomNav.jsx";
-import { PinLock } from "../components/PinLock.js"; // Dipanggil jika belum unlock
+import { PinLock } from "../components/PinLock.jsx"; // Dipanggil jika belum unlock
 import { supabase } from "../supabaseClient.js";
 
 // IMPORT PAGES (Murni Menggunakan Format .jsx Baru Gais!)
