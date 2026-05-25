@@ -5,7 +5,7 @@
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import AppRouter from "./router/index.jsx";
-import "./index.css"; // Memastikan Tailwind CSS kamu tetap termuat gais
+import "./styles/globals.css"; // 🔥 PERBAIKAN JALUR: Mengarah tepat ke folder styles milikmu gais
 
 function AppInitializer() {
   // ==========================================================================
@@ -20,7 +20,6 @@ function AppInitializer() {
       const content = document.querySelector(".app-content") || document.querySelector("main");
       if (!content) return;
 
-      // Picu gestur hanya jika posisi scroll pembungkus sedang berada di paling atas gais
       if (content.scrollTop === 0) {
         touchStart = e.touches[0].clientY;
       } else {
@@ -54,21 +53,19 @@ function AppInitializer() {
       content.style.transform = "translateY(0)";
 
       if (touchPullDist >= REFRESH_THRESHOLD) {
-        if (navigator.vibrate) navigator.vibrate(15); // Efek getar halus di HP gais
+        if (navigator.vibrate) navigator.vibrate(15);
         console.log("🔄 Pull to Refresh dipicu: Mengisi ulang state aplikasi...");
-        window.location.reload(); // Reload halaman aman untuk membersihkan cache database
+        window.location.reload();
       }
 
       touchStart = 0;
       touchPullDist = 0;
     };
 
-    // Daftarkan event listener gestur seluler ke dokumen
     document.addEventListener("touchstart", handleTouchStart, { passive: true });
     document.addEventListener("touchmove", handleTouchMove, { passive: true });
     document.addEventListener("touchend", handleTouchEnd);
 
-    // Bersihkan event listener jika aplikasi dimuat ulang gais
     return () => {
       document.removeEventListener("touchstart", handleTouchStart);
       document.removeEventListener("touchmove", handleTouchMove);
@@ -79,9 +76,6 @@ function AppInitializer() {
   return <AppRouter />;
 }
 
-// ==========================================================================
-// MOUNTING INTO HTML ROOT CONTAINER
-// ==========================================================================
 const rootElement = document.getElementById("app") || document.getElementById("root");
 if (rootElement) {
   ReactDOM.createRoot(rootElement).render(
@@ -93,4 +87,4 @@ if (rootElement) {
 
 // ==========================================================================
 // 💥 TRIGGER JET ENGINE AUTO-DEPLOY RE-BUILD CLOUDFLARE PAGES VIA MOBILE
-// =========================================================================
+// ==========================================================================
