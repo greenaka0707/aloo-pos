@@ -1,110 +1,123 @@
-export function PinLock(onSuccess) {
-  const CORRECT_PIN = "1234"; // 🔑 SILAKAN GANTI PIN IPHONE LO DI SINI GAIS
-  let enteredPin = "";
+// ==========================================================================
+// FILE: src/components/PinLock.jsx (MURNI JSX REACT COMPONENT - FIX AUTO-RENDER)
+// ==========================================================================
 
-  setTimeout(() => {
-    const lockscreen = document.querySelector(".iphone-lockscreen");
-    if (!lockscreen) return;
+import React, { useState } from "react";
 
-    const dots = lockscreen.querySelectorAll(".pin-dot");
-    const keys = lockscreen.querySelectorAll(".key-btn");
-    const clearBtn = lockscreen.querySelector(".clear-btn");
+export function PinLock({ onSuccess }) {
+  const CORRECT_PIN = "1234"; // 🔑 SILAKAN GANTI PIN IPHONE KAMU DI SINI GAIS
+  const [enteredPin, setEnteredPin] = useState("");
+  const [isShaking, setIsShaking] = useState(false);
 
-    // Fungsi update visual buletan kosong/isi harian
-    function updateDots() {
-      dots.forEach((dot, index) => {
-        if (index < enteredPin.length) {
-          dot.classList.add("filled");
-        } else {
-          dot.classList.remove("filled");
-        }
-      });
-    }
+  // Handle Ketukan Tombol Angka Bulat gais
+  const handleKeyClick = (value) => {
+    if (enteredPin.length >= 4 || isShaking) return;
 
-    // Fungsi validasi PIN kancangan gais
-    async function verifyPin() {
-      if (enteredPin === CORRECT_PIN) {
-        lockscreen.classList.add("unlock-fade");
-        setTimeout(() => {
-          lockscreen.remove(); // Hapus layar lockscreen dari DOM
-          if (onSuccess) onSuccess(); // Buka aplikasi utama gais!
-        }, 400);
+    const nextPin = enteredPin + value;
+    setEnteredPin(nextPin);
+
+    // Jika inputan sudah genap 4 digit gais
+    if (nextPin.length === 4) {
+      if (nextPin === CORRECT_PIN) {
+        if (onSuccess) onSuccess(); // Sukses! Buka gerbang utama POS gais
       } else {
-        // Efek getar ala iPhone pas PIN salah input
-        const codeArea = lockscreen.querySelector(".pin-code-area");
-        codeArea.classList.add("shake-error");
+        // Picu efek getar ala iPhone pas salah input PIN
+        setIsShaking(true);
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100]); // Getar rill di HP Android/iOS pendukung
         
         setTimeout(() => {
-          codeArea.classList.remove("shake-error");
-          enteredPin = "";
-          updateDots();
+          setEnteredPin("");
+          setIsShaking(false);
         }, 500);
       }
     }
+  };
 
-    // Event handler klik tombol angka bulat
-    keys.forEach(key => {
-      key.addEventListener("click", () => {
-        const value = key.dataset.value;
-        if (!value || enteredPin.length >= 4) return;
-
-        enteredPin += value;
-        updateDots();
-
-        if (enteredPin.length === 4) {
-          setTimeout(verifyPin, 200);
-        }
-      });
-    });
-
-    // Tombol Hapus (Clear/Delete)
-    if (clearBtn) {
-      clearBtn.addEventListener("click", () => {
-        if (enteredPin.length > 0) {
-          enteredPin = enteredPin.slice(0, -1);
-          updateDots();
-        }
-      });
+  // Handle Tombol Hapus (Clear/Delete ⌫)
+  const handleClearClick = () => {
+    if (enteredPin.length > 0 && !isShaking) {
+      setEnteredPin(enteredPin.slice(0, -1));
     }
+  };
 
-  }, 10);
-
-  // Layout HTML murni UI bulat-bulat iOS modern gais
-  return `
-    <div class="iphone-lockscreen">
-      <div class="lockscreen-container">
+  return (
+    <div className="iphone-lockscreen" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#0f172a", color: "white", fontFamily: "sans-serif" }}>
+      <div className="lockscreen-container" style={{ width: "100%", maxWidth: "360px", padding: "20px", textAlign: "center" }}>
         
-        <div class="lock-header">
-          <div class="lock-icon">🔒</div>
-          <h3>Masukkan PIN ALOO POS</h3>
+        <div className="lock-header" style={{ marginBottom: "30px" }}>
+          <div className="lock-icon" style={{ fontSize: "40px", marginBottom: "10px" }}>🔒</div>
+          <h3 style={{ fontSize: "18px", fontWeight: "600", margin: 0, color: "#94a3b8" }}>Masukkan PIN ALOO POS</h3>
         </div>
 
-        <div class="pin-code-area">
-          <div class="pin-dot"></div>
-          <div class="pin-dot"></div>
-          <div class="pin-dot"></div>
-          <div class="pin-dot"></div>
+        {/* ALUR BULATAN PIN DENGAN EFEK SHAKE ERROR */}
+        <div 
+          className={`pin-code-area ${isShaking ? "shake-error" : ""}`} 
+          style={{ 
+            display: "flex", 
+            justifyContent: "center", 
+            gap: "20px", 
+            marginBottom: "50px",
+            animation: isShaking ? "shake 0.4s ease-in-out" : "none"
+          }}
+        >
+          {[0, 1, 2, 3].map((index) => (
+            <div
+              key={index}
+              className={`pin-dot ${index < enteredPin.length ? "filled" : ""}`}
+              style={{
+                width: "16px",
+                height: "16px",
+                borderRadius: "50%",
+                border: "2px solid #f97316",
+                backgroundColor: index < enteredPin.length ? "#f97316" : "transparent",
+                transition: "all 0.1s ease"
+              }}
+            />
+          ))}
         </div>
 
-        <div class="iphone-keypad">
-          <button class="key-btn" data-value="1">1</button>
-          <button class="key-btn" data-value="2">2</button>
-          <button class="key-btn" data-value="3">3</button>
+        {/* KEYPAD BULAT ALA IOS MODERN */}
+        <div className="iphone-keypad" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px", justifyItems: "center" }}>
+          {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
+            <button
+              key={num}
+              className="key-btn"
+              onClick={() => handleKeyClick(num)}
+              style={{ width: "70px", height: "70px", borderRadius: "50%", border: "none", backgroundColor: "#334155", color: "white", fontSize: "24px", fontWeight: "500", cursor: "pointer" }}
+            >
+              {num}
+            </button>
+          ))}
           
-          <button class="key-btn" data-value="4">4</button>
-          <button class="key-btn" data-value="5">5</button>
-          <button class="key-btn" data-value="6">6</button>
+          <div className="empty-space" />
           
-          <button class="key-btn" data-value="7">7</button>
-          <button class="key-btn" data-value="8">8</button>
-          <button class="key-btn" data-value="9">9</button>
+          <button
+            className="key-btn"
+            onClick={() => handleKeyClick("0")}
+            style={{ width: "70px", height: "70px", borderRadius: "50%", border: "none", backgroundColor: "#334155", color: "white", fontSize: "24px", fontWeight: "500", cursor: "pointer" }}
+          >
+            0
+          </button>
           
-          <div class="empty-space"></div>
-          <button class="key-btn" data-value="0">0</button>
-          <button class="clear-btn">⌫</button>
+          <button
+            className="clear-btn"
+            onClick={handleClearClick}
+            style={{ width: "70px", height: "70px", borderRadius: "50%", border: "none", backgroundColor: "transparent", color: "#94a3b8", fontSize: "24px", cursor: "pointer" }}
+          >
+            ⌫
+          </button>
         </div>
+
+        {/* STYLING KEYPAD ANIMATION INLINE */}
+        <style dangerouslySetInnerHTML={{__html: `
+          @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+          }
+        `}} />
 
       </div>
     </div>
-  `;
+  );
 }
