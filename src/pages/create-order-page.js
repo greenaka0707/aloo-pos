@@ -1,6 +1,6 @@
 import { supabase } from "../supabaseClient.js";
 
-export function CreateOrderPage() {
+export function CreateOrderPage(container) {
   let selectedCustomer = null;
   let selectedSales = null;
   let cart = [];
@@ -10,10 +10,10 @@ export function CreateOrderPage() {
   const today = new Date().toISOString().split('T')[0];
 
   setTimeout(async () => {
-    const container = document.querySelector(".create-order-page");
+    // Pengaman: Jika container yang dilempar router belum siap, hentikan eksekusi
     if (!container) return;
 
-    // Capture elemen DOM kontrol utama sesuai struktur template asli
+    // Capture elemen DOM kontrol utama sesuai struktur template di bawah
     const dateInput = container.querySelector("input[type='date']");
     const salesInput = container.querySelector(".form-group:nth-child(2) input[type='text']");
     const customerInput = container.querySelector(".form-group:nth-child(3) input[type='text']");
@@ -184,7 +184,7 @@ export function CreateOrderPage() {
       });
     }
 
-    // Fungsi Klik Tombol "Tambah"
+    // Fungsi Klik Tombol "Tambah" ke List Belanjaan
     if (addProductBtn) {
       addProductBtn.addEventListener("click", () => {
         if (!temporarySelectedProduct) {
@@ -199,11 +199,7 @@ export function CreateOrderPage() {
           return;
         }
 
-        cart.push({
-          ...temporarySelectedProduct,
-          qty: 1
-        });
-
+        cart.push({ ...temporarySelectedProduct, qty: 1 });
         productInput.value = "";
         temporarySelectedProduct = null;
         renderCartStructure();
@@ -211,7 +207,7 @@ export function CreateOrderPage() {
     }
 
     // ==========================================================================
-    // 4. RENDER KARTU BELANJAAN JIPLAK TOTAL DESAIN UI ASLI LO
+    // 4. RENDER KARTU BELANJAAN JIPLAK TOTAL DESAIN UI ASLI
     // ==========================================================================
     function renderCartStructure() {
       if (cart.length === 0) {
@@ -306,7 +302,7 @@ export function CreateOrderPage() {
       }
     }
 
-    // Listener input biaya
+    // Listener input nominal biaya sampingan
     ongkirInput?.addEventListener("input", calculateTotalsOnly);
     bayarInput?.addEventListener("input", calculateTotalsOnly);
     sampleToggle?.addEventListener("change", () => {
@@ -315,7 +311,7 @@ export function CreateOrderPage() {
       calculateTotalsOnly();
     });
 
-    // Auto close live search ketika klik area luar
+    // Auto close list live search ketika klik area luar kontontrol
     document.addEventListener("click", (e) => {
       if (!salesInput.contains(e.target) && !salesFloat.contains(e.target)) salesFloat.style.display = "none";
       if (!customerInput.contains(e.target) && !customerFloat.contains(e.target)) customerFloat.style.display = "none";
@@ -323,7 +319,7 @@ export function CreateOrderPage() {
     });
 
     // ==========================================================================
-    // 5. SUBMIT KE DATABASE & JALUR ANTRIAN MANUFAKTUR
+    // 5. SUBMIT KE DATABASE & JALUR ANTRIAN MANUFAKTUR PABRIK
     // ==========================================================================
     const actionsArea = container.querySelector(".detail-actions");
     if (actionsArea) {
@@ -354,7 +350,7 @@ export function CreateOrderPage() {
             const grandTotal = isSample ? 0 : (subtotalTotal + shippingCost);
             const hasActiveProduction = cart.some(item => item.needs_production === true);
 
-            // A. Insert ke tabel orders
+            // A. Insert induk ke tabel orders
             const { data: orderData, error: orderError } = await supabase
               .from('orders')
               .insert([{
@@ -373,7 +369,7 @@ export function CreateOrderPage() {
             if (orderError) throw orderError;
             const orderId = orderData[0].id;
 
-            // B. Insert item ke tabel order_items
+            // B. Insert anak ke tabel order_items
             for (const item of cart) {
               const { error: itemErr } = await supabase
                 .from('order_items')
@@ -386,7 +382,7 @@ export function CreateOrderPage() {
               if (itemErr) throw itemErr;
             }
 
-            // C. OTOMATISASI JALUR PABRIKASI (MANUFAKTUR)
+            // C. JALUR MANUFAKTUR: Kirim antrean pabrik jika ada item butuh produksi
             if (hasActiveProduction) {
               const productionPayload = cart
                 .filter(item => item.needs_production === true)
@@ -474,4 +470,54 @@ export function CreateOrderPage() {
       <div class="card create-card">
         <div class="detail-info" style="gap: var(--space-sm);">
           <div class="detail-row-item" style="padding: 2px 0;">
-            <span class="text-light
+            <span class="text-light text-sm">Subtotal</span>
+            <strong style="font-size: var(--text-sm); font-weight: var(--font-bold);">Rp 0</strong>
+          </div>
+
+          <div class="detail-row-item" style="padding: 2px 0;">
+            <span class="text-light text-sm">Ongkir</span>
+            <strong style="font-size: var(--text-sm); font-weight: var(--font-bold);">Rp 0</strong>
+          </div>
+
+          <div class="detail-row-item" style="border-top: 1px solid var(--border); padding-top: var(--space-sm); margin-top: 4px;">
+            <span class="font-semibold text-sm">Total</span>
+            <strong class="right-value" style="color: var(--orange); font-size: var(--text-md);">Rp 0</strong>
+          </div>
+          
+          <div class="detail-row-item" style="padding: 2px 0; font-size: 12px; color: #aaa;">
+            <span>Status Pembayaran</span>
+            <strong>Kurang: Rp 0</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="card create-card" id="shipping-payment-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">Ongkos Kirim (Rp)</label>
+          <input type="number" id="input-shipping" class="input" placeholder="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bayar / DP Masuk (Rp)</label>
+          <input type="number" id="input-payment" class="input" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="card create-card">
+        <div class="form-group">
+          <label class="form-label">Catatan Order</label>
+          <textarea class="textarea" placeholder="Tambahkan catatan instruksi kerja pabrik..."></textarea>
+        </div>
+      </div>
+
+      <div class="detail-actions">
+        <button class="action-btn">
+          Draft
+        </button>
+        <button class="action-btn primary-action">
+          Simpan Order
+        </button>
+      </div>
+
+    </section>
+  `;
+}
