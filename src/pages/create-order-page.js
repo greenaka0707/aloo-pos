@@ -1,6 +1,168 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient.js";
 
+// Fungsi pembantu global untuk me-render UI secara manual ke dalam DOM Vanilla
+function RenderReactForm({ 
+  customers, salesList, products, selectedCustomer, setSelectedCustomer,
+  selectedSales, setSelectedSales, searchProductQuery, setSearchProductQuery,
+  cart, addToCart, updateQty, isSample, setIsSample, shippingCost, setShippingCost,
+  paymentAmount, setPaymentAmount, catatan, setCatatan, orderDate, setOrderDate,
+  isSubmitting, handleSubmit, subtotalTotal, grandTotal, sisaKembalian, hasActiveProduction, filteredProducts
+}) {
+  
+  // Karena struktur lama aplikasimu membaca string, kita rakit HTML-nya secara dinamis di sini
+  // agar performanya tetap reaktif menyerupai state bawaan React.
+  const targetContainer = document.getElementById("react-form-root");
+  if (!targetContainer) return;
+
+  targetContainer.innerHTML = `
+    <h2 style="margin-bottom: 20px; font-size: 20px; font-weight: bold;">Buat Order & Manufaktur Baru</h2>
+    
+    <form id="main-order-form">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+        <div>
+          <label style="font-size: 14px; color: #aaa;">Tanggal Order:</label>
+          <input type="date" id="form-order-date" value="${orderDate}" style="width: 100%; padding: 10px; margin-top: 4px; background-color: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box;" />
+        </div>
+        <div>
+          <label style="font-size: 14px; color: #aaa;">Pilih Sales:</label>
+          <select id="form-sales" style="width: 100%; padding: 10px; margin-top: 4px; background-color: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box;">
+            <option value="">-- Pilih Sales --</option>
+            ${salesList.map(s => `<option value="${s.id}" ${selectedSales === s.id ? 'selected' : ''}>${s.name}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <label style="font-size: 14px; color: #aaa;">Pilih Customer:</label>
+        <select id="form-customer" style="width: 100%; padding: 10px; margin-top: 4px; background-color: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box;">
+          <option value="">-- Pilih Customer --</option>
+          ${customers.map(c => `<option value="${c.id}" ${selectedCustomer === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
+        </select>
+      </div>
+
+      <div style="margin-bottom: 16px; background: #1e1e1e; padding: 12px; border-radius: 8px;">
+        <label style="font-size: 14px; color: #aaa;">Cari Produk Manufaktur / Stok:</label>
+        <input type="text" id="form-search-product" placeholder="Ketik nama produk..." value="${searchProductQuery}" style="width: 100%; padding: 10px; margin-top: 4px; background-color: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box;" />
+        
+        ${searchProductQuery ? `
+          <div style="background-color: #2a2a2a; max-height: 150px; overflow-y: auto; margin-top: 4px; border-radius: 4px;">
+            ${filteredProducts.map(p => `
+              <div class="search-item-row" data-id="${p.id}" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #333; display: flex; justify-content: space-between;">
+                <span>${p.name} ${p.needs_production ? '<span style="color: #ffc107; font-size: 11px;">(Butuh Pabrikasi)</span>' : ''}</span>
+                <strong>Rp ${p.price.toLocaleString('id-ID')}</strong>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <h4 style="font-size: 16px; margin-bottom: 8px;">Daftar Item Order:</h4>
+        ${cart.length === 0 ? `
+          <p style="color: #888; font-size: 14px;">Belum ada item terpilih.</p>
+        ` : cart.map(item => `
+            <div style="display: flex; justify-content: space-between; align-items: center; background-color: #1e1e1e; padding: 10px; border-radius: 6px; margin-bottom: 6px;">
+              <div>
+                <div style="font-size: 14px; font-weight: bold;">${item.name}</div>
+                <div style="font-size: 12px; color: #aaa;">Rp ${item.price.toLocaleString('id-ID')}</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <button type="button" class="btn-cart-minus" data-id="${item.id}" style="width: 28px; height: 28px; background-color: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">-</button>
+                <span>${item.qty}</span>
+                <button type="button" class="btn-cart-plus" data-id="${item.id}" style="width: 28px; height: 28px; background-color: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">+</button>
+              </div>
+            </div>
+        `).join('')}
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="checkbox" id="form-is-sample" ${isSample ? 'checked' : ''} />
+          Jadikan Sample Order (Tanpa Biaya)
+        </label>
+      </div>
+
+      ${!isSample ? `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <label style="font-size: 14px; color: #aaa;">Ongkos Kirim:</label>
+            <input type="number" id="form-shipping" value="${shippingCost}" style="width: 100%; padding: 10px; margin-top: 4px; background-color: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box;" />
+          </div>
+          <div>
+            <label style="font-size: 14px; color: #aaa;">Nominal Pembayaran:</label>
+            <input type="number" id="form-payment" value="${paymentAmount}" style="width: 100%; padding: 10px; margin-top: 4px; background-color: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box;" />
+          </div>
+        </div>
+      ` : ''}
+
+      <div style="margin-bottom: 16px;">
+        <label style="font-size: 14px; color: #aaa;">Catatan Tambahan:</label>
+        <textarea id="form-catatan" style="width: 100%; padding: 10px; margin-top: 4px; background-color: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box; height: 60px; resize: none;">${catatan}</textarea>
+      </div>
+
+      <div style="background: #1e1e1e; padding: 14px; border-radius: 8px; margin-bottom: 20px; border-left: ${hasActiveProduction ? '4px solid #ffc107' : '4px solid #28a745'}">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">Subtotal: <span>Rp ${subtotalTotal.toLocaleString('id-ID')}</span></div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">Ongkir: <span>Rp ${isSample ? 0 : shippingCost.toLocaleString('id-ID')}</span></div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: bold;">Grand Total: <span>Rp ${grandTotal.toLocaleString('id-ID')}</span></div>
+        <hr style="border-color: #333;" />
+        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px; color: #aaa;">
+          Status Kas: <strong>${isSample ? "Sample (Free)" : (sisaKembalian >= 0 ? `Kembalian: Rp ${sisaKembalian.toLocaleString('id-ID')}` : `Kurang: Rp ${Math.abs(sisaKembalian).toLocaleString('id-ID')}`)}</strong>
+        </div>
+      </div>
+
+      <button type="submit" ${isSubmitting ? 'disabled' : ''} style="width: 100%; padding: 14px; background: ${hasActiveProduction ? '#ffc107' : '#007bff'}; color: ${hasActiveProduction ? '#000' : '#fff'}; border: none; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer;">
+        ${isSubmitting ? "Memproses..." : (hasActiveProduction ? "Kirim ke Produksi & Simpan" : "Simpan Order")}
+      </button>
+    </form>
+  `;
+
+  // --- ATTACH EVENT LISTENERS MANUAL UNTUK METODE HYBRID ---
+  document.getElementById("main-order-form")?.addEventListener("submit", handleSubmit);
+  document.getElementById("form-order-date")?.addEventListener("change", (e) => setOrderDate(e.target.value));
+  document.getElementById("form-sales")?.addEventListener("change", (e) => setSelectedSales(e.target.value));
+  document.getElementById("form-customer")?.addEventListener("change", (e) => setSelectedCustomer(e.target.value));
+  
+  const searchInput = document.getElementById("form-search-product");
+  searchInput?.addEventListener("input", (e) => setSearchProductQuery(e.target.value));
+  if (searchProductQuery) {
+    searchInput.focus();
+    searchInput.setSelectionRange(searchProductQuery.length, searchProductQuery.length);
+  }
+
+  document.querySelectorAll(".search-item-row").forEach(row => {
+    row.addEventListener("click", () => {
+      const pId = row.getAttribute("data-id");
+      const matchedProd = products.find(p => p.id === pId);
+      if (matchedProd) {
+        addToCart(matchedProd);
+        setSearchProductQuery("");
+      }
+    });
+  });
+
+  document.querySelectorAll(".btn-cart-minus").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-id");
+      const currentItem = cart.find(item => item.id === id);
+      if (currentItem) updateQty(id, currentItem.qty - 1);
+    });
+  });
+
+  document.querySelectorAll(".btn-cart-plus").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-id");
+      const currentItem = cart.find(item => item.id === id);
+      if (currentItem) updateQty(id, currentItem.qty + 1);
+    });
+  });
+
+  document.getElementById("form-is-sample")?.addEventListener("change", (e) => setIsSample(e.target.checked));
+  document.getElementById("form-shipping")?.addEventListener("input", (e) => setShippingCost(parseFloat(e.target.value) || 0));
+  document.getElementById("form-payment")?.addEventListener("input", (e) => setPaymentAmount(parseFloat(e.target.value) || 0));
+  document.getElementById("form-catatan")?.addEventListener("input", (e) => setCatatan(e.target.value));
+}
+
 export function CreateOrderPage() {
   // --- STATE MANAGEMENT ---
   const [customers, setCustomers] = useState([]);
@@ -19,19 +181,16 @@ export function CreateOrderPage() {
   const [isSample, setIsSample] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // --- 1. AMBIL DATA MASTER DARI SUPABASE (LOAD ON START) ---
+  // --- 1. AMBIL DATA MASTER DARI SUPABASE ---
   useEffect(() => {
     async function loadMasterData() {
       try {
-        // Ambil data pelanggan
         const { data: customerData } = await supabase.from("customers").select("id, name");
         if (customerData) setCustomers(customerData);
 
-        // Ambil data sales
         const { data: salesData } = await supabase.from("sales").select("id, name");
         if (salesData) setSalesList(salesData);
 
-        // Ambil data produk manufaktur / stok
         const { data: productData } = await supabase.from("products").select("id, name, price, needs_production");
         if (productData) setProducts(productData);
       } catch (err) {
@@ -41,7 +200,7 @@ export function CreateOrderPage() {
     loadMasterData();
   }, []);
 
-  // --- 2. LOGIC KERANJANG (CART ACTIONS) ---
+  // --- 2. LOGIC ACTIONS ---
   const addToCart = (product) => {
     const existingItem = cart.find(item => item.id === product.id);
     if (existingItem) {
@@ -59,23 +218,18 @@ export function CreateOrderPage() {
     }
   };
 
-  // --- 3. KALKULASI OTOMATIS (REAKTIF) ---
   const subtotalTotal = cart.reduce((acc, item) => acc + (item.qty * (item.price || 0)), 0);
   const grandTotal = isSample ? 0 : (subtotalTotal + shippingCost);
   const sisaKembalian = isSample ? 0 : (paymentAmount - grandTotal);
   const hasActiveProduction = cart.some(item => item.needs_production === true);
-
-  // Filter produk berdasarkan input pencarian
   const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchProductQuery.toLowerCase()));
 
-  // --- 4. FUNGSI SIMPAN KE DB (MANUFACTURING & ORDER) ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedCustomer) return alert("Silakan pilih Customer terlebih dahulu!");
     
     setIsSubmitting(true);
     try {
-      // a. Insert ke tabel Orders
       const { data: orderData, error: orderError } = await supabase
         .from("orders")
         .insert([{
@@ -94,7 +248,6 @@ export function CreateOrderPage() {
 
       if (orderError) throw orderError;
 
-      // b. Insert ke tabel Order Items / Produksi jika butuh manufacturing
       if (cart.length > 0) {
         const orderItems = cart.map(item => ({
           order_id: orderData.id,
@@ -102,10 +255,8 @@ export function CreateOrderPage() {
           qty: item.qty,
           price: item.price
         }));
-        
         await supabase.from("order_items").insert(orderItems);
 
-        // Jika ada item yang perlu masuk jalur produksi pabrik
         if (hasActiveProduction) {
           const productionItems = cart
             .filter(item => item.needs_production)
@@ -113,14 +264,13 @@ export function CreateOrderPage() {
               order_id: orderData.id,
               product_id: item.id,
               qty_target: item.qty,
-              status: "Queued" // Masuk antrean produksi pabrik
+              status: "Queued"
             }));
           await supabase.from("manufacturing_queue").insert(productionItems);
         }
       }
 
       alert("Order berhasil disimpan!");
-      // Reset keranjang belanja setelah sukses
       setCart([]);
     } catch (error) {
       alert("Gagal menyimpan order: " + error.message);
@@ -129,124 +279,21 @@ export function CreateOrderPage() {
     }
   };
 
-  return (
-    <section className="create-order-page" style={{ padding: '16px', color: '#fff', backgroundColor: '#121212', minHeight: '100vh' }}>
-      <h2 style={{ marginBottom: '20px' }}>Buat Order & Manufaktur Baru</h2>
-      
-      <form onSubmit={handleSubmit}>
-        {/* Row Info Utama */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
-          <div>
-            <label>Tanggal Order:</label>
-            <input type="date" value={orderDate} onChange={(e) => setOrderDate(e.target.value)} style={inputStyle} />
-          </div>
-          <div>
-            <label>Pilih Sales:</label>
-            <select value={selectedSales} onChange={(e) => setSelectedSales(e.target.value)} style={inputStyle}>
-              <option value="">-- Pilih Sales --</option>
-              {salesList.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
-          </div>
-        </div>
+  // --- 3. TRIGGER RE-RENDER MANUAL SETIAP STATE BERUBAH ---
+  useEffect(() => {
+    RenderReactForm({
+      customers, salesList, products, selectedCustomer, setSelectedCustomer,
+      selectedSales, setSelectedSales, searchProductQuery, setSearchProductQuery,
+      cart, addToCart, updateQty, isSample, setIsSample, shippingCost, setShippingCost,
+      paymentAmount, setPaymentAmount, catatan, setCatatan, orderDate, setOrderDate,
+      isSubmitting, handleSubmit, subtotalTotal, grandTotal, sisaKembalian, hasActiveProduction, filteredProducts
+    });
+  }, [customers, salesList, products, selectedCustomer, selectedSales, searchProductQuery, cart, isSample, shippingCost, paymentAmount, catatan, orderDate, isSubmitting]);
 
-        <div style={{ marginBottom: '12px' }}>
-          <label>Pilih Customer:</label>
-          <select value={selectedCustomer} onChange={(e) => setSelectedCustomer(e.target.value)} style={inputStyle}>
-            <option value="">-- Pilih Customer --</option>
-            {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-        </div>
-
-        {/* CARI & TAMBAH PRODUK */}
-        <div style={{ marginBottom: '16px', background: '#1e1e1e', padding: '12px', borderRadius: '8px' }}>
-          <label> Cari Produk Manufaktur / Stok:</label>
-          <input 
-            type="text" 
-            placeholder="Ketik nama produk..." 
-            value={searchProductQuery} 
-            onChange={(e) => setSearchProductQuery(e.target.value)}
-            style={inputStyle}
-          />
-          
-          {searchProductQuery && (
-            <div style={{ backgroundColor: '#2a2a2a', maxHeight: '150px', overflowY: 'auto', marginTop: '4px', borderRadius: '4px' }}>
-              {filteredProducts.map(p => (
-                <div key={p.id} onClick={() => { addToCart(p); setSearchProductQuery(""); }} style={{ padding: '10px', cursor: 'pointer', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between' }}>
-                  <span>{p.name} {p.needs_production && <span style={{ color: '#ffc107', fontSize: '11px' }}>(Butuh Pabrikasi)</span>}</span>
-                  <strong>Rp {p.price.toLocaleString('id-ID')}</strong>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* KERANJANG BELANJA (DYNAMIC CART) */}
-        <div style={{ marginBottom: '16px' }}>
-          <h4>Daftar Item Order:</h4>
-          {cart.length === 0 ? (
-            <p style={{ color: '#888', fontSize: '14px' }}>Belum ada item terpilih.</p>
-          ) : (
-            cart.map(item => (
-              <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#1e1e1e', padding: '10px', borderRadius: '6px', marginBottom: '6px' }}>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{item.name}</div>
-                  <div style={{ fontSize: '12px', color: '#aaa' }}>Rp {item.price.toLocaleString('id-ID')}</div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <button type="button" onClick={() => updateQty(item.id, item.qty - 1)} style={btnQtyStyle}>-</button>
-                  <span>{item.qty}</span>
-                  <button type="button" onClick={() => updateQty(item.id, item.qty + 1)} style={btnQtyStyle}>+</button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Toggle Sample */}
-        <div style={{ marginBottom: '12px' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-            <input type="checkbox" checked={isSample} onChange={(e) => setIsSample(e.target.checked)} />
-            Jadikan Sample Order (Tanpa Biaya)
-          </label>
-        </div>
-
-        {!isSample && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-            <div>
-              <label>Ongkos Kirim:</label>
-              <input type="number" value={shippingCost} onChange={(e) => setShippingCost(parseFloat(e.target.value) || 0)} style={inputStyle} />
-            </div>
-            <div>
-              <label>Nominal Pembayaran:</label>
-              <input type="number" value={paymentAmount} onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)} style={inputStyle} />
-            </div>
-          </div>
-        )}
-
-        <div style={{ marginBottom: '16px' }}>
-          <label>Catatan Tambahan:</label>
-          <textarea value={catatan} onChange={(e) => setCatatan(e.target.value)} style={{ ...inputStyle, height: '60px', resize: 'none' }} />
-        </div>
-
-        {/* RINGKASAN PEMBAYARAN */}
-        <div style={{ background: '#1e1e1e', padding: '14px', borderRadius: '8px', marginBottom: '20px', borderLeft: hasActiveProduction ? '4px solid #ffc107' : '4px solid #28a745' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>Subtotal: <span>Rp {subtotalTotal.toLocaleString('id-ID')}</span></div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>Ongkir: <span>Rp {isSample ? 0 : shippingCost.toLocaleString('id-ID')}</span></div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontWeight: 'bold' }}>Grand Total: <span>Rp {grandTotal.toLocaleString('id-ID')}</span></div>
-          <hr style={{ borderColor: '#333' }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '13px', color: '#aaa' }}>
-            Status Kas: <strong>{isSample ? "Sample (Free)" : (sisaKembalian >= 0 ? `Kembalian: Rp ${sisaKembalian.toLocaleString('id-ID')}` : `Kurang: Rp ${Math.abs(sisaKembalian).toLocaleString('id-ID')}`)}</strong>
-          </div>
-        </div>
-
-        <button type="submit" disabled={isSubmitting} style={{ width: '100%', padding: '14px', background: hasActiveProduction ? '#ffc107' : '#007bff', color: hasActiveProduction ? '#000' : '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>
-          {isSubmitting ? "Memproses..." : (hasActiveProduction ? "Kirim ke Produksi & Simpan" : "Simpan Order")}
-        </button>
-      </form>
+  // Kembalikan kontainer kosong bertipe string murni agar router vanilla-mu tidak blank
+  return `
+    <section class="create-order-page" id="react-form-root" style="padding: 16px; color: #fff; min-height: 100vh;">
+      <p style="color: #888;">Memuat formulir order manufaktur...</p>
     </section>
-  );
+  `;
 }
-
-// --- STYLING HELPER (Inlined biar rapi) ---
-const inputStyle = { width: '100%', padding: '10px', marginTop: '4px', backgroundColor: '#222', color: '#fff', border: '1px solid #444', borderRadius: '4px', boxSizing: 'border-box' };
-const btnQtyStyle = { width: '28px', height: '28px', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' };
