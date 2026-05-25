@@ -1,5 +1,5 @@
 // ==========================================================================
-// FILE: src/router/index.jsx (MURNI REACT VERSION - ULTRA CLEAN ROUTE)
+// FILE: src/router/index.jsx (MURNI REACT VERSION - FIX LAYOUT SYSTEM)
 // ==========================================================================
 
 import React, { useState, useEffect } from "react";
@@ -7,12 +7,12 @@ import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 
 // IMPORT COMPONENT UTAMA
 import BottomNav from "../components/BottomNav.jsx";
-import { PinLock } from "../components/PinLock.jsx"; // Dipanggil jika belum unlock
+import { PinLock } from "../components/PinLock.jsx"; 
 import { supabase } from "../supabaseClient.js";
 
-// IMPORT PAGES (Murni Menggunakan Format .jsx Baru Gais!)
+// IMPORT PAGES
 import StockAdjustmentPage from "../pages/StockAdjustmentPage.js";
-import DashboardPage from "../pages/DashboardPage.jsx"; // 🔥 CLEAN FIX: Default export murni tanpa spasi ganda atau huruf liar
+import DashboardPage from "../pages/DashboardPage.jsx"; 
 import { SampleOutListPage } from "../pages/SampleOutListPage.js";
 import { SampleOutDetailPage } from "../pages/SampleOutDetailPage.js";
 import OrderListPage from "../pages/OrderListPage.jsx"; 
@@ -59,7 +59,6 @@ export default function AppRouter() {
         (payload) => {
           const newOrder = payload.new;
           
-          // Trigger Audio Beep Notifikasi
           const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
           if (audioCtx) {
             const oscillator = audioCtx.createOscillator();
@@ -77,7 +76,6 @@ export default function AppRouter() {
             oscillator.stop(audioCtx.currentTime + 0.4);
           }
 
-          // Injeksi Banner Alert Dinamis ke Layar HP
           const alertBanner = document.createElement("div");
           alertBanner.style.cssText = `
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
@@ -133,10 +131,10 @@ export default function AppRouter() {
   // ==========================================================================
   return (
     <Router>
-      <div className="min-h-screen bg-zinc-50 text-zinc-900 antialiased selection:bg-orange-100">
+      <div className="min-h-screen bg-zinc-50 text-zinc-900 antialiased selection:bg-orange-100 flex flex-col items-center">
         
         {/* VIEWPORT FRAME KHUSUS DISPLAY HP */}
-        <main className="w-full max-w-md mx-auto bg-white min-h-screen shadow-sm relative pb-24">
+        <main className="w-full max-w-md bg-white min-h-screen shadow-sm relative" style={{ paddingBottom: "65px" }}>
           <Routes>
             {/* BASE REDIRECT */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -174,10 +172,28 @@ export default function AppRouter() {
             {/* FALLBACK REDIRECT ILLEGAL PATH */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
-        </main>
 
-        {/* NAVBAR BAWAH MURNI REACT */}
-        <BottomNav />
+          {/* 🔥 ANKOR NAVIGASI BAWAH: Di-lock posisinya secara mutlak di bawah bingkai HP gais */}
+          <div 
+            className="fixed-nav-wrapper" 
+            style={{ 
+              position: "absolute", 
+              bottom: 0, 
+              left: 0, 
+              right: 0, 
+              height: "60px", 
+              backgroundColor: "#ffffff", 
+              borderTop: "1px solid #e4e4e7",
+              zIndex: 50,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-around"
+            }}
+          >
+            <BottomNav />
+          </div>
+
+        </main>
 
       </div>
     </Router>
